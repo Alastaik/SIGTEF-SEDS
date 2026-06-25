@@ -48,8 +48,8 @@ public class UserDetailsImpl implements UserDetails {
                 })
                 .collect(Collectors.toList());
 
-        Set<UUID> entityIds = user.getEntityScopes().stream()
-                .map(scope -> scope.getEntityId())
+        Set<UUID> entityIds = user.getRepresentatives().stream()
+                .map(rep -> rep.getLegalEntity().getId())
                 .collect(Collectors.toSet());
 
         return new UserDetailsImpl(

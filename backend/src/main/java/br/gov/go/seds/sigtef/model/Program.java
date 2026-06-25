@@ -26,6 +26,10 @@ public class Program {
     @Column(nullable = false, length = 50)
     private String type;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "calculation_type", length = 30)
+    private CalculationType calculationType;
+
     @Column(length = 50, unique = true)
     private String code;
 

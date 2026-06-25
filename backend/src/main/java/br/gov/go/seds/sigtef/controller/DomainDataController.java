@@ -41,4 +41,13 @@ public class DomainDataController {
         entity.setId(id);
         return ResponseEntity.ok(repository.save(entity));
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_GESTOR')")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        // Deletions of domain data might fail if they are referenced elsewhere (e.g. LegalEntity type).
+        // Since it's a hard delete, we let the constraint exception be thrown and rely on error handling.
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

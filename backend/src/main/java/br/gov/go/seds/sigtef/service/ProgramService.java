@@ -1,7 +1,9 @@
 package br.gov.go.seds.sigtef.service;
 
 import br.gov.go.seds.sigtef.model.Program;
+import br.gov.go.seds.sigtef.model.ProgramDocumentRequirement;
 import br.gov.go.seds.sigtef.model.ProgramValueTable;
+import br.gov.go.seds.sigtef.repository.ProgramDocumentRequirementRepository;
 import br.gov.go.seds.sigtef.repository.ProgramRepository;
 import br.gov.go.seds.sigtef.repository.ProgramValueTableRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ public class ProgramService {
 
     private final ProgramRepository programRepository;
     private final ProgramValueTableRepository valueTableRepository;
+    private final ProgramDocumentRequirementRepository documentRequirementRepository;
 
     public List<Program> findAll() {
         return programRepository.findAll();
@@ -35,6 +38,13 @@ public class ProgramService {
 
     @Transactional
     public void delete(UUID id) {
+        // Excluir as tabelas filhas primeiro para evitar erro de Foreign Key
+        List<ProgramValueTable> values = valueTableRepository.findByProgramId(id);
+        valueTableRepository.deleteAll(values);
+
+        List<ProgramDocumentRequirement> docs = documentRequirementRepository.findByProgramId(id);
+        documentRequirementRepository.deleteAll(docs);
+
         programRepository.deleteById(id);
     }
 
@@ -68,5 +78,21 @@ public class ProgramService {
     @Transactional
     public void deleteValueTable(UUID valueId) {
         valueTableRepository.deleteById(valueId);
+    }
+
+    public List<ProgramDocumentRequirement> findDocumentRequirements(UUID programId) {
+        return documentRequirementRepository.findByProgramId(programId);
+    }
+
+    @Transactional
+    public ProgramDocumentRequirement saveDocumentRequirement(UUID programId, ProgramDocumentRequirement requirement) {
+        Program program = findById(programId);
+        requirement.setProgram(program);
+        return documentRequirementRepository.save(requirement);
+    }
+
+    @Transactional
+    public void deleteDocumentRequirement(UUID requirementId) {
+        documentRequirementRepository.deleteById(requirementId);
     }
 }

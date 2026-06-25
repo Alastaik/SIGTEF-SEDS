@@ -1,0 +1,81 @@
+CREATE TABLE partnership_agreements (
+    id UUID PRIMARY KEY,
+    legal_entity_id UUID NOT NULL REFERENCES legal_entities(id),
+    agreement_number VARCHAR(100),
+    year INTEGER,
+    agreement_type_id UUID REFERENCES domain_data(id),
+    sei_process_number VARCHAR(100),
+    process_type_id UUID REFERENCES domain_data(id),
+    object_description TEXT,
+    signature_date DATE,
+    start_date DATE,
+    end_date DATE,
+    global_value NUMERIC(15, 2),
+    status VARCHAR(50) NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITHOUT TIME ZONE,
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id)
+);
+
+CREATE TABLE partnership_agreements_aud (
+    id UUID NOT NULL,
+    rev INTEGER NOT NULL REFERENCES revinfo(rev),
+    revtype SMALLINT,
+    legal_entity_id UUID,
+    agreement_number VARCHAR(100),
+    year INTEGER,
+    agreement_type_id UUID,
+    sei_process_number VARCHAR(100),
+    process_type_id UUID,
+    object_description TEXT,
+    signature_date DATE,
+    start_date DATE,
+    end_date DATE,
+    global_value NUMERIC(15, 2),
+    status VARCHAR(50),
+    notes TEXT,
+    created_at TIMESTAMP WITHOUT TIME ZONE,
+    updated_at TIMESTAMP WITHOUT TIME ZONE,
+    created_by UUID,
+    updated_by UUID,
+    PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE partnership_agreement_programs (
+    id UUID PRIMARY KEY,
+    partnership_agreement_id UUID NOT NULL REFERENCES partnership_agreements(id),
+    program_id UUID NOT NULL REFERENCES programs(id),
+    expected_monthly_value NUMERIC(15, 2),
+    expected_total_value NUMERIC(15, 2),
+    goal_quantity INTEGER,
+    attendance_days INTEGER,
+    per_capita_value NUMERIC(10, 2),
+    consumer_unit_id UUID REFERENCES legal_entity_consumer_units(id),
+    active BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITHOUT TIME ZONE,
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id)
+);
+
+CREATE TABLE partnership_agreement_programs_aud (
+    id UUID NOT NULL,
+    rev INTEGER NOT NULL REFERENCES revinfo(rev),
+    revtype SMALLINT,
+    partnership_agreement_id UUID,
+    program_id UUID,
+    expected_monthly_value NUMERIC(15, 2),
+    expected_total_value NUMERIC(15, 2),
+    goal_quantity INTEGER,
+    attendance_days INTEGER,
+    per_capita_value NUMERIC(10, 2),
+    consumer_unit_id UUID,
+    active BOOLEAN,
+    created_at TIMESTAMP WITHOUT TIME ZONE,
+    updated_at TIMESTAMP WITHOUT TIME ZONE,
+    created_by UUID,
+    updated_by UUID,
+    PRIMARY KEY (id, rev)
+);

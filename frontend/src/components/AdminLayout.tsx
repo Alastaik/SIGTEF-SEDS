@@ -1,7 +1,7 @@
 import { Outlet, Link, useNavigate } from 'react-router';
 import { useAuth } from '../features/auth/AuthContext';
 import { RequirePermission } from '../features/auth/RequirePermission';
-import { Users, Shield, LogOut, LayoutDashboard, Settings } from 'lucide-react';
+import { Users, Shield, LogOut, LayoutDashboard, Settings, Building2, FileText } from 'lucide-react';
 
 export function AdminLayout() {
   const { user, logout } = useAuth();
@@ -16,9 +16,14 @@ export function AdminLayout() {
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
       <aside className="w-64 bg-slate-900 text-white flex flex-col">
-        <div className="p-4 md:p-6 border-b border-slate-800">
+        <div className="p-4 md:p-6 border-b border-slate-800 flex flex-col items-center justify-center">
+          <img 
+            src="https://goias.gov.br/social/wp-content/uploads/sites/24/2019/07/logo_seds_-_aplicacao_brasao_b-510-768x434.png" 
+            alt="SEDS Logo" 
+            className="w-32 mb-4 object-contain brightness-0 invert" 
+          />
           <h1 className="text-xl font-bold text-white tracking-tight">SIGTEF</h1>
-          <p className="text-sm text-slate-400 mt-1">Gestão de Fomentos</p>
+          <p className="text-sm text-slate-400 mt-1 text-center">Gestão de Fomentos</p>
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
@@ -52,6 +57,20 @@ export function AdminLayout() {
             <Link to="/admin/base-registries" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition-colors">
               <LayoutDashboard size={20} />
               Cadastros Base
+            </Link>
+          </RequirePermission>
+
+          <RequirePermission permission="entidades:visualizar">
+            <Link to="/admin/entities" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition-colors">
+              <Building2 size={20} />
+              Entidades
+            </Link>
+          </RequirePermission>
+
+          <RequirePermission permission="agreements:view">
+            <Link to="/admin/agreements" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition-colors">
+              <FileText size={20} />
+              Termos de Fomento
             </Link>
           </RequirePermission>
         </nav>

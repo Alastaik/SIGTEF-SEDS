@@ -4,7 +4,7 @@ import br.gov.go.seds.sigtef.dto.UserCreateRequest;
 import br.gov.go.seds.sigtef.dto.UserResponse;
 import br.gov.go.seds.sigtef.model.Role;
 import br.gov.go.seds.sigtef.model.User;
-import br.gov.go.seds.sigtef.model.UserEntityScope;
+import br.gov.go.seds.sigtef.model.LegalEntityRepresentative;
 import br.gov.go.seds.sigtef.repository.RoleRepository;
 import br.gov.go.seds.sigtef.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -51,16 +51,18 @@ public class UserService {
             user.setRoles(new HashSet<>(roles));
         }
 
-        if (request.getEntityScopeIds() != null && !request.getEntityScopeIds().isEmpty()) {
-            final User finalUser = user;
-            Set<UserEntityScope> scopes = request.getEntityScopeIds().stream()
-                    .map(entityId -> new UserEntityScope(finalUser, entityId))
-                    .collect(Collectors.toSet());
-            user.setEntityScopes(scopes);
-        }
+        // Entity Scopes are now managed by LegalEntityRepresentative and invitations
+        // in RepresentativeController/Service.
 
         User savedUser = userRepository.save(user);
         return mapToResponse(savedUser);
+    }
+
+    @Transactional
+    public void delete(UUID id) {
+        // By default, if user is referenced in other tables (created_by, updated_by), it will throw constraint exception.
+        // Usually we don't hard delete users. But since we are adding it for Admin:
+        userRepository.deleteById(id);
     }
 
     private UserResponse mapToResponse(User user) {
@@ -72,7 +74,7 @@ public class UserService {
                 .active(user.getActive())
                 .createdAt(user.getCreatedAt())
                 .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
-                .entityScopes(user.getEntityScopes().stream().map(UserEntityScope::getEntityId).collect(Collectors.toSet()))
+                .entityScopes(user.getRepresentatives().stream().map(rep -> rep.getLegalEntity().getId()).collect(Collectors.toSet()))
                 .build();
     }
 }

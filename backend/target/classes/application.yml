@@ -2,9 +2,9 @@ spring:
   application:
     name: sigtef-backend
   datasource:
-    url: jdbc:postgresql://localhost:5433/sigtef_db
-    username: sigtef_user
-    password: sigtef_password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/sigtef_db}
+    username: ${SPRING_DATASOURCE_USERNAME:sigtef_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:sigtef_password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -21,11 +21,11 @@ spring:
 
 app:
   jwt:
-    secret: 4b4f3b7b6c5a3a1f8e2d9c4b7a1f5e8d2c6b4a3f9e1d8c5b7a0f3e2d1c6b5a4f # Chave forte gerada para ambiente local (deve ser subsitituida em prod)
+    secret: ${JWT_SECRET:4b4f3b7b6c5a3a1f8e2d9c4b7a1f5e8d2c6b4a3f9e1d8c5b7a0f3e2d1c6b5a4f} # Chave forte gerada para ambiente local (deve ser subsitituida em prod)
     expirationMs: 86400000 # 24 horas em milisegundos
 
 server:
   port: 8081
 
 resend:
-  api-key: re_ajAEP6g5_Pewf4QXqEE2Tyfc5aETA3TTY
+  api-key: ${RESEND_API_KEY:re_ajAEP6g5_Pewf4QXqEE2Tyfc5aETA3TTY}

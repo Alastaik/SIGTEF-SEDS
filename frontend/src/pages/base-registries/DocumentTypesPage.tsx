@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../lib/api';
-import { Save, Plus } from 'lucide-react';
+import { Save, Plus, Trash2 } from 'lucide-react';
+import { RequirePermission } from '../../features/auth/RequirePermission';
+import { ConfirmDeleteModal } from '../../components/ConfirmDeleteModal';
 
 interface DocumentType {
   id: string;
@@ -31,6 +33,9 @@ export function DocumentTypesPage() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<DocumentType | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTypes();
@@ -93,6 +98,27 @@ export function DocumentTypesPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!selected?.id) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await api.delete(`/document-types/${selected.id}`);
+      setShowDeleteModal(false);
+      setSelected(null);
+      await fetchTypes();
+    } catch (error: any) {
+      console.error('Failed to delete document type', error);
+      if (error.response?.status === 409) {
+        setDeleteError(error.response.data || 'Não é possível excluir este tipo de documento pois ele está em uso.');
+      } else {
+        setDeleteError('Erro ao excluir tipo de documento.');
+      }
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const updateField = (field: keyof DocumentType, value: any) => {
     if (selected) {
       setSelected({ ...selected, [field]: value });
@@ -142,6 +168,18 @@ export function DocumentTypesPage() {
                 >
                   {selected.active ? 'ATIVO' : 'INATIVO'}
                 </button>
+                {selected.id && (
+                  <RequirePermission permission="ROLE_GESTOR">
+                    <button 
+                      onClick={() => setShowDeleteModal(true)}
+                      className="bg-white border border-red-200 text-red-600 hover:bg-red-50 px-2 py-1 rounded text-xs font-bold flex items-center gap-1 transition-colors ml-2"
+                      title="Excluir Tipo de Documento"
+                    >
+                      <Trash2 size={14} />
+                      Excluir
+                    </button>
+                  </RequirePermission>
+                )}
               </div>
             </div>
 
@@ -262,6 +300,15 @@ export function DocumentTypesPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => { setShowDeleteModal(false); setDeleteError(null); }}
+        onConfirm={handleDelete}
+        title="Excluir Tipo de Documento"
+        message={deleteError || `Tem certeza que deseja excluir permanentemente o tipo de documento ${selected?.name}?`}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

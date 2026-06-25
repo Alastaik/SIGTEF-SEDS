@@ -8,6 +8,7 @@ import { RolesPage } from './features/admin/RolesPage';
 import LoginPage from './pages/LoginPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import { AcceptInvitation } from './features/auth/AcceptInvitation';
 
 import { SettingsLayout } from './pages/settings/SettingsLayout';
 import { SettingsGeneralPage } from './pages/settings/SettingsGeneralPage';
@@ -18,7 +19,15 @@ import { SettingsFlagsPage } from './pages/settings/SettingsFlagsPage';
 import { BaseRegistriesLayout } from './pages/base-registries/BaseRegistriesLayout';
 import { BaseRegistriesDashboard } from './pages/base-registries/BaseRegistriesDashboard';
 import { DocumentTypesPage } from './pages/base-registries/DocumentTypesPage';
+import { ProgramsPage } from './pages/base-registries/ProgramsPage';
 
+import { EntityList } from './features/entities/pages/EntityList';
+import { EntityForm } from './features/entities/pages/EntityForm';
+import { EntityDetailsLayout } from './features/entities/pages/EntityDetailsLayout';
+
+import { AgreementsList } from './features/agreements/pages/AgreementsList';
+import { AgreementForm } from './features/agreements/pages/AgreementForm';
+import { AgreementDetailsLayout } from './features/agreements/pages/AgreementDetailsLayout';
 
 const queryClient = new QueryClient();
 
@@ -31,6 +40,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/convite/:token" element={<AcceptInvitation />} />
             
             {/* Rotas protegidas (Painel) */}
             <Route element={<ProtectedRoute />}>
@@ -53,6 +63,17 @@ function App() {
                 <Route path="base-registries" element={<BaseRegistriesLayout />}>
                   <Route index element={<BaseRegistriesDashboard />} />
                   <Route path="documents" element={<DocumentTypesPage />} />
+                  <Route path="programs" element={<ProgramsPage />} />
+                </Route>
+                <Route path="entities">
+                  <Route index element={<EntityList />} />
+                  <Route path="new" element={<EntityForm />} />
+                  <Route path=":id/*" element={<EntityDetailsLayout />} />
+                </Route>
+                <Route path="agreements">
+                  <Route index element={<AgreementsList />} />
+                  <Route path="new" element={<AgreementForm />} />
+                  <Route path=":id/*" element={<AgreementDetailsLayout />} />
                 </Route>
               </Route>
             </Route>

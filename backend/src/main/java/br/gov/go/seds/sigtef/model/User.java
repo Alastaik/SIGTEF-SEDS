@@ -71,8 +71,8 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
     
-    // Scopes (Entities the user has access to)
+    // Scopes (Entities the user represents)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
-    private Set<UserEntityScope> entityScopes = new HashSet<>();
+    private Set<LegalEntityRepresentative> representatives = new HashSet<>();
 }

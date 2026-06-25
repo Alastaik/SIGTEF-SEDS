@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin/users")
@@ -28,5 +29,12 @@ public class UserController {
     @PreAuthorize("hasAuthority('usuarios:criar') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserCreateRequest request) {
         return ResponseEntity.ok(userService.create(request));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_GESTOR')")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
