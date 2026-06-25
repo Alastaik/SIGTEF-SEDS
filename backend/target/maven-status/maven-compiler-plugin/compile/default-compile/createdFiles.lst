@@ -176,7 +176,6 @@ br\gov\go\seds\sigtef\repository\LegalEntityContactRepository.class
 br\gov\go\seds\sigtef\dto\PartnershipAgreementAddendumDTO.class
 br\gov\go\seds\sigtef\dto\IssueResponseCreateDTO.class
 br\gov\go\seds\sigtef\model\enums\ContactType.class
-br\gov\go\seds\sigtef\repository\IssueTypeRepository.class
 br\gov\go\seds\sigtef\model\LegalEntityResponsible$LegalEntityResponsibleBuilder.class
 br\gov\go\seds\sigtef\dto\agreement\AgreementRequestDTO.class
 br\gov\go\seds\sigtef\model\enums\RepresentativeStatus.class

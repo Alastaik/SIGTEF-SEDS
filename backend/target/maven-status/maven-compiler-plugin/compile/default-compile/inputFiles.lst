@@ -6,6 +6,7 @@ C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\CompetenceController.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\DocumentTypeController.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\DomainDataController.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\FileController.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\HolidayController.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\ItemController.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\LegalEntityController.java
@@ -123,7 +124,6 @@ C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\DomainDataRepository.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\FiscalDocumentRepository.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\HolidayRepository.java
-C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\IssueTypeRepository.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\ItemCategoryRepository.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\ItemRepository.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\LegalEntityAddressRepository.java

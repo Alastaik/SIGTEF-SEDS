@@ -548,7 +548,7 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
                     <select 
                       value={selectedCat} 
                       onChange={handleCatChange}
-                      className="block w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
                     >
                       <option value="">Todas as Categorias</option>
                       {categories.map((c: any) => (
@@ -567,7 +567,7 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
                             setNewItemName('');
                             setNewItemUnit('');
                           }}
-                          className="text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-1 rounded"
+                          className="text-[11px] font-semibold text-blue-700 hover:bg-blue-100 bg-blue-50 px-2 py-0.5 rounded transition-colors border border-blue-200 shadow-sm"
                         >
                           + Novo Item
                         </button>
@@ -577,7 +577,7 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
                         value={itemSearchName} 
                         onChange={handleItemChange}
                         placeholder="Pesquisar..."
-                        className="block w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+                        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
                       />
                       <datalist id={`items-list-${doc.id}`}>
                         {itemsByCategory[selectedCat]?.map((i: Item) => (
@@ -591,7 +591,7 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
                     <input 
                       type="number" step="0.01"
                       value={quantity} onChange={e => setQuantity(Number(e.target.value))}
-                      className="block w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
                     />
                   </div>
 
@@ -600,7 +600,7 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
                     <input 
                       type="number" step="0.01"
                       value={unitPrice} onChange={e => setUnitPrice(Number(e.target.value))}
-                      className="block w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
                     />
                   </div>
 

@@ -45,6 +45,10 @@ public class AccountabilitySubmission {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "submission", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Builder.Default
+    private java.util.List<FiscalDocument> fiscalDocuments = new java.util.ArrayList<>();
+
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();

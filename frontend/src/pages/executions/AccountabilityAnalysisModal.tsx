@@ -29,7 +29,7 @@ export function AccountabilityAnalysisModal({ isOpen, onClose, execution, onSucc
   const loadSubmission = async () => {
     setLoading(true);
     try {
-      const response = await api.get(`/executions/${execution.id}`);
+      const response = await api.get(`/accountabilities/executions/${execution.id}`);
       setSubmission(response.data);
     } catch (error) {
       console.error('Erro ao carregar submissão', error);
@@ -137,7 +137,7 @@ export function AccountabilityAnalysisModal({ isOpen, onClose, execution, onSucc
                             {doc.items.map((item: any, i: number) => (
                               <li key={i} className="text-sm text-gray-600 flex justify-between">
                                 <span>{item.quantity}x {item.item?.name || 'Item'}</span>
-                                <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.totalValue)}</span>
+                                <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.totalPrice)}</span>
                               </li>
                             ))}
                           </ul>
@@ -145,19 +145,30 @@ export function AccountabilityAnalysisModal({ isOpen, onClose, execution, onSucc
                       )}
 
                       {doc.attachments && doc.attachments.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-gray-100 flex gap-2">
-                          {doc.attachments.map((att: any, i: number) => (
-                            <a
-                              key={i}
-                              href={`http://localhost:8081/files/${att.fileUrl}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
-                            >
-                              <Download size={14} />
-                              {att.originalFileName}
-                            </a>
-                          ))}
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <h5 className="text-sm font-medium text-gray-700 mb-3">Anexos:</h5>
+                          <div className="flex gap-3 flex-wrap">
+                            {doc.attachments.map((att: any, i: number) => (
+                              <div key={i} className="flex items-center gap-3 p-2 pr-3 border border-gray-200 rounded-lg bg-gray-50 max-w-sm">
+                                <div className="p-2 bg-white rounded-md shadow-sm">
+                                  <FileText size={20} className="text-gray-400" />
+                                </div>
+                                <span className="text-sm font-medium text-gray-700 flex-1 truncate" title={att.fileName || 'Anexo'}>
+                                  {att.fileName || 'Anexo'}
+                                </span>
+                                <a
+                                  href={`/api/files/${att.filePath}`}
+                                  download={att.fileName || 'Anexo'}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-md transition-colors flex items-center justify-center bg-blue-50"
+                                  title="Baixar arquivo"
+                                >
+                                  <Download size={16} />
+                                </a>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>

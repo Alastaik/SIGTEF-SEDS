@@ -43,7 +43,7 @@ public class AccountabilityController {
 
     @PostMapping("/executions/{executionId}/submit")
     @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE')")
-    public ResponseEntity<Accountability> submitByExecution(@PathVariable UUID executionId, @AuthenticationPrincipal User user) {
+    public ResponseEntity<Accountability> submitByExecution(@PathVariable UUID executionId, @AuthenticationPrincipal br.gov.go.seds.sigtef.security.UserDetailsImpl user) {
         return ResponseEntity.ok(service.submitByExecution(executionId, user.getId()));
     }
 
@@ -58,7 +58,10 @@ public class AccountabilityController {
     public ResponseEntity<br.gov.go.seds.sigtef.model.AccountabilityReview> analyzeExecution(
             @PathVariable UUID executionId,
             @RequestBody br.gov.go.seds.sigtef.dto.AccountabilityReviewRequestDTO request,
-            @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(service.reviewByExecution(executionId, request, user));
+            @AuthenticationPrincipal br.gov.go.seds.sigtef.security.UserDetailsImpl userDetails) {
+        // Obter o usuário a partir do ID
+        User reviewer = new User();
+        reviewer.setId(userDetails.getId());
+        return ResponseEntity.ok(service.reviewByExecution(executionId, request, reviewer));
     }
 }

@@ -27,6 +27,7 @@ public class FiscalDocument {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submission_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private AccountabilitySubmission submission;
 
     @Column(name = "document_type", nullable = false, length = 50)

@@ -24,10 +24,12 @@ public class AccountabilityAttachment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fiscal_document_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private FiscalDocument fiscalDocument;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submission_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private AccountabilitySubmission submission;
 
     @Column(name = "file_path", nullable = false, length = 500)
