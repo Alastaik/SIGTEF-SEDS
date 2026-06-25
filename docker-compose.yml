@@ -13,6 +13,43 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    networks:
+      - sigtef-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sigtef_backend
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/sigtef_db
+      - SPRING_DATASOURCE_USERNAME=sigtef_user
+      - SPRING_DATASOURCE_PASSWORD=sigtef_password
+      - CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - sigtef-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sigtef_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - sigtef-network
 
 volumes:
   postgres_data:
+
+networks:
+  sigtef-network:
+    driver: bridge

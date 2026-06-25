@@ -54,5 +54,26 @@ export const agreementService = {
       params: { month, year }
     });
     return response.data;
+  },
+
+  listAddendums: async (agreementId: string): Promise<any[]> => {
+    const response = await api.get(`/agreements/${agreementId}/addendums`);
+    return response.data;
+  },
+
+  createAddendum: async (data: any): Promise<any> => {
+    const response = await api.post('/agreements/addendums', data);
+    return response.data;
+  },
+
+  changeAddendumStatus: async (id: string, status: string): Promise<any> => {
+    const response = await api.patch(`/agreements/addendums/${id}/status`, null, {
+      params: { status }
+    });
+    return response.data;
+  },
+
+  deleteAddendum: async (id: string): Promise<void> => {
+    await api.delete(`/agreements/addendums/${id}`);
   }
 };

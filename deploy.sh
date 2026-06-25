@@ -1,25 +1,33 @@
 #!/bin/bash
+# Script de Implantação para Oracle Cloud VM (Oracle Linux / Ubuntu)
 
-# Atualiza o código
-git pull origin main
+echo "Verificando se o Docker está instalado..."
+if ! [ -x "$(command -v docker)" ]; then
+  echo "Docker não encontrado. Instalando..."
+  # Tenta instalar via apt (Ubuntu/Debian) ou dnf/yum (Oracle Linux/CentOS)
+  if [ -x "$(command -v apt-get)" ]; then
+    sudo apt-get update
+    sudo apt-get install -y docker.io docker-compose
+  elif [ -x "$(command -v dnf)" ]; then
+    sudo dnf install -y docker docker-compose-plugin
+  else
+    sudo yum install -y docker
+  fi
+  
+  sudo systemctl start docker
+  sudo systemctl enable docker
+  sudo usermod -aG docker $USER
+  echo "Docker instalado. Você pode precisar deslogar e logar novamente."
+fi
 
-# Build do Frontend
-echo "Building Frontend..."
-cd frontend
-npm install
-npm run build
-cd ..
+echo "Iniciando a stack via Docker Compose..."
+# Força o rebuild das imagens (importante se houve atualização no código local)
+sudo docker-compose up -d --build
 
-# Build do Backend
-echo "Building Backend..."
-cd backend
-mvn clean package -DskipTests
-cd ..
+echo "Limpeza de imagens órfãs (opcional)..."
+sudo docker image prune -f
 
-# Reinicia o serviço Spring Boot (assumindo que use Systemd na VM)
-# sudo systemctl restart sigtef-backend
-
-# Reinicia o Nginx
-# sudo systemctl restart nginx
-
-echo "Deploy finalizado!"
+echo "✅ Implantação concluída com sucesso!"
+echo "Acesse o sistema na porta 80 (ou via DNS configurado)."
+echo "Para verificar os logs do backend: sudo docker logs sigtef_backend -f"
+echo "Para verificar os logs do frontend: sudo docker logs sigtef_frontend -f"

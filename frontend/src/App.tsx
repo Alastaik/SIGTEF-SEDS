@@ -29,6 +29,9 @@ import { AgreementsList } from './features/agreements/pages/AgreementsList';
 import { AgreementForm } from './features/agreements/pages/AgreementForm';
 import { AgreementDetailsLayout } from './features/agreements/pages/AgreementDetailsLayout';
 
+import { MonthlyExecutionsPage } from './pages/executions/MonthlyExecutionsPage';
+import { AccountabilityAnalysisList } from './pages/executions/AccountabilityAnalysisList';
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -75,6 +78,8 @@ function App() {
                   <Route path="new" element={<AgreementForm />} />
                   <Route path=":id/*" element={<AgreementDetailsLayout />} />
                 </Route>
+                <Route path="executions" element={<MonthlyExecutionsPage />} />
+                <Route path="analysis" element={<AccountabilityAnalysisList />} />
               </Route>
             </Route>
 

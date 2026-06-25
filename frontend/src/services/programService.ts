@@ -11,6 +11,7 @@ export interface Program {
   requiresConsumerUnit: boolean;
   requiresInvoice: boolean;
   requiresReceipt: boolean;
+  requiresItemization: boolean;
   active: boolean;
   calculationType?: string;
 }
@@ -22,6 +23,10 @@ export const programService = {
   },
   getById: async (id: string): Promise<Program> => {
     const response = await api.get(`/programs/${id}`);
+    return response.data;
+  },
+  getValues: async (id: string): Promise<any[]> => {
+    const response = await api.get(`/programs/${id}/values`);
     return response.data;
   },
   create: async (program: Partial<Program>): Promise<Program> => {

@@ -85,4 +85,13 @@ public class PartnershipAgreementController {
         agreementService.removeProgram(programId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/programs/{programId}/simulate")
+    public ResponseEntity<SimulationResultDTO> simulateExpectedValue(
+            @PathVariable UUID id,
+            @PathVariable UUID programId,
+            @RequestParam int month,
+            @RequestParam int year) {
+        return ResponseEntity.ok(simulatorService.simulateExpectedValue(id, programId, month, year));
+    }
 }

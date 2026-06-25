@@ -53,12 +53,13 @@ public class Program {
     private Boolean requiresInvoice = false;
 
     @Column(name = "requires_receipt", nullable = false)
-    @Builder.Default
-    private Boolean requiresReceipt = false;
+    private boolean requiresReceipt = false;
+
+    @Column(name = "requires_itemization", nullable = false)
+    private boolean requiresItemization = false;
 
     @Column(nullable = false)
-    @Builder.Default
-    private Boolean active = true;
+    private boolean active = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default

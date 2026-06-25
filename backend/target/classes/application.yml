@@ -1,4 +1,7 @@
 spring:
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
   application:
     name: sigtef-backend
   datasource:
@@ -20,9 +23,17 @@ spring:
     baseline-on-migrate: true
 
 app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   jwt:
     secret: ${JWT_SECRET:4b4f3b7b6c5a3a1f8e2d9c4b7a1f5e8d2c6b4a3f9e1d8c5b7a0f3e2d1c6b5a4f} # Chave forte gerada para ambiente local (deve ser subsitituida em prod)
     expirationMs: 86400000 # 24 horas em milisegundos
+  upload:
+    dir: ${UPLOAD_DIR:./uploads}
+
+spring.servlet.multipart:
+  max-file-size: 50MB
+  max-request-size: 50MB
 
 server:
   port: 8081

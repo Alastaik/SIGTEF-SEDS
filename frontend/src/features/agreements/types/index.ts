@@ -7,6 +7,8 @@ export type AgreementStatus =
   | 'CANCELED'
   | 'UNDER_RENEWAL';
 
+export type AttendanceFrequency = 'WEEKDAYS' | 'EVERY_DAY' | 'MANUAL';
+
 export interface Agreement {
   id: string;
   legalEntityId: string;
@@ -52,6 +54,7 @@ export interface AgreementProgram {
   expectedMonthlyValue?: number;
   expectedTotalValue?: number;
   goalQuantity?: number;
+  attendanceFrequency?: AttendanceFrequency;
   attendanceDays?: number;
   perCapitaValue?: number;
   consumerUnitId?: string;
@@ -66,8 +69,41 @@ export interface AgreementProgramRequest {
   expectedMonthlyValue?: number;
   expectedTotalValue?: number;
   goalQuantity?: number;
+  attendanceFrequency?: AttendanceFrequency;
   attendanceDays?: number;
   perCapitaValue?: number;
   consumerUnitId?: string;
   active?: boolean;
+}
+
+export type AddendumStatus = 'DRAFT' | 'UNDER_REVIEW' | 'APPLIED' | 'CANCELED' | 'REJECTED';
+
+export type AddendumType = 'PRAZO' | 'VALOR' | 'AMBOS' | 'OUTROS';
+
+export interface AgreementAddendum {
+  id: string;
+  partnershipAgreementId: string;
+  addendumNumber?: string;
+  addendumType: AddendumType;
+  status: AddendumStatus;
+  signatureDate?: string;
+  startDate?: string;
+  newEndDate?: string;
+  valueAddition?: number;
+  justification?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AgreementAddendumRequest {
+  partnershipAgreementId: string;
+  addendumNumber?: string;
+  addendumType: AddendumType;
+  signatureDate?: string;
+  startDate?: string;
+  newEndDate?: string;
+  valueAddition?: number;
+  justification?: string;
+  notes?: string;
 }

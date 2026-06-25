@@ -1,7 +1,7 @@
 import { Outlet, Link, useNavigate } from 'react-router';
 import { useAuth } from '../features/auth/AuthContext';
 import { RequirePermission } from '../features/auth/RequirePermission';
-import { Users, Shield, LogOut, LayoutDashboard, Settings, Building2, FileText } from 'lucide-react';
+import { Users, Shield, LogOut, LayoutDashboard, Settings, Building2, FileText, CalendarDays } from 'lucide-react';
 
 export function AdminLayout() {
   const { user, logout } = useAuth();
@@ -71,6 +71,20 @@ export function AdminLayout() {
             <Link to="/admin/agreements" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition-colors">
               <FileText size={20} />
               Termos de Fomento
+            </Link>
+          </RequirePermission>
+
+          <RequirePermission permission="ROLE_GESTOR">
+            <Link to="/admin/executions" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition-colors">
+              <CalendarDays size={20} />
+              Lançamentos Mensais
+            </Link>
+          </RequirePermission>
+
+          <RequirePermission permission="ROLE_SEDS">
+            <Link to="/admin/analysis" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition-colors">
+              <FileText size={20} />
+              Análise de Prestações
             </Link>
           </RequirePermission>
         </nav>

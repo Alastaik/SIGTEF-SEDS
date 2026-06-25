@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -69,7 +70,24 @@ public class CalculationSimulatorService {
             case POR_META:
                 // Fórmula: (Meta Pactuada) * (Dias de Atendimento) * (Valor Per Capita vigente)
                 int goal = agreementProgram.getGoalQuantity() != null ? agreementProgram.getGoalQuantity() : 0;
-                int days = agreementProgram.getAttendanceDays() != null ? agreementProgram.getAttendanceDays() : 0;
+                
+                int days = 0;
+                if (agreementProgram.getAttendanceFrequency() != null) {
+                    switch (agreementProgram.getAttendanceFrequency()) {
+                        case WEEKDAYS:
+                            days = getBusinessDays(baseDate.getYear(), baseDate.getMonthValue());
+                            break;
+                        case EVERY_DAY:
+                            days = baseDate.lengthOfMonth();
+                            break;
+                        case MANUAL:
+                            days = agreementProgram.getAttendanceDays() != null ? agreementProgram.getAttendanceDays() : 0;
+                            break;
+                    }
+                } else {
+                    days = agreementProgram.getAttendanceDays() != null ? agreementProgram.getAttendanceDays() : 0;
+                }
+
                 BigDecimal perCapita = baseValue; 
                 expectedMonthly = perCapita.multiply(BigDecimal.valueOf(goal)).multiply(BigDecimal.valueOf(days));
                 break;
@@ -101,5 +119,18 @@ public class CalculationSimulatorService {
                 .totalMonths(totalMonths)
                 .calculationType(calcTypeName)
                 .build();
+    }
+
+    private int getBusinessDays(int year, int month) {
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        int length = startDate.lengthOfMonth();
+        int businessDays = 0;
+        for (int i = 0; i < length; i++) {
+            LocalDate date = startDate.plusDays(i);
+            if (date.getDayOfWeek() != DayOfWeek.SATURDAY && date.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                businessDays++;
+            }
+        }
+        return businessDays;
     }
 }

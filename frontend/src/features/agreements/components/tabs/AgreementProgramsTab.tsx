@@ -4,6 +4,7 @@ import { agreementService } from '../../services/agreementService';
 import { programService, type Program } from '../../../../services/programService';
 import { entityService } from '../../../entities/services/entity.service';
 import { Plus, Trash2, Calculator, X } from 'lucide-react';
+import type { AttendanceFrequency } from '../../types';
 
 interface AgreementProgramsTabProps {
   agreement: Agreement;
@@ -15,6 +16,7 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
   const [availablePrograms, setAvailablePrograms] = useState<Program[]>([]);
   const [consumerUnits, setConsumerUnits] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,11 +24,13 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
     expectedMonthlyValue: 0,
     expectedTotalValue: 0,
     goalQuantity: 0,
+    attendanceFrequency: 'WEEKDAYS' as AttendanceFrequency,
     attendanceDays: 0,
-    perCapitaValue: 0,
     perCapitaValue: 0,
     consumerUnitId: ''
   });
+
+  const [currentPerCapita, setCurrentPerCapita] = useState<number>(0);
 
   const [simulatingProgramId, setSimulatingProgramId] = useState<string | null>(null);
   const [simulateMonth, setSimulateMonth] = useState(new Date().getMonth() + 1);
@@ -55,14 +59,77 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
     }
   };
 
+  useEffect(() => {
+    const fetchValues = async () => {
+      if (!formData.programId) {
+        setCurrentPerCapita(0);
+        return;
+      }
+      try {
+        const values = await programService.getValues(formData.programId);
+        const validValue = values.find(v => {
+          const now = new Date();
+          const from = new Date(v.validFrom);
+          const to = v.validTo ? new Date(v.validTo) : null;
+          return now >= from && (!to || now <= to);
+        });
+        if (validValue && validValue.perCapitaValue) {
+          setCurrentPerCapita(validValue.perCapitaValue);
+        } else {
+          setCurrentPerCapita(0);
+        }
+      } catch (e) {
+        setCurrentPerCapita(0);
+      }
+    };
+    fetchValues();
+  }, [formData.programId]);
+
+  useEffect(() => {
+    const program = availablePrograms.find(p => p.id === formData.programId);
+    if (!program || program.calculationType !== 'POR_META') return;
+
+    let days = 0;
+    if (formData.attendanceFrequency === 'WEEKDAYS') days = 22;
+    else if (formData.attendanceFrequency === 'EVERY_DAY') days = 30;
+    else days = formData.attendanceDays || 0;
+
+    // Se currentPerCapita for 0 (ex: programa não tem valor cadastrado), 
+    // não vamos forçar o 0 na tela para não apagar se o usuário digitou manual
+    if (currentPerCapita === 0 && (formData.expectedMonthlyValue > 0 || formData.expectedTotalValue > 0)) {
+        return;
+    }
+
+    const monthly = (formData.goalQuantity || 0) * days * currentPerCapita;
+    
+    let totalMonths = 12; // Padrão 12 meses se não tiver data
+    if (agreement.startDate && agreement.endDate) {
+      const start = new Date(agreement.startDate);
+      const end = new Date(agreement.endDate);
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        totalMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
+        if (totalMonths < 1) totalMonths = 1;
+      }
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      expectedMonthlyValue: Number(monthly.toFixed(2)),
+      expectedTotalValue: Number((monthly * totalMonths).toFixed(2))
+    }));
+  }, [formData.goalQuantity, formData.attendanceFrequency, formData.attendanceDays, currentPerCapita, agreement.startDate, agreement.endDate, formData.programId, availablePrograms]);
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSaving) return;
+    setIsSaving(true);
     try {
       const payload: any = {
         programId: formData.programId,
         expectedMonthlyValue: formData.expectedMonthlyValue || null,
         expectedTotalValue: formData.expectedTotalValue || null,
         goalQuantity: formData.goalQuantity || null,
+        attendanceFrequency: formData.attendanceFrequency || null,
         attendanceDays: formData.attendanceDays || null,
         perCapitaValue: formData.perCapitaValue || null,
       };
@@ -78,6 +145,7 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
         expectedMonthlyValue: 0,
         expectedTotalValue: 0,
         goalQuantity: 0,
+        attendanceFrequency: 'WEEKDAYS',
         attendanceDays: 0,
         perCapitaValue: 0,
         consumerUnitId: ''
@@ -87,6 +155,8 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
     } catch (error) {
       console.error('Failed to add program', error);
       alert('Erro ao vincular programa.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -200,15 +270,32 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
               )}
 
               {selectedProgramObj?.requiresServiceDays && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Dias de Atendimento</label>
-                  <input
-                    type="number"
-                    value={formData.attendanceDays}
-                    onChange={(e) => setFormData({...formData, attendanceDays: Number(e.target.value)})}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
-                </div>
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Frequência de Atendimento</label>
+                    <select
+                      value={formData.attendanceFrequency}
+                      onChange={(e) => setFormData({...formData, attendanceFrequency: e.target.value as AttendanceFrequency})}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                    >
+                      <option value="WEEKDAYS">Segunda a Sexta (Média 22 dias)</option>
+                      <option value="EVERY_DAY">Todos os Dias (Média 30 dias)</option>
+                      <option value="MANUAL">Informar Dias Manualmente</option>
+                    </select>
+                  </div>
+
+                  {formData.attendanceFrequency === 'MANUAL' && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Dias de Atendimento</label>
+                      <input
+                        type="number"
+                        value={formData.attendanceDays}
+                        onChange={(e) => setFormData({...formData, attendanceDays: Number(e.target.value)})}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </div>
+                  )}
+                </>
               )}
 
               <div>
@@ -220,6 +307,7 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
                   onChange={(e) => setFormData({...formData, expectedMonthlyValue: Number(e.target.value)})}
                   className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                 />
+                <p className="text-xs text-slate-500 mt-1">Valor do repasse previsto para um único mês.</p>
               </div>
 
               <div>
@@ -231,6 +319,7 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
                   onChange={(e) => setFormData({...formData, expectedTotalValue: Number(e.target.value)})}
                   className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                 />
+                <p className="text-xs text-slate-500 mt-1">Valor acumulado para toda a vigência deste termo.</p>
               </div>
             </div>
 
@@ -244,9 +333,10 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                disabled={isSaving}
+                className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
-                Salvar Vínculo
+                {isSaving ? 'Salvando...' : 'Salvar Vínculo'}
               </button>
             </div>
           </form>

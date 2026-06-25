@@ -1,5 +1,6 @@
 package br.gov.go.seds.sigtef.model;
 
+import br.gov.go.seds.sigtef.model.enums.AttendanceFrequency;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.envers.Audited;
@@ -42,6 +43,10 @@ public class PartnershipAgreementProgram {
 
     @Column(name = "goal_quantity")
     private Integer goalQuantity;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "attendance_frequency")
+    private AttendanceFrequency attendanceFrequency;
 
     @Column(name = "attendance_days")
     private Integer attendanceDays;

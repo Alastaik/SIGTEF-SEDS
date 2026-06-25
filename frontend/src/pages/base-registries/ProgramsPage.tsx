@@ -44,6 +44,7 @@ export function ProgramsPage() {
       requiresConsumerUnit: false,
       requiresInvoice: false,
       requiresReceipt: false,
+      requiresItemization: false,
       active: true,
       calculationType: 'VALOR_FIXO' as any // Adding calculationType to the default state
     } as any);
@@ -157,6 +158,13 @@ export function ProgramsPage() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-slate-700 mb-1">Nome do Programa</label>
                 <input type="text" value={selected.name} onChange={e => updateField('name', e.target.value)} className="w-full rounded border border-slate-300 px-3 py-2" />
+              </div>
+              <div className="flex items-start space-x-3 col-span-2">
+                <input type="checkbox" checked={selected.requiresItemization} onChange={e => updateField('requiresItemization', e.target.checked)} className="mt-1" />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Exige Detalhamento de Itens</label>
+                  <p className="text-xs text-gray-500">Programa exige inserção de itens (ex: Auxílio Nutricional)</p>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Código Opcional</label>

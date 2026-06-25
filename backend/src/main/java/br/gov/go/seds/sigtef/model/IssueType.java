@@ -1,61 +1,21 @@
 package br.gov.go.seds.sigtef.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.envers.Audited;
-import java.time.LocalDateTime;
-import java.util.UUID;
+public enum IssueType {
+    DOCUMENT_MISSING("Documento Faltante"),
+    DOCUMENT_ILLEGIBLE("Documento Ilegível"),
+    INVALID_INVOICE("Nota Fiscal Inválida"),
+    VALUE_DIVERGENCE("Divergência de Valores"),
+    INVALID_CONSUMER_UNIT("Unidade Consumidora Divergente"),
+    WRONG_CATEGORY("Categoria/Rubrica Incorreta"),
+    OTHER("Outro");
 
-@Entity
-@Table(name = "issue_types")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Audited
-public class IssueType {
+    private final String description;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    IssueType(String description) {
+        this.description = description;
+    }
 
-    @Column(nullable = false, length = 100)
-    private String name;
-
-    @Column(length = 50)
-    private String code;
-
-    @Column(length = 50)
-    private String category;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column(name = "standard_deadline_days")
-    private Integer standardDeadlineDays;
-
-    @Column(name = "requires_entity_reply", nullable = false)
-    @Builder.Default
-    private Boolean requiresEntityReply = false;
-
-    @Column(name = "requires_attachment", nullable = false)
-    @Builder.Default
-    private Boolean requiresAttachment = false;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Boolean active = true;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    public String getDescription() {
+        return description;
     }
 }
