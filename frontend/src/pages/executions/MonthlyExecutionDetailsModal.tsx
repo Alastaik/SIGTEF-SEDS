@@ -5,6 +5,7 @@ import { monthlyExecutionApi } from '../../features/executions/api';
 import { formatCurrency } from '../../utils/formatters';
 import { RequirePermission } from '../../features/auth/RequirePermission';
 import { AccountabilityModal } from './AccountabilityModal';
+import { ExecutionStatusBadge } from '../../features/executions/components/ExecutionStatusBadge';
 
 interface MonthlyExecutionDetailsModalProps {
   execution: MonthlyExecution;
@@ -108,9 +109,10 @@ export function MonthlyExecutionDetailsModal({ execution, onClose, onUpdate }: M
             </div>
             <div>
               <span className="block text-gray-500 font-medium">Status</span>
-              <span className={`font-semibold ${execution.blocked ? 'text-red-600' : 'text-gray-900'}`}>
-                {execution.status} {execution.blocked ? '(BLOQUEADO)' : ''}
-              </span>
+              <div className="flex items-center gap-2 mt-1">
+                <ExecutionStatusBadge status={execution.status} />
+                {execution.blocked && <span className="font-semibold text-red-600">(BLOQUEADO)</span>}
+              </div>
             </div>
             <div className="col-span-2">
               <span className="block text-gray-500 font-medium">Entidade</span>

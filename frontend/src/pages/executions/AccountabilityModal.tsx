@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { FormEvent } from 'react';
-import { X, Upload, Plus, FileText, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Plus, FileText, Trash2, ChevronDown, ChevronUp, Loader2, Paperclip } from 'lucide-react';
 import { accountabilityApi, itemApi } from '../../features/accountability/api';
-import type { FiscalDocument, ItemCategory, Item, FiscalDocumentItem } from '../../features/accountability/api';
+import type { FiscalDocument, ItemCategory, Item, FiscalDocumentItem, AccountabilityReview } from '../../features/accountability/api';
 import type { MonthlyExecution } from '../../features/executions/api';
 import { IssueList } from '../../features/accountability/components/issues/IssueList';
 import { api } from '../../lib/api';
+import { DocumentUploader } from '../../features/documents/components/DocumentUploader';
+import { DocumentList } from '../../features/documents/components/DocumentList';
+import { ExecutionStatusBadge } from '../../features/executions/components/ExecutionStatusBadge';
 
 interface AccountabilityModalProps {
   isOpen: boolean;
@@ -16,6 +19,7 @@ interface AccountabilityModalProps {
 
 export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: AccountabilityModalProps) {
   const [loading, setLoading] = useState(false);
+  const [addingDoc, setAddingDoc] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [documents, setDocuments] = useState<FiscalDocument[]>([]);
   const [docForm, setDocForm] = useState<FiscalDocument>({
@@ -24,16 +28,20 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
     documentNumber: '',
     issuerName: '',
     items: [],
-    attachments: []
   });
 
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null);
   const [submission, setSubmission] = useState<any>(null);
+  const [latestReview, setLatestReview] = useState<AccountabilityReview | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // Draft tracking (avoid re-starting if already started)
+  const draftStarted = useRef(false);
 
   // Items Data
   const [categories, setCategories] = useState<ItemCategory[]>([]);
   const [itemsByCategory, setItemsByCategory] = useState<Record<string, Item[]>>({});
-  
+
   const requiresItemization = execution.partnershipAgreementProgram?.program?.requiresItemization || false;
 
   useEffect(() => {
@@ -42,13 +50,38 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
     }
     if (isOpen && (execution.status === 'PENDING_CORRECTION' || execution.status === 'RESUBMITTED' || execution.status === 'UNDER_REVIEW')) {
       loadSubmission();
+      draftStarted.current = true; // Draft already exists for these statuses
+    }
+    if (isOpen && execution.status === 'PENDING_CORRECTION') {
+      loadLatestReview();
+    }
+    if (!isOpen) {
+      // Reset state when closed
+      setDocuments([]);
+      setErrorMsg(null);
+      setLatestReview(null);
+      draftStarted.current = false;
     }
   }, [isOpen, requiresItemization, execution.status]);
 
+  const loadLatestReview = async () => {
+    try {
+      const review = await accountabilityApi.getLatestReview(execution.id);
+      setLatestReview(review);
+    } catch (error) {
+      console.error('Erro ao carregar notas de correção', error);
+    }
+  };
+
   const loadSubmission = async () => {
     try {
-      const response = await api.get(`/executions/${execution.id}`);
+      const response = await api.get(`/accountabilities/executions/${execution.id}`);
       setSubmission(response.data);
+      if (response.data?.fiscalDocuments?.length > 0) {
+        setDocuments(response.data.fiscalDocuments);
+      } else if (response.data?.accountability?.fiscalDocuments?.length > 0) {
+        setDocuments(response.data.accountability.fiscalDocuments);
+      }
     } catch (error) {
       console.error('Erro ao carregar submissão para pendências', error);
     }
@@ -58,7 +91,6 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
     try {
       const cats = await itemApi.getCategories();
       setCategories(cats);
-      // Load all items by default for when no category is selected
       const allItems = await itemApi.getAllItems();
       setItemsByCategory(prev => ({ ...prev, '': allItems }));
     } catch (error) {
@@ -78,80 +110,79 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
 
   if (!isOpen) return null;
 
-  const handleAddDocument = (e: FormEvent) => {
+  // Immediately saves the document to the backend when user clicks "Adicionar"
+  const handleAddDocument = async (e: FormEvent) => {
     e.preventDefault();
-    const newDoc = { ...docForm, id: crypto.randomUUID() };
-    setDocuments([...documents, newDoc]);
-    setDocForm({ documentType: 'NF-e', value: 0, documentNumber: '', issuerName: '', items: [], attachments: [] });
-    setExpandedDoc(newDoc.id);
+    setAddingDoc(true);
+    setErrorMsg(null);
+    try {
+      // 1. Ensure draft exists
+      if (!draftStarted.current) {
+        await accountabilityApi.startDraft(execution.id);
+        draftStarted.current = true;
+      }
+
+      // 2. Save fiscal document (no temporary id needed — backend returns real id)
+      const payload = { ...docForm };
+      if (payload.items) {
+        payload.items = payload.items.map(item => {
+          const itemPayload = { ...item };
+          delete itemPayload.id;
+          return itemPayload;
+        });
+      }
+
+      const saved = await accountabilityApi.addFiscalDocument(execution.id, payload);
+
+      // 3. Add to local list with real ID and expand it
+      setDocuments(prev => [...prev, saved]);
+      setExpandedDoc(saved.id!);
+
+      // Reset form
+      setDocForm({ documentType: 'NF-e', value: 0, documentNumber: '', issuerName: '', items: [] });
+    } catch (error: any) {
+      setErrorMsg(error?.response?.data?.message || 'Erro ao salvar documento. Tente novamente.');
+    } finally {
+      setAddingDoc(false);
+    }
   };
 
   const handleRemoveDocument = (id: string) => {
     setDocuments(documents.filter(d => d.id !== id));
   };
 
-  const handleSubmit = async () => {
-    try {
-      setErrorMsg(null);
-      
-      // Validações
-      if (documents.length === 0) {
-        setErrorMsg("Você precisa adicionar pelo menos um documento para enviar a prestação.");
-        return;
-      }
-      
-      if (requiresItemization) {
-        for (const doc of documents) {
-          if (!doc.items || doc.items.length === 0) {
-            setErrorMsg(`O documento nº ${doc.documentNumber} não possui itens detalhados. Como o programa exige detalhamento, todos os documentos devem ter itens.`);
-            return;
-          }
-        }
-      }
-      
-      if (difference < 0) {
-        setErrorMsg("O valor comprovado é maior do que o valor repassado. Por favor, verifique os documentos.");
-        return;
-      }
+  const totalProven = documents.reduce((acc, curr) => acc + Number(curr.value), 0);
+  const expectedValue = execution.transferredValue || 0;
+  const difference = expectedValue - totalProven;
 
-      setLoading(true);
-      
-      // 1. Iniciar Rascunho (Cria a Accountability e Submission)
-      await accountabilityApi.startDraft(execution.id);
-      
-      // 2. Salvar todos os documentos
-      for (const doc of documents) {
-        // Remove IDs temporários para o backend gerar novos
-        const payload = { ...doc };
-        delete payload.id;
-        if (payload.items) {
-          payload.items = payload.items.map(item => {
-            const itemPayload = { ...item };
-            delete itemPayload.id;
-            return itemPayload;
-          });
-        }
-        
-        // Envia o documento para o backend usando o executionId
-        await accountabilityApi.addFiscalDocument(execution.id, payload);
-      }
-      
-      // 3. Submeter Prestação
+  const handlePreSubmit = () => {
+    setErrorMsg(null);
+
+    if (documents.length === 0) {
+      setErrorMsg('Você precisa adicionar pelo menos um documento para enviar a prestação.');
+      return;
+    }
+
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    setShowConfirmModal(false);
+    setLoading(true);
+
+    try {
+      // The documents were already saved. Just submit.
       await accountabilityApi.submit(execution.id);
-      
+
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error(error);
-      setErrorMsg(error?.response?.data?.message || "Ocorreu um erro ao enviar a prestação de contas. Tente novamente.");
+      setErrorMsg(error?.response?.data?.message || 'Ocorreu um erro ao enviar a prestação de contas. Tente novamente.');
     } finally {
       setLoading(false);
     }
   };
-
-  const totalProven = documents.reduce((acc, curr) => acc + Number(curr.value), 0);
-  const expectedValue = execution.transferredValue || 0;
-  const difference = expectedValue - totalProven;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -162,21 +193,27 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Prestação de Contas</h2>
-              <p className="text-sm text-gray-500 mt-1">Competência: {execution.competence} | Status: {execution.status}</p>
+              <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">Competência: {execution.competence} | Status: <ExecutionStatusBadge status={execution.status} /></p>
             </div>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-500">
               <X size={24} />
             </button>
           </div>
-          
+
           {errorMsg && (
-            <div className="bg-red-50 border-l-4 border-red-400 p-4 m-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">
-                    {errorMsg}
-                  </p>
-                </div>
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+              {errorMsg}
+            </div>
+          )}
+
+          {execution.status === 'PENDING_CORRECTION' && latestReview && latestReview.comments && (
+            <div className="mb-6 p-4 bg-orange-50 border-l-4 border-orange-500 rounded-md shadow-sm">
+              <h3 className="text-orange-800 font-semibold mb-2 flex items-center">
+                <FileText className="w-5 h-5 mr-2" />
+                Devolvido para Correção
+              </h3>
+              <div className="text-orange-900 text-sm whitespace-pre-wrap">
+                {latestReview.comments}
               </div>
             </div>
           )}
@@ -185,7 +222,7 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
             {/* Sidebar with Summary */}
             <div className="w-1/3 bg-gray-50 p-6 border-r border-gray-200 flex flex-col overflow-y-auto">
               <h3 className="font-medium text-gray-900 mb-4">Resumo Financeiro</h3>
-              
+
               <div className="space-y-4">
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="text-sm text-gray-500">Valor Repassado</div>
@@ -210,36 +247,45 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
               </div>
 
               {submission?.accountability?.id && (
-                  <div className="mt-6">
-                      <IssueList accountabilityId={submission.accountability.id} />
-                  </div>
+                <div className="mt-6">
+                  <IssueList accountabilityId={submission.accountability.id} />
+                </div>
               )}
 
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <button
-                  onClick={handleSubmit}
-                  disabled={loading || documents.length === 0}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                  type="button"
+                  onClick={handlePreSubmit}
+                  disabled={loading}
+                  className="w-full flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                 >
-                  {loading ? 'Enviando...' : 'Enviar Prestação para Análise'}
+                  {loading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    'Enviar Prestação para Análise'
+                  )}
                 </button>
+                {documents.length === 0 && (
+                  <p className="text-xs text-gray-400 text-center mt-2">Adicione ao menos um documento para enviar.</p>
+                )}
               </div>
             </div>
 
             {/* Main Content Area */}
             <div className="flex-1 p-6 overflow-y-auto bg-gray-100">
-              
+
+              {/* Form to add new document */}
               <div className="mb-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                  <FileText size={20} /> Adicionar Novo Documento
+                  <FileText size={20} /> Adicionar Novo Documento Fiscal
                 </h3>
-                
+
                 <form onSubmit={handleAddDocument} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Tipo de Documento</label>
-                    <select 
+                    <select
                       value={docForm.documentType}
-                      onChange={e => setDocForm({...docForm, documentType: e.target.value})}
+                      onChange={e => setDocForm({ ...docForm, documentType: e.target.value })}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                     >
                       <option value="NF-e">Nota Fiscal (NF-e)</option>
@@ -249,48 +295,57 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Valor Total (R$)</label>
-                    <input 
+                    <input
                       type="number" step="0.01" required
                       value={docForm.value || ''}
-                      onChange={e => setDocForm({...docForm, value: parseFloat(e.target.value)})}
+                      onChange={e => setDocForm({ ...docForm, value: parseFloat(e.target.value) })}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Número do Documento</label>
-                    <input 
+                    <input
                       type="text" required
                       value={docForm.documentNumber}
-                      onChange={e => setDocForm({...docForm, documentNumber: e.target.value})}
+                      onChange={e => setDocForm({ ...docForm, documentNumber: e.target.value })}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Emissor (Fornecedor)</label>
-                    <input 
+                    <input
                       type="text" required
                       value={docForm.issuerName}
-                      onChange={e => setDocForm({...docForm, issuerName: e.target.value})}
+                      onChange={e => setDocForm({ ...docForm, issuerName: e.target.value })}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                     />
                   </div>
                   <div className="col-span-2 flex justify-end">
-                    <button type="submit" className="flex items-center gap-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800">
-                      <Plus size={16} /> Salvar Cabeçalho e Continuar
+                    <button
+                      type="submit"
+                      disabled={addingDoc}
+                      className="flex items-center gap-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 disabled:opacity-50"
+                    >
+                      {addingDoc ? (
+                        <><Loader2 size={16} className="animate-spin" /> Salvando...</>
+                      ) : (
+                        <><Plus size={16} /> Adicionar e Anexar Documentos</>
+                      )}
                     </button>
                   </div>
                 </form>
               </div>
 
+              {/* Document Cards */}
               <div className="space-y-4">
                 {documents.map((doc) => (
-                  <DocumentCard 
-                    key={doc.id!} 
-                    doc={doc} 
+                  <DocumentCard
+                    key={doc.id!}
+                    doc={doc}
                     isExpanded={expandedDoc === doc.id}
                     onToggle={() => setExpandedDoc(expandedDoc === doc.id ? null : doc.id!)}
                     onRemove={() => handleRemoveDocument(doc.id!)}
-                    onUpdate={(updated: any) => {
+                    onUpdate={(updated: FiscalDocument) => {
                       setDocuments(documents.map(d => d.id === doc.id ? updated : d));
                     }}
                     requiresItemization={requiresItemization}
@@ -299,30 +354,89 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
                     setItemsByCategory={setItemsByCategory}
                     onCategorySelect={loadItems}
                     executionId={execution.id}
+                    reviewStatus={doc.reviewStatus}
+                    reviewComments={doc.reviewComments}
                   />
                 ))}
                 {documents.length === 0 && (
                   <div className="text-center py-10 bg-white rounded-lg border border-dashed border-gray-300">
                     <FileText className="mx-auto h-12 w-12 text-gray-300" />
                     <p className="mt-2 text-sm text-gray-500">Nenhum documento adicionado ainda.</p>
+                    <p className="text-xs text-gray-400">Use o formulário acima para adicionar documentos fiscais.</p>
                   </div>
                 )}
               </div>
-
             </div>
           </div>
         </div>
       </div>
+
+      {/* Modal de Confirmação Final */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Confirmar Envio</h3>
+            
+            <div className="space-y-4 mb-6">
+              <p className="text-gray-600">
+                Você está enviando <strong>{documents.length}</strong> documento(s) fiscal(is).
+              </p>
+              
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-600">Valor Total Comprovado:</span>
+                  <span className="font-bold text-blue-600">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalProven)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Valor Repassado:</span>
+                  <span className="font-semibold text-gray-900">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(expectedValue)}
+                  </span>
+                </div>
+              </div>
+
+              {difference !== 0 && (
+                <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-lg">
+                  <p className="text-sm text-orange-800 font-medium">Atenção!</p>
+                  <p className="text-sm text-orange-700 mt-1">
+                    Há uma diferença de <strong>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(difference))}</strong> entre o valor repassado e o comprovado.
+                  </p>
+                  <p className="text-sm text-orange-700 mt-2">Deseja enviar mesmo com a divergência?</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
+              >
+                Revisar Documentos
+              </button>
+              <button
+                onClick={handleConfirmSubmit}
+                disabled={loading}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 flex items-center gap-2"
+              >
+                {loading ? <Loader2 className="animate-spin w-4 h-4" /> : 'Confirmar Envio'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
 
 // ----------------------------------------------------------------------
-// Subcomponents
+// DocumentCard
 // ----------------------------------------------------------------------
 
-function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresItemization, categories, itemsByCategory, setItemsByCategory, onCategorySelect, executionId }: any) {
-  
+function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresItemization, categories, itemsByCategory, setItemsByCategory, onCategorySelect, executionId, reviewStatus, reviewComments }: any) {
+
   // Item Form State
   const [selectedCat, setSelectedCat] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
@@ -334,8 +448,27 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
   const [newItemUnit, setNewItemUnit] = useState('');
 
   const [localItems, setLocalItems] = useState<FiscalDocumentItem[]>(doc.items || []);
-  const [localAttachments, setLocalAttachments] = useState<any[]>(doc.attachments || []);
-  const [uploading, setUploading] = useState(false);
+
+  // Edit Doc State
+  const [isEditingDoc, setIsEditingDoc] = useState(false);
+  const [docForm, setDocForm] = useState({ ...doc });
+  const [savingDoc, setSavingDoc] = useState(false);
+
+  const readonly = reviewStatus === 'OK';
+
+  const handleSaveDoc = async () => {
+    try {
+      setSavingDoc(true);
+      const updated = await accountabilityApi.updateFiscalDocument(executionId, doc.id, docForm);
+      onUpdate(updated);
+      setIsEditingDoc(false);
+    } catch (error) {
+      console.error('Error updating document', error);
+      alert('Erro ao atualizar documento.');
+    } finally {
+      setSavingDoc(false);
+    }
+  };
 
   const handleCatChange = (e: any) => {
     const catId = e.target.value;
@@ -384,7 +517,7 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
       setNewItemName('');
       setNewItemUnit('');
     } catch (e) {
-      console.error("Failed to create item", e);
+      console.error('Failed to create item', e);
     }
   };
 
@@ -403,8 +536,7 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
     const newItems = [...localItems, newItem];
     setLocalItems(newItems);
     onUpdate({ ...doc, items: newItems });
-    
-    // Reset form
+
     setSelectedItem('');
     setItemSearchName('');
     setQuantity('');
@@ -417,205 +549,256 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
     onUpdate({ ...doc, items: newItems });
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setUploading(true);
-    try {
-      const newAttachments = [...localAttachments];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        // Upload immediately, we pass null for submissionId and fiscalDocumentId because we don't have them yet
-        // The backend will save the attachment and return it.
-        const uploaded = await accountabilityApi.uploadAttachment(null, null, file);
-        newAttachments.push(uploaded);
-      }
-      setLocalAttachments(newAttachments);
-      onUpdate({ ...doc, attachments: newAttachments });
-    } catch (error) {
-      console.error("Failed to upload attachment", error);
-      alert("Falha ao fazer upload do arquivo. Tente novamente.");
-    } finally {
-      setUploading(false);
-      // Reset input
-      e.target.value = '';
-    }
-  };
-
-  const removeAttachment = (attId: string) => {
-    const newAtts = localAttachments.filter(a => a.id !== attId);
-    setLocalAttachments(newAtts);
-    onUpdate({ ...doc, attachments: newAtts });
-  };
-
   const totalItemsValue = localItems.reduce((acc, curr) => acc + curr.totalPrice, 0);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+    <div className={`bg-white rounded-xl border shadow-sm overflow-hidden ${reviewStatus === 'INCORRECT' ? 'border-orange-300' : 'border-gray-200'}`}>
       {/* Header */}
-      <div 
-        className="px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50"
+      <div
+        className={`px-5 py-4 cursor-pointer transition-colors ${reviewStatus === 'INCORRECT' ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50'}`}
         onClick={onToggle}
       >
-        <div className="flex flex-col">
-          <span className="font-semibold text-gray-900">{doc.documentType} Nº {doc.documentNumber}</span>
-          <span className="text-sm text-gray-500">{doc.issuerName}</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="text-right">
-            <span className="block text-sm text-gray-500">Valor do Documento</span>
-            <span className="font-bold text-gray-900">
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(doc.value)}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded border ${
+              doc.documentType === 'NF-e' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+              doc.documentType === 'Recibo' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+              'bg-teal-50 text-teal-700 border-teal-200'
+            }`}>
+              {doc.documentType}
             </span>
+            <div className="min-w-0">
+              <p className="font-semibold text-gray-900 truncate">Nº {doc.documentNumber}</p>
+              <p className="text-xs text-gray-500 truncate mt-0.5">{doc.issuerName}</p>
+            </div>
+            {reviewStatus === 'OK' && (
+              <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 border border-green-200 rounded">
+                ✓ Aprovado pela SEDS
+              </span>
+            )}
+            {reviewStatus === 'INCORRECT' && (
+              <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800 border border-red-200 rounded">
+                ✗ Incorreto — Correção Necessária
+              </span>
+            )}
           </div>
-          <button 
-            onClick={(e) => { e.stopPropagation(); onRemove(); }}
-            className="text-red-500 hover:text-red-700 p-2"
-          >
-            <Trash2 size={18} />
-          </button>
-          {isExpanded ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
+          <div className="flex items-center gap-4 shrink-0 ml-4">
+            <div className="text-right">
+              <span className="block font-bold text-gray-900">
+                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(doc.value)}
+              </span>
+              <span className="text-xs text-gray-400">Valor do Documento</span>
+            </div>
+            {!readonly && (
+              <div className="flex gap-1">
+                {reviewStatus === 'INCORRECT' && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsEditingDoc(true);
+                      if (!isExpanded) onToggle();
+                    }}
+                    className="text-blue-500 hover:text-blue-700 p-1.5 rounded hover:bg-blue-50 transition-colors"
+                  >
+                    Editar
+                  </button>
+                )}
+                <button
+                  onClick={(e) => { e.stopPropagation(); onRemove(); }}
+                  className="text-red-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            )}
+            {isExpanded ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-400" />}
+          </div>
         </div>
+        {reviewStatus === 'INCORRECT' && reviewComments && (
+          <div className="mt-3 p-3 bg-white border border-orange-200 rounded-lg" onClick={e => e.stopPropagation()}>
+            <p className="text-xs font-semibold text-orange-700 mb-1">Observação da SEDS:</p>
+            <p className="text-sm text-orange-800">{reviewComments}</p>
+          </div>
+        )}
       </div>
 
       {/* Expanded Content */}
       {isExpanded && (
         <div className="border-t border-gray-200 bg-gray-50 p-6 flex flex-col gap-6">
-          
-          {/* Anexos Section */}
-          <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-              <Upload size={16} /> Anexar Arquivos ao Documento
-            </h4>
-            <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-white cursor-pointer transition-colors bg-gray-50 group">
-              <input 
-                type="file" 
-                multiple 
-                onChange={handleFileUpload} 
-                disabled={uploading}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed" 
-              />
-              <span className="block text-sm font-medium text-gray-700 group-hover:text-blue-600">
-                {uploading ? 'Enviando arquivos...' : 'Clique ou arraste a NF-e e comprovantes de pagamento aqui'}
-              </span>
-              <span className="mt-1 block text-xs text-gray-500">
-                PDF, XML, JPG (Max 50MB)
-              </span>
+
+          {isEditingDoc && (
+            <div className="bg-white p-4 rounded-lg border border-blue-200 mb-4 shadow-sm">
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">Editar Documento Fiscal</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700">Tipo de Documento</label>
+                  <select
+                    value={docForm.documentType}
+                    onChange={e => setDocForm({ ...docForm, documentType: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  >
+                    <option value="NF-e">Nota Fiscal (NF-e)</option>
+                    <option value="Recibo">Recibo</option>
+                    <option value="Fatura">Fatura de Consumo</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700">Valor Total (R$)</label>
+                  <input
+                    type="number" step="0.01" required
+                    value={docForm.value || ''}
+                    onChange={e => setDocForm({ ...docForm, value: parseFloat(e.target.value) })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700">Número do Documento</label>
+                  <input
+                    type="text" required
+                    value={docForm.documentNumber}
+                    onChange={e => setDocForm({ ...docForm, documentNumber: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700">Emissor (Fornecedor)</label>
+                  <input
+                    type="text" required
+                    value={docForm.issuerName}
+                    onChange={e => setDocForm({ ...docForm, issuerName: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                </div>
+                <div className="col-span-2 flex justify-end gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingDoc(false)}
+                    className="px-3 py-1.5 border border-gray-300 rounded shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveDoc}
+                    disabled={savingDoc}
+                    className="px-3 py-1.5 border border-transparent rounded shadow-sm text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {savingDoc && <Loader2 size={12} className="animate-spin" />}
+                    Salvar Alterações
+                  </button>
+                </div>
+              </div>
             </div>
-            
-            {localAttachments.length > 0 && (
-              <ul className="mt-4 border border-gray-200 rounded-md divide-y divide-gray-200">
-                {localAttachments.map(att => (
-                  <li key={att.id} className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                    <div className="w-0 flex-1 flex items-center">
-                      <FileText className="flex-shrink-0 h-5 w-5 text-gray-400" />
-                      <span className="ml-2 flex-1 w-0 truncate">{att.fileName}</span>
-                    </div>
-                    <div className="ml-4 flex-shrink-0">
-                      <button 
-                        type="button" 
-                        onClick={() => removeAttachment(att.id)}
-                        className="font-medium text-red-600 hover:text-red-500"
-                      >
-                        Remover
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+          )}
+
+          {/* ── Comprovantes / Upload ── */}
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <Paperclip size={12} /> Comprovantes do Documento Fiscal
+            </p>
+
+            {/* Lista de arquivos já enviados */}
+            <div className="bg-white rounded-lg border border-gray-200 mb-3 overflow-hidden">
+              <DocumentList
+                linkedEntityType="FISCAL_DOCUMENT"
+                linkedEntityId={doc.id!}
+                readonly={readonly}
+              />
+            </div>
+
+            {/* Área de upload — label inline e compacta */}
+            {!readonly && !isEditingDoc && (
+              <DocumentUploader
+                linkedEntityType="FISCAL_DOCUMENT"
+                linkedEntityId={doc.id!}
+                ownerModule="ACCOUNTABILITY"
+                role="COMPROVANTE"
+                retentionPolicy="EXPUNGE_AFTER_5_YEARS"
+                label=""
+                description="PDF, XML ou imagem (Max 50 MB)"
+                acceptedTypes=".pdf,.xml,.jpg,.jpeg,.png"
+              />
             )}
           </div>
 
-          {/* Itens Section */}
+
+          {/* ── Itens ── */}
           {requiresItemization && (
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-medium text-gray-900 flex items-center gap-2">
-                  Detalhamento de Itens
-                </h4>
+                <h4 className="text-sm font-semibold text-gray-900">Detalhamento de Itens</h4>
                 <div className={`text-sm ${totalItemsValue > doc.value ? 'text-red-600 font-bold' : 'text-gray-500'}`}>
-                  Soma dos Itens: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalItemsValue)} / {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(doc.value)}
+                  Soma: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalItemsValue)} / {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(doc.value)}
                 </div>
               </div>
 
               {/* Add Item Form */}
-              <div className="bg-white p-4 rounded border border-gray-200 mb-4 shadow-sm">
-                <div className="grid grid-cols-12 gap-3 items-end">
-                  
-                  <div className="col-span-3">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Categoria (Opcional)</label>
-                    <select 
-                      value={selectedCat} 
-                      onChange={handleCatChange}
-                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
-                    >
-                      <option value="">Todas as Categorias</option>
-                      {categories.map((c: any) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
-                  </div>
+              {!readonly && !isEditingDoc && (
+                <div className="bg-white p-4 rounded border border-gray-200 mb-4 shadow-sm">
+                  <div className="grid grid-cols-12 gap-3 items-end">
 
-                  <div className="col-span-4">
-                      <div className="flex justify-between items-center mb-1">
-                        <label className="block text-xs font-medium text-gray-700">Item (Pesquise ou Selecione)</label>
-                        <button 
-                          type="button"
-                          onClick={() => {
-                            setIsCreatingNewItem(true);
-                            setNewItemName('');
-                            setNewItemUnit('');
-                          }}
-                          className="text-[11px] font-semibold text-blue-700 hover:bg-blue-100 bg-blue-50 px-2 py-0.5 rounded transition-colors border border-blue-200 shadow-sm"
-                        >
-                          + Novo Item
-                        </button>
-                      </div>
-                      <input 
+                    <div className="col-span-3">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Categoria (Opcional)</label>
+                      <select
+                        value={selectedCat}
+                        onChange={handleCatChange}
+                        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
+                      >
+                        <option value="">Todas</option>
+                        {categories.map((c: any) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="col-span-4">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Item</label>
+                      <input
                         list={`items-list-${doc.id}`}
-                        value={itemSearchName} 
+                        value={itemSearchName}
                         onChange={handleItemChange}
-                        placeholder="Pesquisar..."
+                        placeholder="Pesquisar ou criar novo..."
                         className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
                       />
                       <datalist id={`items-list-${doc.id}`}>
-                        {itemsByCategory[selectedCat]?.map((i: Item) => (
+                        <option value="+ Criar Novo Item..." />
+                        {(itemsByCategory[selectedCat] || itemsByCategory[''] || []).map((i: Item) => (
                           <option key={i.id} value={`${i.name} (${i.unitOfMeasurement || '-'})`} />
                         ))}
                       </datalist>
                     </div>
 
-                  <div className="col-span-2">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Qtd</label>
-                    <input 
-                      type="number" step="0.01"
-                      value={quantity} onChange={e => setQuantity(Number(e.target.value))}
-                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
-                    />
-                  </div>
+                    <div className="col-span-2">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Qtd</label>
+                      <input
+                        type="number" step="0.01"
+                        value={quantity} onChange={e => setQuantity(Number(e.target.value))}
+                        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
+                      />
+                    </div>
 
-                  <div className="col-span-2">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Preço Unit. (R$)</label>
-                    <input 
-                      type="number" step="0.01"
-                      value={unitPrice} onChange={e => setUnitPrice(Number(e.target.value))}
-                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
-                    />
-                  </div>
+                    <div className="col-span-2">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Preço Unit. (R$)</label>
+                      <input
+                        type="number" step="0.01"
+                        value={unitPrice} onChange={e => setUnitPrice(Number(e.target.value))}
+                        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
+                      />
+                    </div>
 
-                  <div className="col-span-1">
-                    <button 
-                      type="button"
-                      onClick={handleAddItem}
-                      disabled={!selectedItem || !quantity || !unitPrice}
-                      className="w-full h-[38px] flex items-center justify-center bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                    >
-                      <Plus size={18} />
-                    </button>
+                    <div className="col-span-1">
+                      <button
+                        type="button"
+                        onClick={handleAddItem}
+                        disabled={!selectedItem || !quantity || !unitPrice}
+                        className="w-full h-[38px] flex items-center justify-center bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        <Plus size={18} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Items Table */}
               {localItems.length > 0 && (
@@ -627,7 +810,7 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
                         <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Qtd</th>
                         <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Val. Unit</th>
                         <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                        {!readonly && <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"></th>}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -644,9 +827,11 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
                           <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(fi.totalPrice)}
                           </td>
-                          <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
-                            <button onClick={() => removeLocalItem(fi.id!)} className="text-red-600 hover:text-red-900"><Trash2 size={16} /></button>
-                          </td>
+                          {!readonly && (
+                            <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
+                              <button onClick={() => removeLocalItem(fi.id!)} className="text-red-600 hover:text-red-900"><Trash2 size={16} /></button>
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>
@@ -672,8 +857,8 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Categoria *</label>
-                <select 
-                  value={selectedCat} 
+                <select
+                  value={selectedCat}
                   onChange={(e) => setSelectedCat(e.target.value)}
                   className="block w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
                 >
@@ -687,35 +872,35 @@ function DocumentCard({ doc, isExpanded, onToggle, onRemove, onUpdate, requiresI
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Item *</label>
-                <input 
-                  type="text" 
-                  value={newItemName} 
-                  onChange={e => setNewItemName(e.target.value)} 
-                  className="block w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500" 
-                  placeholder="Ex: Arroz Tipo 1" 
+                <input
+                  type="text"
+                  value={newItemName}
+                  onChange={e => setNewItemName(e.target.value)}
+                  className="block w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Ex: Arroz Tipo 1"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Unidade de Medida</label>
-                <input 
-                  type="text" 
-                  value={newItemUnit} 
-                  onChange={e => setNewItemUnit(e.target.value)} 
-                  className="block w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500" 
-                  placeholder="Ex: 5kg, Pacote, Unidade" 
+                <input
+                  type="text"
+                  value={newItemUnit}
+                  onChange={e => setNewItemUnit(e.target.value)}
+                  className="block w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Ex: 5kg, Pacote, Unidade"
                 />
               </div>
             </div>
 
             <div className="mt-6 flex justify-end gap-3">
-              <button 
+              <button
                 onClick={() => setIsCreatingNewItem(false)}
                 className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 onClick={handleCreateNewItem}
                 disabled={!selectedCat || !newItemName}
                 className="px-4 py-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50"

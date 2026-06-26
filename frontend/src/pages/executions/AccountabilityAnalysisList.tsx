@@ -3,6 +3,7 @@ import { monthlyExecutionApi } from '../../features/executions/api';
 import type { MonthlyExecution } from '../../features/executions/api';
 import { Search, Filter, FileText } from 'lucide-react';
 import { AccountabilityAnalysisModal } from './AccountabilityAnalysisModal';
+import { ExecutionStatusBadge } from '../../features/executions/components/ExecutionStatusBadge';
 
 export function AccountabilityAnalysisList() {
   const [executions, setExecutions] = useState<MonthlyExecution[]>([]);
@@ -15,7 +16,7 @@ export function AccountabilityAnalysisList() {
       // Carregar todas que estão SUBMITTED ou PENDING_CORRECTION etc, mas a API não suporta array no status ainda, então buscamos tudo e filtramos
       const response = await monthlyExecutionApi.findAll({ size: 1000 });
       const analysisExecutions = (response.content || []).filter((e: MonthlyExecution) => 
-        e.status === 'SUBMITTED' || e.status === 'UNDER_REVIEW'
+        e.status === 'SUBMITTED' || e.status === 'UNDER_REVIEW' || e.status === 'RESUBMITTED'
       );
       setExecutions(analysisExecutions);
     } catch (error) {
@@ -104,9 +105,7 @@ export function AccountabilityAnalysisList() {
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(execution.expectedValue)}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {execution.status}
-                      </span>
+                      <ExecutionStatusBadge status={execution.status} />
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button 

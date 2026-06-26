@@ -40,3 +40,7 @@ server:
 
 resend:
   api-key: ${RESEND_API_KEY:re_ajAEP6g5_Pewf4QXqEE2Tyfc5aETA3TTY}
+
+logging:
+  level:
+    org.springframework.web: DEBUG

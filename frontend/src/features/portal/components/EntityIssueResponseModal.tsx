@@ -4,6 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import type { IssueResponseCreateDTO, AccountabilityIssueDTO } from '../../accountability/types/issue';
 import { issueService } from '../../accountability/services/issueService';
+import { DocumentUploader } from '../../documents/components/DocumentUploader';
+import { DocumentList } from '../../documents/components/DocumentList';
 
 interface EntityIssueResponseModalProps {
     isOpen: boolean;
@@ -37,7 +39,7 @@ export function EntityIssueResponseModal({ isOpen, onClose, accountabilityId, is
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden flex flex-col">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-xl overflow-hidden flex flex-col">
                 <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                     <h2 className="text-lg font-bold text-gray-900">Responder Pendência</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -45,33 +47,56 @@ export function EntityIssueResponseModal({ isOpen, onClose, accountabilityId, is
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="p-6 overflow-y-auto space-y-4">
-                    
-                    <div className="bg-orange-50 p-4 rounded text-sm mb-4 border border-orange-200">
+                <div className="p-6 overflow-y-auto space-y-5">
+
+                    <div className="bg-orange-50 p-4 rounded text-sm border border-orange-200">
                         <p className="font-semibold text-orange-900 mb-1">Motivo da Pendência:</p>
                         <p className="text-orange-800">{issue.description}</p>
                         <p className="text-xs text-orange-600 mt-2">Prazo: {new Date(issue.deadline).toLocaleDateString()}</p>
                     </div>
 
-                    <div className="space-y-1">
-                        <label className="block text-sm font-medium text-gray-700">Sua Resposta / Justificativa</label>
-                        <textarea 
-                            rows={5} 
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                            placeholder="Descreva a correção realizada ou a justificativa..." 
-                            {...register('responseText', { required: true })} 
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                        <div className="space-y-1">
+                            <label className="block text-sm font-medium text-gray-700">Sua Resposta / Justificativa</label>
+                            <textarea
+                                rows={4}
+                                className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                placeholder="Descreva a correção realizada ou a justificativa..."
+                                {...register('responseText', { required: true })}
+                            />
+                        </div>
+
+                        <div className="pt-4 flex justify-end gap-2 border-t border-gray-200">
+                            <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                            <button type="submit" disabled={respondMutation.isPending} className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 disabled:opacity-50">
+                                {respondMutation.isPending ? 'Enviando...' : 'Enviar Resposta'}
+                            </button>
+                        </div>
+                    </form>
+
+                    {/* Documentos de suporte (vinculados à issue, role RESPOSTA_PENDENCIA) */}
+                    <div className="border-t border-gray-200 pt-4">
+                        <p className="text-sm font-medium text-gray-700 mb-3">Documentos de Suporte (opcional)</p>
+                        <DocumentUploader
+                            linkedEntityType="ACCOUNTABILITY_ISSUE"
+                            linkedEntityId={issue.id}
+                            ownerModule="ISSUE"
+                            role="RESPOSTA_PENDENCIA"
+                            retentionPolicy="EXPUNGE_AFTER_5_YEARS"
+                            label=""
+                            description="Comprovantes, prints ou documentos que suportem a resposta"
                         />
+                        <div className="mt-3">
+                            <DocumentList
+                                linkedEntityType="ACCOUNTABILITY_ISSUE"
+                                linkedEntityId={issue.id}
+                            />
+                        </div>
                     </div>
 
-                    <div className="pt-4 flex justify-end gap-2 border-t border-gray-200 mt-6">
-                        <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-50">
-                            Cancelar
-                        </button>
-                        <button type="submit" disabled={respondMutation.isPending} className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 disabled:opacity-50">
-                            {respondMutation.isPending ? 'Enviando...' : 'Enviar Resposta'}
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     );

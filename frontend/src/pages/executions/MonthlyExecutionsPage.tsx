@@ -6,6 +6,7 @@ import { RequirePermission } from '../../features/auth/RequirePermission';
 import { formatCurrency } from '../../utils/formatters';
 import { MonthlyExecutionDetailsModal } from './MonthlyExecutionDetailsModal';
 import { BatchTransferModal } from './BatchTransferModal';
+import { ExecutionStatusBadge } from '../../features/executions/components/ExecutionStatusBadge';
 
 export function MonthlyExecutionsPage() {
   const [executions, setExecutions] = useState<MonthlyExecution[]>([]);
@@ -53,22 +54,6 @@ export function MonthlyExecutionsPage() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'WAITING_TRANSFER': return <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"><Clock size={12}/> Aguardando Repasse</span>;
-      case 'READY_FOR_ACCOUNTABILITY': return <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"><CheckCircle size={12}/> Aguardando Prestação</span>;
-      case 'ACCOUNTABILITY_DRAFT': return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"><Clock size={12}/> Rascunho</span>;
-      case 'SUBMITTED': return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"><CheckCircle size={12}/> Prestação Enviada</span>;
-      case 'UNDER_REVIEW': return <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"><Clock size={12}/> Em Análise SEDS</span>;
-      case 'PENDING_CORRECTION': return <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"><AlertTriangle size={12}/> Pendente de Correção</span>;
-      case 'APPROVED': return <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"><CheckCircle size={12}/> Prestação Aprovada</span>;
-      case 'REJECTED': return <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"><AlertTriangle size={12}/> Prestação Reprovada</span>;
-      case 'CLOSED': return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"><Lock size={12}/> Fechado</span>;
-      case 'BLOCKED': return <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"><Lock size={12}/> Bloqueado</span>;
-      case 'CANCELED': return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"><X size={12}/> Cancelado</span>;
-      default: return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium">{status}</span>;
-    }
-  };
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -112,14 +97,50 @@ export function MonthlyExecutionsPage() {
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="p-4 border-b border-gray-200 flex gap-4 items-end bg-gray-50">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Competência</label>
-            <input 
-              type="month" 
-              value={competence}
-              onChange={(e) => setCompetence(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-48"
-            />
+          <div className="flex gap-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Ano</label>
+              <select
+                value={competence ? competence.split('-')[0] : ''}
+                onChange={(e) => {
+                  const newYear = e.target.value;
+                  const currentMonth = competence ? competence.split('-')[1] : '01';
+                  setCompetence(`${newYear}-${currentMonth}`);
+                }}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-28"
+              >
+                <option value="">Selecione</option>
+                {Array.from({ length: new Date().getFullYear() - 2015 + 2 }, (_, i) => 2015 + i).map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mês</label>
+              <select
+                value={competence ? competence.split('-')[1] : ''}
+                onChange={(e) => {
+                  const newMonth = e.target.value;
+                  const currentYear = competence ? competence.split('-')[0] : new Date().getFullYear().toString();
+                  setCompetence(`${currentYear}-${newMonth}`);
+                }}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-32"
+              >
+                <option value="">Selecione</option>
+                <option value="01">Janeiro</option>
+                <option value="02">Fevereiro</option>
+                <option value="03">Março</option>
+                <option value="04">Abril</option>
+                <option value="05">Maio</option>
+                <option value="06">Junho</option>
+                <option value="07">Julho</option>
+                <option value="08">Agosto</option>
+                <option value="09">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+              </select>
+            </div>
           </div>
           <button 
             onClick={fetchExecutions}
@@ -217,7 +238,7 @@ export function MonthlyExecutionsPage() {
                         {exec.expectedServiceDays ? <div>Dias: {exec.expectedServiceDays}</div> : null}
                       </td>
                       <td className="p-4">
-                        {getStatusBadge(exec.status)}
+                        <ExecutionStatusBadge status={exec.status} />
                       </td>
                       <td className="p-4 text-right">
                         <button 

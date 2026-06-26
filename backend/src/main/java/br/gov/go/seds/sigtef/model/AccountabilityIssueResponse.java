@@ -62,6 +62,5 @@ public class AccountabilityIssueResponse {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "response", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AccountabilityIssueAttachment> attachments = new ArrayList<>();
+
 }

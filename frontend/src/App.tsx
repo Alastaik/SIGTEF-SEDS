@@ -32,6 +32,17 @@ import { AgreementDetailsLayout } from './features/agreements/pages/AgreementDet
 import { MonthlyExecutionsPage } from './pages/executions/MonthlyExecutionsPage';
 import { AccountabilityAnalysisList } from './pages/executions/AccountabilityAnalysisList';
 
+import { PortalLayout } from './features/portal/components/PortalLayout';
+import { PortalDashboard } from './features/portal/pages/PortalDashboard';
+import { PortalEntitySelector } from './features/portal/pages/PortalEntitySelector';
+import { PortalCompetences } from './features/portal/pages/PortalCompetences';
+import { PortalAccountabilities } from './features/portal/pages/PortalAccountabilities';
+import { GuidedAccountabilityFlow } from './features/portal/pages/GuidedAccountabilityFlow';
+
+import { PortalAccountabilityDetails } from './features/portal/pages/PortalAccountabilityDetails';
+import { PortalAgreements } from './features/portal/pages/PortalAgreements';
+import { PortalIssues } from './features/portal/pages/PortalIssues';
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -45,8 +56,8 @@ function App() {
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/convite/:token" element={<AcceptInvitation />} />
             
-            {/* Rotas protegidas (Painel) */}
-            <Route element={<ProtectedRoute />}>
+            {/* Rotas protegidas (Admin Interno) */}
+            <Route element={<ProtectedRoute allowedType="INTERNO" />}>
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={
                   <div className="bg-white rounded-lg shadow-sm p-8 text-center border border-slate-200">
@@ -83,12 +94,22 @@ function App() {
               </Route>
             </Route>
 
-            <Route path="/" element={
-              <div className="p-8">
-                <h1 className="text-3xl font-bold">Painel do SIGTEF</h1>
-                <p>Bem-vindo! A sessão administrativa será construída aqui.</p>
-              </div>
-            } />
+            {/* Rotas protegidas (Portal Externo) */}
+            <Route element={<ProtectedRoute allowedType="EXTERNO" />}>
+              <Route path="/portal" element={<PortalLayout />}>
+                <Route index element={<PortalDashboard />} />
+                <Route path="select-entity" element={<PortalEntitySelector />} />
+                <Route path="agreements" element={<PortalAgreements />} />
+                <Route path="competences" element={<PortalCompetences />} />
+                <Route path="competences/:id/accountability" element={<GuidedAccountabilityFlow />} />
+                <Route path="accountabilities" element={<PortalAccountabilities />} />
+                <Route path="accountabilities/:id" element={<PortalAccountabilityDetails />} />
+                <Route path="issues" element={<PortalIssues />} />
+                <Route path="accountabilities/:id/wizard" element={<GuidedAccountabilityFlow />} />
+              </Route>
+            </Route>
+
+            <Route path="/" element={<ProtectedRoute />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

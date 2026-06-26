@@ -1,10 +1,8 @@
 package br.gov.go.seds.sigtef.mapper;
 
-import br.gov.go.seds.sigtef.dto.AccountabilityIssueAttachmentDTO;
 import br.gov.go.seds.sigtef.dto.AccountabilityIssueDTO;
 import br.gov.go.seds.sigtef.dto.AccountabilityIssueResponseDTO;
 import br.gov.go.seds.sigtef.model.AccountabilityIssue;
-import br.gov.go.seds.sigtef.model.AccountabilityIssueAttachment;
 import br.gov.go.seds.sigtef.model.AccountabilityIssueResponse;
 import org.springframework.stereotype.Component;
 
@@ -63,27 +61,12 @@ public class AccountabilityIssueMapper {
         dto.setReviewedAt(entity.getReviewedAt());
         dto.setReviewNotes(entity.getReviewNotes());
 
-        if (entity.getAttachments() != null) {
-            dto.setAttachments(entity.getAttachments().stream()
-                    .map(this::toAttachmentDto)
-                    .collect(Collectors.toList()));
-        }
+
 
         return dto;
     }
 
-    public AccountabilityIssueAttachmentDTO toAttachmentDto(AccountabilityIssueAttachment entity) {
-        if (entity == null) return null;
 
-        AccountabilityIssueAttachmentDTO dto = new AccountabilityIssueAttachmentDTO();
-        dto.setId(entity.getId());
-        dto.setFileName(entity.getFileName());
-        dto.setFileUrl(entity.getFileUrl());
-        dto.setContentType(entity.getContentType());
-        dto.setFileSize(entity.getFileSize());
-        dto.setUploadedAt(entity.getUploadedAt());
-        return dto;
-    }
 
     public List<AccountabilityIssueDTO> toDtoList(List<AccountabilityIssue> entities) {
         return entities.stream().map(this::toDto).collect(Collectors.toList());

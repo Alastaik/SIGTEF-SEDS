@@ -58,13 +58,17 @@ public class FiscalDocument {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "review_status", length = 50)
+    private String reviewStatus; // PENDING, OK, INCORRECT
+
+    @Column(name = "review_comments", columnDefinition = "TEXT")
+    private String reviewComments;
+
     @OneToMany(mappedBy = "fiscalDocument", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<FiscalDocumentItem> items = new ArrayList<>();
 
-    @OneToMany(mappedBy = "fiscalDocument", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<AccountabilityAttachment> attachments = new ArrayList<>();
+
 
     @PreUpdate
     protected void onUpdate() {

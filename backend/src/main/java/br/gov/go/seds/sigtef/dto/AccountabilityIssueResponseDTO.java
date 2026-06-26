@@ -19,5 +19,5 @@ public class AccountabilityIssueResponseDTO {
     private UserDTO reviewedBy;
     private LocalDateTime reviewedAt;
     private String reviewNotes;
-    private List<AccountabilityIssueAttachmentDTO> attachments;
+
 }

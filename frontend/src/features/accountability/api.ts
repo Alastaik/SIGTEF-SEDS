@@ -10,6 +10,13 @@ export interface Accountability {
   monthlyExecution?: any;
 }
 
+export interface AccountabilityReview {
+  id: string;
+  status: 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'PENDING_CORRECTION' | 'RESUBMITTED' | 'APPROVED' | 'REJECTED' | 'CANCELED' | 'CLOSED';
+  comments?: string;
+  reviewedAt: string;
+}
+
 export interface FiscalDocument {
   id?: string;
   documentType: string;
@@ -20,7 +27,8 @@ export interface FiscalDocument {
   issuerName?: string;
   value: number;
   items?: FiscalDocumentItem[];
-  attachments?: AccountabilityAttachment[];
+  reviewStatus?: string;
+  reviewComments?: string;
 }
 
 export interface ItemCategory {
@@ -46,13 +54,7 @@ export interface FiscalDocumentItem {
   totalPrice: number;
 }
 
-export interface AccountabilityAttachment {
-  id?: string;
-  fileName: string;
-  contentType?: string;
-  fileSize?: number;
-  retentionDate?: string;
-}
+
 
 export const accountabilityApi = {
   startDraft: async (executionId: string): Promise<Accountability> => {
@@ -65,17 +67,8 @@ export const accountabilityApi = {
     return response.data;
   },
 
-  uploadAttachment: async (submissionId: string | null, fiscalDocumentId: string | null, file: File): Promise<AccountabilityAttachment> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    if (submissionId) formData.append('submissionId', submissionId);
-    if (fiscalDocumentId) formData.append('fiscalDocumentId', fiscalDocumentId);
-
-    const response = await api.post('/accountabilities/attachments/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  updateFiscalDocument: async (executionId: string, documentId: string, document: FiscalDocument): Promise<FiscalDocument> => {
+    const response = await api.put(`/accountabilities/executions/${executionId}/documents/${documentId}`, document);
     return response.data;
   },
 
@@ -84,8 +77,18 @@ export const accountabilityApi = {
     return response.data;
   },
 
+  getLatestReview: async (executionId: string): Promise<AccountabilityReview | null> => {
+    const response = await api.get(`/accountabilities/executions/${executionId}/latest-review`);
+    return response.data || null;
+  },
+
   analyze: async (executionId: string, status: string, comments: string): Promise<any> => {
     const response = await api.post(`/accountabilities/executions/${executionId}/analyze`, { status, comments });
+    return response.data;
+  },
+
+  reviewDocument: async (executionId: string, documentId: string, status: string, comments: string): Promise<FiscalDocument> => {
+    const response = await api.put(`/accountabilities/executions/${executionId}/documents/${documentId}/review`, { status, comments });
     return response.data;
   }
 };

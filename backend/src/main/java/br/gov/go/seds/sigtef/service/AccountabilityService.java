@@ -20,20 +20,34 @@ public class AccountabilityService {
     private final AccountabilityRepository accountabilityRepository;
     private final AccountabilitySubmissionRepository submissionRepository;
     private final FiscalDocumentRepository fiscalDocumentRepository;
-    private final AccountabilityAttachmentRepository attachmentRepository;
+
     private final AccountabilityReviewRepository reviewRepository;
     private final MonthlyExecutionRepository executionRepository;
     private final FileStorageService fileStorageService;
     private final AccountabilityIssueService accountabilityIssueService;
+    private final DocumentLinkRepository documentLinkRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public Accountability startDraft(UUID executionId) {
+    public Accountability startDraft(UUID executionId, UUID userId) {
         MonthlyExecution execution = executionRepository.findById(executionId)
                 .orElseThrow(() -> new IllegalArgumentException("Execution not found"));
 
         Optional<Accountability> existing = accountabilityRepository.findByMonthlyExecutionId(executionId);
         if (existing.isPresent()) {
-            return existing.get();
+            Accountability accountability = existing.get();
+            if (accountability.getStatus() == AccountabilityStatus.PENDING_CORRECTION) {
+                List<AccountabilitySubmission> submissions = submissionRepository.findByAccountabilityIdOrderByVersionNumberDesc(accountability.getId());
+                if (!submissions.isEmpty()) {
+                    AccountabilitySubmission latest = submissions.get(0);
+                    if (latest.getSubmittedAt() != null) {
+                        User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                        cloneSubmission(latest, user);
+                    }
+                }
+            }
+            return accountability;
         }
 
         Accountability accountability = Accountability.builder()
@@ -54,6 +68,58 @@ public class AccountabilityService {
         return accountability;
     }
 
+    private void cloneSubmission(AccountabilitySubmission oldSubmission, User user) {
+        AccountabilitySubmission newSubmission = AccountabilitySubmission.builder()
+                .accountability(oldSubmission.getAccountability())
+                .versionNumber(oldSubmission.getVersionNumber() + 1)
+                .build();
+        newSubmission = submissionRepository.save(newSubmission);
+
+        for (FiscalDocument oldDoc : oldSubmission.getFiscalDocuments()) {
+            FiscalDocument newDoc = FiscalDocument.builder()
+                    .submission(newSubmission)
+                    .documentType(oldDoc.getDocumentType())
+                    .documentNumber(oldDoc.getDocumentNumber())
+                    .accessKey(oldDoc.getAccessKey())
+                    .issueDate(oldDoc.getIssueDate())
+                    .issuerCnpj(oldDoc.getIssuerCnpj())
+                    .issuerName(oldDoc.getIssuerName())
+                    .value(oldDoc.getValue())
+                    .reviewStatus(oldDoc.getReviewStatus())
+                    .reviewComments(oldDoc.getReviewComments())
+                    .build();
+            
+            if (oldDoc.getItems() != null) {
+                List<FiscalDocumentItem> newItems = new java.util.ArrayList<>();
+                for (FiscalDocumentItem oldItem : oldDoc.getItems()) {
+                    FiscalDocumentItem newItem = FiscalDocumentItem.builder()
+                            .fiscalDocument(newDoc)
+                            .item(oldItem.getItem())
+                            .quantity(oldItem.getQuantity())
+                            .unitPrice(oldItem.getUnitPrice())
+                            .totalPrice(oldItem.getTotalPrice())
+                            .build();
+                    newItems.add(newItem);
+                }
+                newDoc.setItems(newItems);
+            }
+            newDoc = fiscalDocumentRepository.save(newDoc);
+
+            // Clone DocumentLinks from module 12
+            List<DocumentLink> oldLinks = documentLinkRepository.findByLinkedEntityTypeAndLinkedEntityId("FISCAL_DOCUMENT", oldDoc.getId());
+            for (DocumentLink oldLink : oldLinks) {
+                DocumentLink newLink = DocumentLink.builder()
+                        .document(oldLink.getDocument())
+                        .linkedEntityType(oldLink.getLinkedEntityType())
+                        .linkedEntityId(newDoc.getId())
+                        .role(oldLink.getRole())
+                        .createdBy(user)
+                        .build();
+                documentLinkRepository.save(newLink);
+            }
+        }
+    }
+
     @Transactional
     public FiscalDocument addFiscalDocumentByExecution(UUID executionId, FiscalDocument document) {
         Accountability accountability = accountabilityRepository.findByMonthlyExecutionId(executionId)
@@ -70,47 +136,32 @@ public class AccountabilityService {
             document.getItems().forEach(item -> item.setFiscalDocument(document));
         }
 
-        if (document.getAttachments() != null && !document.getAttachments().isEmpty()) {
-            List<AccountabilityAttachment> realAttachments = new java.util.ArrayList<>();
-            for (AccountabilityAttachment att : document.getAttachments()) {
-                if (att.getId() != null) {
-                    AccountabilityAttachment realAtt = attachmentRepository.findById(att.getId())
-                            .orElseThrow(() -> new IllegalArgumentException("Attachment not found: " + att.getId()));
-                    realAtt.setFiscalDocument(document);
-                    realAttachments.add(realAtt);
-                }
-            }
-            document.setAttachments(realAttachments);
-        }
+
 
         return fiscalDocumentRepository.save(document);
     }
 
     @Transactional
-    public AccountabilityAttachment uploadAttachment(UUID fiscalDocumentId, UUID submissionId, MultipartFile file) {
-        String fileName = fileStorageService.storeFile(file);
+    public FiscalDocument updateFiscalDocument(UUID documentId, FiscalDocument updatedDoc) {
+        FiscalDocument existing = fiscalDocumentRepository.findById(documentId)
+                .orElseThrow(() -> new IllegalArgumentException("Document not found"));
+
+        existing.setDocumentType(updatedDoc.getDocumentType());
+        existing.setDocumentNumber(updatedDoc.getDocumentNumber());
+        existing.setAccessKey(updatedDoc.getAccessKey());
+        existing.setIssueDate(updatedDoc.getIssueDate());
+        existing.setIssuerCnpj(updatedDoc.getIssuerCnpj());
+        existing.setIssuerName(updatedDoc.getIssuerName());
+        existing.setValue(updatedDoc.getValue());
         
-        FiscalDocument fiscalDocument = null;
-        if (fiscalDocumentId != null) {
-            fiscalDocument = fiscalDocumentRepository.findById(fiscalDocumentId).orElse(null);
-        }
+        // Reset review status since it was edited
+        existing.setReviewStatus(null);
+        existing.setReviewComments(null);
 
-        AccountabilitySubmission submission = null;
-        if (submissionId != null) {
-            submission = submissionRepository.findById(submissionId).orElse(null);
-        }
-
-        AccountabilityAttachment attachment = AccountabilityAttachment.builder()
-                .fiscalDocument(fiscalDocument)
-                .submission(submission)
-                .fileName(file.getOriginalFilename())
-                .filePath(fileName)
-                .contentType(file.getContentType())
-                .fileSize(file.getSize())
-                .build();
-
-        return attachmentRepository.save(attachment);
+        return fiscalDocumentRepository.save(existing);
     }
+
+
 
     @Transactional
     public Accountability submitByExecution(UUID executionId, UUID userId) {
@@ -126,11 +177,13 @@ public class AccountabilityService {
         latest.setSubmittedAt(LocalDateTime.now());
         submissionRepository.save(latest);
 
-        accountability.setStatus(AccountabilityStatus.SUBMITTED);
+        boolean wasPendingCorrection = accountability.getStatus() == AccountabilityStatus.PENDING_CORRECTION;
+
+        accountability.setStatus(wasPendingCorrection ? AccountabilityStatus.RESUBMITTED : AccountabilityStatus.SUBMITTED);
         accountabilityRepository.save(accountability);
 
         MonthlyExecution execution = accountability.getMonthlyExecution();
-        execution.setStatus(MonthlyExecutionStatus.SUBMITTED);
+        execution.setStatus(wasPendingCorrection ? MonthlyExecutionStatus.RESUBMITTED : MonthlyExecutionStatus.SUBMITTED);
         executionRepository.save(execution);
 
         return accountability;
@@ -189,5 +242,32 @@ public class AccountabilityService {
 
         AccountabilitySubmission submission = submissions.get(0);
         return submission;
+    }
+
+    @Transactional(readOnly = true)
+    public AccountabilityReview getLatestReviewByExecution(UUID executionId) {
+        Accountability accountability = accountabilityRepository.findByMonthlyExecutionId(executionId)
+                .orElseThrow(() -> new IllegalArgumentException("Accountability not started"));
+        
+        List<AccountabilityReview> reviews = reviewRepository.findBySubmissionIdOrderByReviewedAtDesc(
+                submissionRepository.findByAccountabilityIdOrderByVersionNumberDesc(accountability.getId())
+                        .stream().findFirst().map(AccountabilitySubmission::getId).orElse(null)
+        );
+        
+        if (reviews != null && !reviews.isEmpty()) {
+            return reviews.get(0);
+        }
+        return null;
+    }
+
+    @Transactional
+    public FiscalDocument reviewFiscalDocument(UUID documentId, br.gov.go.seds.sigtef.dto.DocumentReviewRequestDTO dto) {
+        FiscalDocument document = fiscalDocumentRepository.findById(documentId)
+                .orElseThrow(() -> new IllegalArgumentException("Document not found"));
+
+        document.setReviewStatus(dto.getStatus());
+        document.setReviewComments(dto.getComments());
+
+        return fiscalDocumentRepository.save(document);
     }
 }
