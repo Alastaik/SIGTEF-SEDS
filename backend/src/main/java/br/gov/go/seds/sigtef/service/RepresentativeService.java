@@ -159,6 +159,13 @@ public class RepresentativeService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<LegalEntityRepresentative> getActiveRepresentativesForEntity(UUID legalEntityId) {
+        return representativeRepository.findByLegalEntityId(legalEntityId).stream()
+                .filter(rep -> rep.getStatus() == RepresentativeStatus.ACTIVE)
+                .collect(Collectors.toList());
+    }
+
     private RepresentativeResponseDTO mapToRepresentativeResponse(LegalEntityRepresentative rep) {
         return RepresentativeResponseDTO.builder()
                 .id(rep.getId())

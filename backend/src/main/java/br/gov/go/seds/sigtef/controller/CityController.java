@@ -35,4 +35,11 @@ public class CityController {
         city.setId(id);
         return ResponseEntity.ok(repository.save(city));
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_GESTOR')")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

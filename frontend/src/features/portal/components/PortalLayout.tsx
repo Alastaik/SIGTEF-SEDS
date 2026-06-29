@@ -2,12 +2,14 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { LogOut, Home, FileText, CheckSquare, Bell, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { api } from '../../../lib/api';
 
 export function PortalLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [currentEntity, setCurrentEntity] = useState<any>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     // Carregar entidade selecionada
@@ -18,7 +20,22 @@ export function PortalLayout() {
     } else if (entityId) {
       setCurrentEntity({ id: entityId, name: entityName });
     }
-  }, [location.pathname, navigate]);
+
+    // Fetch unread count
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await api.get('/notifications/unread-count');
+        setUnreadCount(res.data.count);
+      } catch (error) {
+        console.error('Erro ao buscar notificações', error);
+      }
+    };
+    
+    if (user) {
+      fetchUnreadCount();
+      // Polling could be added here if needed, but for now just on load/navigate
+    }
+  }, [location.pathname, navigate, user]);
 
   const handleLogout = async () => {
     await logout();
@@ -86,7 +103,21 @@ export function PortalLayout() {
               )}
               
               <div className="flex items-center gap-3 border-l pl-4 border-gray-200">
-                <div className="hidden sm:flex flex-col items-end">
+                <Link
+                  to="/portal/notifications"
+                  className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-gray-100"
+                  title="Notificações"
+                >
+                  <Bell size={20} />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1.5 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                  )}
+                </Link>
+
+                <div className="hidden sm:flex flex-col items-end ml-2">
                   <span className="text-sm font-medium text-gray-900">{user?.name}</span>
                   <span className="text-xs text-gray-500">{user?.email}</span>
                 </div>

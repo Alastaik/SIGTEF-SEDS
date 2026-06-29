@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { entityService } from '../services/entity.service';
 import type { LegalEntityCreateDTO } from '../types/entity';
 import { Save, X } from 'lucide-react';
+import { api } from '../../../lib/api';
 
 export function EntityForm() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  const [cities, setCities] = useState<any[]>([]);
+  const [natures, setNatures] = useState<any[]>([]);
   
   const [formData, setFormData] = useState<LegalEntityCreateDTO>({
     cnpj: '',
@@ -15,7 +19,23 @@ export function EntityForm() {
     tradeName: ''
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    const fetchSelectData = async () => {
+      try {
+        const [citiesRes, naturesRes] = await Promise.all([
+          api.get('/cities'),
+          api.get('/domain-data/type/NATUREZA_ATENDIMENTO')
+        ]);
+        setCities(citiesRes.data);
+        setNatures(naturesRes.data);
+      } catch (err) {
+        console.error('Error fetching select options:', err);
+      }
+    };
+    fetchSelectData();
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     // CNPJ Mask
@@ -27,6 +47,15 @@ export function EntityForm() {
       v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
       v = v.replace(/(\d{4})(\d)/, '$1-$2');
       setFormData(prev => ({ ...prev, [name]: v }));
+      return;
+    }
+
+    if (name === 'attendanceNatureId' || name === 'mainCityId') {
+      const field = name === 'attendanceNatureId' ? 'attendanceNature' : 'mainCity';
+      setFormData(prev => ({
+        ...prev,
+        [field]: value ? { id: value } : undefined
+      }));
       return;
     }
 
@@ -47,6 +76,13 @@ export function EntityForm() {
 
       if (submitData.cnpj.length !== 14) {
         throw new Error('CNPJ deve conter 14 dígitos.');
+      }
+      
+      if (!submitData.mainCity?.id) {
+        throw new Error('Selecione o Município Sede.');
+      }
+      if (!submitData.attendanceNature?.id) {
+        throw new Error('Selecione a Natureza de Atendimento.');
       }
 
       const created = await entityService.create(submitData);
@@ -114,10 +150,50 @@ export function EntityForm() {
                 type="text"
                 id="tradeName"
                 name="tradeName"
-                value={formData.tradeName}
+                value={formData.tradeName || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
               />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="attendanceNatureId" className="block text-sm font-medium text-slate-700 mb-1">
+                  Natureza de Atendimento *
+                </label>
+                <select
+                  id="attendanceNatureId"
+                  name="attendanceNatureId"
+                  required
+                  value={formData.attendanceNature?.id || ''}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                >
+                  <option value="">Selecione...</option>
+                  {natures.map(n => (
+                    <option key={n.id} value={n.id}>{n.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="mainCityId" className="block text-sm font-medium text-slate-700 mb-1">
+                  Município Sede *
+                </label>
+                <select
+                  id="mainCityId"
+                  name="mainCityId"
+                  required
+                  value={formData.mainCity?.id || ''}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                >
+                  <option value="">Selecione o Município...</option>
+                  {cities.map(c => (
+                    <option key={c.id} value={c.id}>{c.name} - {c.stateCode}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>

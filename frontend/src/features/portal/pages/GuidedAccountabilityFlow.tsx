@@ -4,7 +4,7 @@ import { api } from '../../../lib/api';
 import { accountabilityApi } from '../../accountability/api';
 import type { MonthlyExecution } from '../../executions/api';
 import type { FiscalDocument } from '../../accountability/api';
-import { CheckCircle, ChevronRight, ChevronLeft, ArrowRight, Save, Play, Plus, FileText, Paperclip } from 'lucide-react';
+import { CheckCircle, ChevronRight, ChevronLeft, ArrowRight, Save, Play, Plus, FileText, Paperclip, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { WizardDocumentCard } from '../components/WizardDocumentCard';
 import { DocumentUploader } from '../../documents/components/DocumentUploader';
@@ -78,7 +78,7 @@ export function GuidedAccountabilityFlow() {
     if (!execution) return;
     try {
       setLoading(true); // Reusing loading state for the button could be bad, but let's just make it simple
-      const newDoc = await accountabilityApi.addFiscalDocument(execution.id, docForm);
+      const newDoc = await accountabilityApi.addFiscalDocument(execution.id, docForm as any);
       setDocuments(prev => [newDoc, ...prev]);
       setAddingDoc(false);
       setDocForm({
@@ -331,14 +331,14 @@ export function GuidedAccountabilityFlow() {
                           </h4>
                           <DocumentList 
                             linkedEntityType="FISCAL_DOCUMENT" 
-                            linkedEntityId={doc.id} 
+                            linkedEntityId={doc.id!} 
                             readonly={false} 
                           />
                         </div>
                         <div className="border-l border-gray-100 pl-6">
                           <DocumentUploader
                             linkedEntityType="FISCAL_DOCUMENT"
-                            linkedEntityId={doc.id}
+                            linkedEntityId={doc.id!}
                             ownerModule="ACCOUNTABILITY"
                             role="ANEXO_GERAL"
                             label="Anexar Arquivo"
@@ -463,14 +463,14 @@ export function GuidedAccountabilityFlow() {
                         <div>
                           <DocumentList 
                             linkedEntityType="FISCAL_DOCUMENT" 
-                            linkedEntityId={doc.id} 
+                            linkedEntityId={doc.id!} 
                             readonly={false} 
                           />
                         </div>
                         <div className="border-l border-gray-100 pl-6">
                           <DocumentUploader
                             linkedEntityType="FISCAL_DOCUMENT"
-                            linkedEntityId={doc.id}
+                            linkedEntityId={doc.id!}
                             ownerModule="ACCOUNTABILITY"
                             role="COMPROVANTE"
                             label="Anexar Comprovante (PDF/Imagem)"

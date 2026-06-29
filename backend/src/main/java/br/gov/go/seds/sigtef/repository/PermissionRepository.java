@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface PermissionRepository extends JpaRepository<Permission, UUID> {
+    java.util.List<Permission> findByNameIn(java.util.Collection<String> names);
 }

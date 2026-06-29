@@ -1,0 +1,4 @@
+2026-06-29 09:59:12.861 [http-nio-8081-exec-5] ERROR b.g.g.s.s.security.AuthEntryPointJwt - Acesso não autorizado erro: Full authentication is required to access this resource
+2026-06-29 10:02:32.545 [http-nio-8081-exec-3] ERROR b.g.g.s.s.security.AuthEntryPointJwt - Acesso não autorizado erro: Full authentication is required to access this resource
+2026-06-29 10:29:45.323 [http-nio-8081-exec-7] ERROR b.g.g.s.s.security.AuthEntryPointJwt - Acesso não autorizado erro: Full authentication is required to access this resource
+2026-06-29 10:55:12.296 [http-nio-8081-exec-9] ERROR b.g.g.s.s.security.AuthEntryPointJwt - Acesso não autorizado erro: Full authentication is required to access this resource

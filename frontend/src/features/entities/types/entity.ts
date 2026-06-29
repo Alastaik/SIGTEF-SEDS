@@ -5,6 +5,8 @@ export interface LegalEntity {
   cnpj: string;
   corporateName: string;
   tradeName?: string;
+  mainCity?: any;
+  attendanceNature?: any;
   status: EntityStatus;
   createdAt: string;
   updatedAt: string;
@@ -118,7 +120,8 @@ export interface LegalEntityCreateDTO {
   cnpj: string;
   corporateName: string;
   tradeName?: string;
-  // Outros campos essenciais podem ser adicionados aqui depois
+  attendanceNature?: { id: string };
+  mainCity?: { id: string };
 }
 
 export interface LegalEntityUpdateStatusDTO {

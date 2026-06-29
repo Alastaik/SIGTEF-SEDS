@@ -17,10 +17,27 @@ import java.util.List;
 public class RoleController {
 
     private final RoleService roleService;
+    private final br.gov.go.seds.sigtef.repository.PermissionRepository permissionRepository;
 
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<RoleResponse>> getAllRoles() {
         return ResponseEntity.ok(roleService.findAll());
+    }
+
+    @GetMapping("/permissions")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<List<String>> getAllPermissions() {
+        return ResponseEntity.ok(
+                permissionRepository.findAll().stream().map(br.gov.go.seds.sigtef.model.Permission::getName).toList()
+        );
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<RoleResponse> updateRole(
+            @org.springframework.web.bind.annotation.PathVariable java.util.UUID id,
+            @org.springframework.web.bind.annotation.RequestBody java.util.Set<String> permissionNames) {
+        return ResponseEntity.ok(roleService.updateRole(id, permissionNames));
     }
 }

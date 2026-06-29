@@ -6,6 +6,8 @@ import org.hibernate.envers.Audited;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "domain_data")
 @Getter
@@ -14,6 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Audited
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class DomainData {
 
     @Id

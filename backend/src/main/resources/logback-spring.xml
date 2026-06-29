@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Propriedades -->
+    <property name="LOGS_DIR" value="./logs" />
+    <property name="ARCHIVE_DIR" value="${LOGS_DIR}/archive" />
+
+    <!-- Appender para Console -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Appender para Arquivo Rotativo Diário -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS_DIR}/sigtef-app.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Rotação diária -->
+            <fileNamePattern>${ARCHIVE_DIR}/sigtef-app-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <!-- Manter 60 dias de histórico (expurgo automático) -->
+            <maxHistory>60</maxHistory>
+            <!-- Limite total de arquivos arquivados -->
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Appender para Arquivo de Auditoria de Segurança -->
+    <appender name="SECURITY_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS_DIR}/sigtef-security.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${ARCHIVE_DIR}/sigtef-security-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <maxHistory>90</maxHistory> <!-- Segurança guardada por 90 dias -->
+        </rollingPolicy>
+    </appender>
+
+    <!-- Logger dedicado para eventos de segurança/auth (exemplo) -->
+    <logger name="br.gov.go.seds.sigtef.security" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="SECURITY_FILE" />
+    </logger>
+
+    <!-- Configuração Root -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+
+    <!-- Desligar logs excessivos de frameworks -->
+    <logger name="org.springframework.security" level="INFO"/>
+    <logger name="org.hibernate" level="INFO"/>
+
+</configuration>

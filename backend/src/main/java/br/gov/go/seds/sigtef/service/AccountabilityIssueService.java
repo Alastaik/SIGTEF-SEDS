@@ -26,6 +26,7 @@ public class AccountabilityIssueService {
     private final AccountabilityIssueMapper issueMapper;
     private final SecurityUtils securityUtils;
     private final MonthlyExecutionService monthlyExecutionService;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     public AccountabilityIssueService(AccountabilityIssueRepository issueRepository,
                                       AccountabilityIssueResponseRepository responseRepository,
@@ -33,7 +34,8 @@ public class AccountabilityIssueService {
                                       UserRepository userRepository,
                                       AccountabilityIssueMapper issueMapper,
                                       SecurityUtils securityUtils,
-                                      MonthlyExecutionService monthlyExecutionService) {
+                                      MonthlyExecutionService monthlyExecutionService,
+                                      org.springframework.context.ApplicationEventPublisher eventPublisher) {
         this.issueRepository = issueRepository;
         this.responseRepository = responseRepository;
         this.accountabilityRepository = accountabilityRepository;
@@ -41,6 +43,7 @@ public class AccountabilityIssueService {
         this.issueMapper = issueMapper;
         this.securityUtils = securityUtils;
         this.monthlyExecutionService = monthlyExecutionService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -66,6 +69,17 @@ public class AccountabilityIssueService {
         issue.setStatus(IssueStatus.OPEN);
 
         issue = issueRepository.save(issue);
+        
+        // Publish event
+        UUID legalEntityId = accountability.getMonthlyExecution().getPartnershipAgreementProgram().getPartnershipAgreement().getLegalEntity().getId();
+        eventPublisher.publishEvent(new br.gov.go.seds.sigtef.event.IssueCreatedEvent(
+            issue.getId(), 
+            accountabilityId, 
+            legalEntityId,
+            issue.getIssueType().name(),
+            issue.getDescription()
+        ));
+        
         return issueMapper.toDto(issue);
     }
 

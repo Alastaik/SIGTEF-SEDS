@@ -20,6 +20,13 @@ if ! [ -x "$(command -v docker)" ]; then
   echo "Docker instalado. Você pode precisar deslogar e logar novamente."
 fi
 
+echo "Garantindo diretórios e permissões para Logs e Uploads..."
+mkdir -p ./backend/logs
+mkdir -p ./backend/uploads
+# Necessário dar permissão para o usuário dentro do container escrever nesses diretórios
+sudo chmod -R 777 ./backend/logs
+sudo chmod -R 777 ./backend/uploads
+
 echo "Iniciando a stack via Docker Compose..."
 # Força o rebuild das imagens (importante se houve atualização no código local)
 sudo docker-compose up -d --build
@@ -31,3 +38,4 @@ echo "✅ Implantação concluída com sucesso!"
 echo "Acesse o sistema na porta 80 (ou via DNS configurado)."
 echo "Para verificar os logs do backend: sudo docker logs sigtef_backend -f"
 echo "Para verificar os logs do frontend: sudo docker logs sigtef_frontend -f"
+echo "OBS: Certifique-se de configurar o crontab apontando para o script backup.sh para backups automáticos."

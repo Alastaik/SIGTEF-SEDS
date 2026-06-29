@@ -1,83 +1,70 @@
 package br.gov.go.seds.sigtef.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import br.gov.go.seds.sigtef.model.EmailQueue;
+import br.gov.go.seds.sigtef.model.enums.EmailStatus;
+import br.gov.go.seds.sigtef.repository.EmailQueueRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-
-import java.util.List;
-import java.util.Map;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
 
-    private final RestClient restClient;
-    private final String apiKey;
+    private final EmailQueueRepository emailQueueRepository;
+    private final SystemTemplateService systemTemplateService;
 
-    public EmailService(@Value("${resend.api-key:}") String apiKey) {
-        this.apiKey = apiKey;
-        this.restClient = RestClient.builder()
-                .baseUrl("https://api.resend.com")
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build();
-    }
-
+    @Transactional
     public void sendPasswordResetEmail(String toEmail, String resetLink) {
-        if (apiKey == null || apiKey.isBlank()) {
-            System.err.println("RESEND_API_KEY não configurada. E-mail de redefinição de senha não enviado para: " + toEmail);
-            System.err.println("Link de redefinição: " + resetLink);
-            return;
-        }
-
-        Map<String, Object> body = Map.of(
-                "from", "SIGTEF <no-reply@sigtef.com.br>",
-                "to", List.of(toEmail),
-                "subject", "SIGTEF - Redefinição de Senha",
-                "html", "<p>Você solicitou a redefinição de senha do SIGTEF.</p>" +
-                        "<p>Clique no link abaixo para redefinir sua senha (válido por 2 horas):</p>" +
-                        "<a href=\"" + resetLink + "\">Redefinir Senha</a>"
+        // User name is not passed here currently, we will just pass a generic or empty. Actually, reset email is just the link.
+        java.util.Map<String, String> variables = java.util.Map.of(
+            "nome", "Usuário",
+            "link", resetLink
         );
+        
+        var templateOpt = systemTemplateService.findByKey("email.recuperacao_senha");
+        String subject = templateOpt.map(t -> systemTemplateService.processTemplate(t.getSubject(), variables))
+                .orElse("SIGTEF - Redefinição de Senha");
+                
+        String html = templateOpt.map(t -> systemTemplateService.processTemplate(t.getContent(), variables))
+                .orElse("<p>Você solicitou a redefinição de senha do SIGTEF.</p>" +
+                        "<p>Clique no link abaixo para redefinir sua senha (válido por 2 horas):</p>" +
+                        "<a href=\"" + resetLink + "\">Redefinir Senha</a>");
 
-        try {
-            restClient.post()
-                    .uri("/emails")
-                    .body(body)
-                    .retrieve()
-                    .toBodilessEntity();
-            System.out.println("E-mail de redefinição enviado para: " + toEmail);
-        } catch (Exception e) {
-            System.err.println("Erro ao enviar e-mail pelo Resend: " + e.getMessage());
-        }
+        queueEmail(toEmail, subject, html);
     }
-    public void sendRepresentativeInvitationEmail(String toEmail, String name, String legalEntityName, String inviteLink) {
-        if (apiKey == null || apiKey.isBlank()) {
-            System.err.println("RESEND_API_KEY não configurada. E-mail de convite não enviado para: " + toEmail);
-            System.err.println("Link de convite: " + inviteLink);
-            return;
-        }
 
-        Map<String, Object> body = Map.of(
-                "from", "SIGTEF <no-reply@sigtef.com.br>",
-                "to", List.of(toEmail),
-                "subject", "Convite de Acesso - " + legalEntityName,
-                "html", "<p>Olá " + name + ",</p>" +
+    @Transactional
+    public void sendRepresentativeInvitationEmail(String toEmail, String name, String legalEntityName, String inviteLink) {
+        java.util.Map<String, String> variables = java.util.Map.of(
+            "nome", name,
+            "link", inviteLink
+        );
+        
+        var templateOpt = systemTemplateService.findByKey("email.convite_usuario");
+        String subject = templateOpt.map(t -> systemTemplateService.processTemplate(t.getSubject(), variables))
+                .orElse("Convite de Acesso - " + legalEntityName);
+                
+        String html = templateOpt.map(t -> systemTemplateService.processTemplate(t.getContent(), variables))
+                .orElse("<p>Olá " + name + ",</p>" +
                         "<p>Você foi convidado para ser um representante da entidade <strong>" + legalEntityName + "</strong> no sistema SIGTEF.</p>" +
                         "<p>Clique no link abaixo para aceitar o convite e criar sua senha de acesso:</p>" +
                         "<a href=\"" + inviteLink + "\">Aceitar Convite</a>" +
-                        "<p>Se você não sabe do que se trata, pode ignorar este e-mail.</p>"
-        );
+                        "<p>Se você não sabe do que se trata, pode ignorar este e-mail.</p>");
 
-        try {
-            restClient.post()
-                    .uri("/emails")
-                    .body(body)
-                    .retrieve()
-                    .toBodilessEntity();
-            System.out.println("E-mail de convite enviado para: " + toEmail);
-        } catch (Exception e) {
-            System.err.println("Erro ao enviar e-mail de convite pelo Resend: " + e.getMessage());
-        }
+        queueEmail(toEmail, subject, html);
+    }
+    
+    @Transactional
+    public void queueEmail(String recipient, String subject, String htmlBody) {
+        EmailQueue email = EmailQueue.builder()
+                .recipient(recipient)
+                .subject(subject)
+                .htmlBody(htmlBody)
+                .status(EmailStatus.PENDING)
+                .attemptCount(0)
+                .build();
+                
+        emailQueueRepository.save(email);
     }
 }

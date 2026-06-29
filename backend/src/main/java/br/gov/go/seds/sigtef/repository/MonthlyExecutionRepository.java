@@ -11,7 +11,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface MonthlyExecutionRepository extends JpaRepository<MonthlyExecution, UUID> {
+public interface MonthlyExecutionRepository extends JpaRepository<MonthlyExecution, UUID>, org.springframework.data.jpa.repository.JpaSpecificationExecutor<MonthlyExecution> {
+
+    @org.springframework.data.jpa.repository.Query(
+        "SELECT COALESCE(SUM(me.transferredValue), 0) FROM MonthlyExecution me " +
+        "WHERE me.partnershipAgreementProgram.partnershipAgreement.id = :agreementId"
+    )
+    java.math.BigDecimal sumTransferredValueByAgreementId(@org.springframework.data.repository.query.Param("agreementId") UUID agreementId);
+
 
     @Query("SELECT me FROM MonthlyExecution me " +
            "JOIN FETCH me.partnershipAgreementProgram pap " +
@@ -34,4 +41,6 @@ public interface MonthlyExecutionRepository extends JpaRepository<MonthlyExecuti
     Optional<MonthlyExecution> findByPartnershipAgreementProgramIdAndCompetence(UUID partnershipAgreementProgramId, String competence);
 
     List<MonthlyExecution> findByPartnershipAgreementProgramId(UUID partnershipAgreementProgramId);
+    
+    long countByStatus(br.gov.go.seds.sigtef.model.MonthlyExecutionStatus status);
 }

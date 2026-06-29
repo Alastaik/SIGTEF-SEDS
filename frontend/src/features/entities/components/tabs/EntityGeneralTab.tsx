@@ -28,6 +28,18 @@ export function EntityGeneralTab({ entity }: Props) {
           <label className="block text-sm font-medium text-slate-500">Nome Fantasia</label>
           <div className="mt-1 text-slate-900">{entity.tradeName || '-'}</div>
         </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-500">Município Sede</label>
+          <div className="mt-1 text-slate-900">
+            {entity.mainCity ? `${entity.mainCity.name} - ${entity.mainCity.uf}` : '-'}
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-500">Natureza de Atendimento</label>
+          <div className="mt-1 text-slate-900">
+            {entity.attendanceNature ? entity.attendanceNature.name : '-'}
+          </div>
+        </div>
       </div>
     </div>
   );

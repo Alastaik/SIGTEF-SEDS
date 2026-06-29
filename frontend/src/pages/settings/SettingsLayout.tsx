@@ -6,6 +6,7 @@ export function SettingsLayout() {
     { name: 'Competências', path: '/admin/settings/competences' },
     { name: 'Templates', path: '/admin/settings/templates' },
     { name: 'Feature Flags', path: '/admin/settings/flags' },
+    { name: 'Perfis de Acesso', path: '/admin/settings/roles' },
   ];
 
   return (

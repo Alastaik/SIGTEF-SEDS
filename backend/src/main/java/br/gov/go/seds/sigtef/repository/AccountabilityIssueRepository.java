@@ -9,11 +9,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface AccountabilityIssueRepository extends JpaRepository<AccountabilityIssue, UUID> {
+public interface AccountabilityIssueRepository extends JpaRepository<AccountabilityIssue, UUID>, org.springframework.data.jpa.repository.JpaSpecificationExecutor<AccountabilityIssue> {
     List<AccountabilityIssue> findByAccountabilityId(UUID accountabilityId);
     List<AccountabilityIssue> findByAccountabilityIdAndStatus(UUID accountabilityId, IssueStatus status);
     List<AccountabilityIssue> findByAccountabilityIdAndStatusNot(UUID accountabilityId, IssueStatus status);
     List<AccountabilityIssue> findByAccountabilityIdAndStatusNotIn(UUID accountabilityId, List<IssueStatus> statuses);
+    
+    long countByStatus(IssueStatus status);
+    long countByStatusAndDeadlineBefore(IssueStatus status, java.time.LocalDate deadline);
 
     @org.springframework.data.jpa.repository.Query("SELECT i FROM AccountabilityIssue i " +
             "JOIN i.accountability a " +

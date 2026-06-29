@@ -31,4 +31,16 @@ public class SystemTemplateService {
         template.setContent(content);
         return repository.save(template);
     }
+
+    public String processTemplate(String content, java.util.Map<String, String> variables) {
+        if (content == null) return "";
+        if (variables == null || variables.isEmpty()) return content;
+
+        String processed = content;
+        for (java.util.Map.Entry<String, String> entry : variables.entrySet()) {
+            String placeholder = "{{" + entry.getKey() + "}}";
+            processed = processed.replace(placeholder, entry.getValue() != null ? entry.getValue() : "");
+        }
+        return processed;
+    }
 }

@@ -17,11 +17,10 @@ export function BaseRegistriesDashboard() {
     // Busca dados em paralelo para montar o painel
     const fetchStats = async () => {
       try {
-        const [citiesReq, programsReq, docsReq, issuesReq, concReq] = await Promise.all([
+        const [citiesReq, programsReq, docsReq, concReq] = await Promise.all([
           api.get('/cities'),
           api.get('/programs'),
           api.get('/document-types'),
-          api.get('/issue-types'),
           api.get('/domain-data/type/CONCESSIONARIA')
         ]);
 
@@ -29,7 +28,7 @@ export function BaseRegistriesDashboard() {
           cities: citiesReq.data.filter((c: any) => c.active).length,
           programs: programsReq.data.filter((c: any) => c.active).length,
           documents: docsReq.data.filter((c: any) => c.active).length,
-          issues: issuesReq.data.filter((c: any) => c.active).length,
+          issues: 0,
           concessionaires: concReq.data.filter((c: any) => c.active).length
         });
       } catch (error) {

@@ -7,7 +7,6 @@ export function BaseRegistriesLayout() {
     { name: 'Programas', path: '/admin/base-registries/programs' },
     { name: 'Valores dos Programas', path: '/admin/base-registries/program-values' },
     { name: 'Tipos de Documento', path: '/admin/base-registries/documents' },
-    { name: 'Tipos de Pendência', path: '/admin/base-registries/issues' },
     { name: 'Tipos de Termo', path: '/admin/base-registries/domain/TIPO_TERMO' },
     { name: 'Tipos de Processo', path: '/admin/base-registries/domain/TIPO_PROCESSO' },
     { name: 'Tipos de Objeto', path: '/admin/base-registries/domain/TIPO_OBJETO' },

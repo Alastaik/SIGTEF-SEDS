@@ -47,6 +47,10 @@ public class LegalEntityService {
         if (legalEntityRepository.existsByCnpj(entity.getCnpj())) {
             throw new IllegalArgumentException("Já existe uma entidade com este CNPJ.");
         }
+        
+        if (entity.getStatus() == null) {
+            entity.setStatus(EntityStatus.PENDENTE_VALIDACAO);
+        }
 
         // Guarantee one main address if any address is passed
         if (entity.getAddresses() != null && !entity.getAddresses().isEmpty()) {
@@ -56,6 +60,13 @@ public class LegalEntityService {
             } else if (mainCount > 1) {
                 throw new IllegalArgumentException("A entidade deve ter apenas um endereço principal.");
             }
+        }
+
+        if (entity.getMainCity() != null && entity.getMainCity().getId() != null) {
+            entity.setMainCity(cityRepository.findById(entity.getMainCity().getId()).orElseThrow(() -> new IllegalArgumentException("Município não encontrado.")));
+        }
+        if (entity.getAttendanceNature() != null && entity.getAttendanceNature().getId() != null) {
+            entity.setAttendanceNature(domainDataRepository.findById(entity.getAttendanceNature().getId()).orElseThrow(() -> new IllegalArgumentException("Natureza de Atendimento não encontrada.")));
         }
 
         LegalEntity saved = legalEntityRepository.save(entity);
