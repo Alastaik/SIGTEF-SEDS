@@ -17,4 +17,4 @@ EXPOSE 8081
 HEALTHCHECK --interval=30s --timeout=3s \
   CMD wget -q -O - http://localhost:8081/actuator/health || exit 1
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

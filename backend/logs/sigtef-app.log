@@ -3914,3 +3914,315 @@ java.lang.IllegalArgumentException: Invoked method public abstract java.util.Lis
 2026-06-29 10:58:02.358 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 2026-06-29 10:58:02.361 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
 2026-06-29 10:58:02.363 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-06-29 10:58:09.212 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2026-06-29 10:58:09.237 [main] INFO  b.g.go.seds.sigtef.SigtefApplication - Starting SigtefApplication using Java 25.0.2 with PID 24100 (C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\target\classes started by yuris in C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend)
+2026-06-29 10:58:09.238 [main] INFO  b.g.go.seds.sigtef.SigtefApplication - No active profile set, falling back to 1 default profile: "default"
+2026-06-29 10:58:09.724 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-29 10:58:09.834 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 105 ms. Found 45 JPA repository interfaces.
+2026-06-29 10:58:10.273 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8081 (http)
+2026-06-29 10:58:10.282 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8081"]
+2026-06-29 10:58:10.284 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-06-29 10:58:10.284 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-06-29 10:58:10.330 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-06-29 10:58:10.331 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1063 ms
+2026-06-29 10:58:10.505 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-06-29 10:58:10.607 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@42730828
+2026-06-29 10:58:10.608 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-06-29 10:58:10.637 [main] INFO  org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:5433/sigtef_db (PostgreSQL 16.14)
+2026-06-29 10:58:10.692 [main] INFO  o.f.core.internal.command.DbValidate - Successfully validated 45 migrations (execution time 00:00.036s)
+2026-06-29 10:58:10.723 [main] INFO  o.f.core.internal.command.DbMigrate - Current version of schema "public": 45
+2026-06-29 10:58:10.736 [main] INFO  o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - create vw relatorio entidades"
+2026-06-29 10:58:10.777 [main] INFO  o.f.core.internal.command.DbMigrate - Successfully applied 1 migration to schema "public", now at version v46 (execution time 00:00.025s)
+2026-06-29 10:58:10.840 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-29 10:58:10.879 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.2.Final
+2026-06-29 10:58:10.906 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-06-29 10:58:10.955 [main] INFO  o.h.e.b.internal.EnversServiceImpl - Envers integration enabled? : true
+2026-06-29 10:58:11.095 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-29 10:58:11.126 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-29 10:58:11.465 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.Permission
+2026-06-29 10:58:11.467 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.DocumentType
+2026-06-29 10:58:11.467 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.ItemCategory
+2026-06-29 10:58:11.467 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.Program
+2026-06-29 10:58:11.467 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.Document
+2026-06-29 10:58:11.468 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.LegalEntityHistory
+2026-06-29 10:58:11.468 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.Irregularity
+2026-06-29 10:58:11.469 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.PartnershipAgreement
+2026-06-29 10:58:11.469 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.AccountabilitySubmission
+2026-06-29 10:58:11.469 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.AccountabilityIssue
+2026-06-29 10:58:11.469 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.LegalEntityResponsible
+2026-06-29 10:58:11.470 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.LegalEntityContact
+2026-06-29 10:58:11.470 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.User
+2026-06-29 10:58:11.471 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.DocumentEvent
+2026-06-29 10:58:11.471 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.LegalEntityRepresentative
+2026-06-29 10:58:11.471 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.City
+2026-06-29 10:58:11.472 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.AccountabilityIssueResponse
+2026-06-29 10:58:11.472 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.ChecklistItem
+2026-06-29 10:58:11.472 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.SystemTemplate
+2026-06-29 10:58:11.472 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.PartnershipAgreementAddendum
+2026-06-29 10:58:11.473 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.DomainData
+2026-06-29 10:58:11.473 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.CompetenceReopening
+2026-06-29 10:58:11.473 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.Region
+2026-06-29 10:58:11.473 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.Competence
+2026-06-29 10:58:11.473 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.LegalEntityNote
+2026-06-29 10:58:11.474 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.Holiday
+2026-06-29 10:58:11.474 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.DocumentFile
+2026-06-29 10:58:11.474 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.ProgramDocumentRequirement
+2026-06-29 10:58:11.475 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.Accountability
+2026-06-29 10:58:11.476 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.DocumentLink
+2026-06-29 10:58:11.476 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.PartnershipAgreementProgram
+2026-06-29 10:58:11.476 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.LegalEntity
+2026-06-29 10:58:11.477 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.Role
+2026-06-29 10:58:11.477 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.SystemSetting
+2026-06-29 10:58:11.478 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.Item
+2026-06-29 10:58:11.478 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.LegalEntityAddress
+2026-06-29 10:58:11.478 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.ProgramValueTable
+2026-06-29 10:58:11.479 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.AccountabilityReview
+2026-06-29 10:58:11.479 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.MonthlyExecution
+2026-06-29 10:58:11.479 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.LegalEntityConsumerUnit
+2026-06-29 10:58:11.479 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.FiscalDocument
+2026-06-29 10:58:11.480 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.Inspection
+2026-06-29 10:58:11.480 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.FiscalDocumentItem
+2026-06-29 10:58:11.480 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.RepresentativeInvitation
+2026-06-29 10:58:11.480 [main] INFO  o.h.e.c.i.m.AuditMetadataGenerator - Adding properties for entity: br.gov.go.seds.sigtef.model.InspectionOpinion
+2026-06-29 10:58:12.475 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-29 10:58:12.529 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-29 10:58:12.797 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-29 10:58:13.327 [main] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2026-06-29 10:58:13.328 [main] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-06-29 10:58:13.951 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-29 10:58:14.091 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 141 mappings in 'requestMappingHandlerMapping'
+2026-06-29 10:58:14.169 [main] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2026-06-29 10:58:14.197 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@8c7d34d, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4d2f087a, org.springframework.security.web.context.SecurityContextHolderFilter@3cf3216c, org.springframework.security.web.header.HeaderWriterFilter@31fa7d15, org.springframework.web.filter.CorsFilter@710b37c0, org.springframework.security.web.authentication.logout.LogoutFilter@671f8e4a, br.gov.go.seds.sigtef.security.AuthTokenFilter@1c7094eb, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@18f45d62, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7110c51e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6c26f80e, org.springframework.security.web.session.SessionManagementFilter@338a9b84, org.springframework.security.web.access.ExceptionTranslationFilter@65a381ce, org.springframework.security.web.access.intercept.AuthorizationFilter@7c972748]
+2026-06-29 10:58:14.254 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-06-29 10:58:14.281 [main] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-06-29 10:58:14.415 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8081"]
+2026-06-29 10:58:14.420 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8081 (http) with context path '/'
+2026-06-29 10:58:14.430 [main] INFO  b.g.go.seds.sigtef.SigtefApplication - Started SigtefApplication in 5.562 seconds (process running for 5.818)
+2026-06-29 10:58:53.913 [http-nio-8081-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-29 10:58:53.914 [http-nio-8081-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-06-29 10:58:53.914 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected StandardServletMultipartResolver
+2026-06-29 10:58:53.915 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected AcceptHeaderLocaleResolver
+2026-06-29 10:58:53.915 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected FixedThemeResolver
+2026-06-29 10:58:53.915 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@2e185af0
+2026-06-29 10:58:53.917 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@43af156a
+2026-06-29 10:58:53.929 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2026-06-29 10:58:53.930 [http-nio-8081-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 16 ms
+2026-06-29 10:58:54.080 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/auth/me", parameters={}
+2026-06-29 10:58:54.082 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.AuthController#getMe(Authentication)
+2026-06-29 10:58:54.079 [http-nio-8081-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/auth/me", parameters={}
+2026-06-29 10:58:54.084 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.AuthController#getMe(Authentication)
+2026-06-29 10:58:54.116 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:58:54.116 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:58:54.117 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [br.gov.go.seds.sigtef.dto.UserInfoResponse@7a9132bf]
+2026-06-29 10:58:54.117 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [br.gov.go.seds.sigtef.dto.UserInfoResponse@296b3ed2]
+2026-06-29 10:58:54.130 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:58:54.130 [http-nio-8081-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:58:54.174 [http-nio-8081-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/roles", parameters={}
+2026-06-29 10:58:54.175 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.RoleController#getAllRoles()
+2026-06-29 10:58:54.175 [http-nio-8081-exec-5] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/roles/permissions", parameters={}
+2026-06-29 10:58:54.175 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.RoleController#getAllPermissions()
+2026-06-29 10:58:54.183 [http-nio-8081-exec-9] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/roles/permissions", parameters={}
+2026-06-29 10:58:54.184 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.RoleController#getAllPermissions()
+2026-06-29 10:58:54.185 [http-nio-8081-exec-7] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/roles", parameters={}
+2026-06-29 10:58:54.186 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.RoleController#getAllRoles()
+2026-06-29 10:58:54.227 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:58:54.227 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:58:54.230 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[usuarios:visualizar, usuarios:criar, usuarios:editar, usuarios:desativar, entidades:visualizar, ent (truncated)...]
+2026-06-29 10:58:54.232 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[usuarios:visualizar, usuarios:criar, usuarios:editar, usuarios:desativar, entidades:visualizar, ent (truncated)...]
+2026-06-29 10:58:54.234 [http-nio-8081-exec-5] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:58:54.234 [http-nio-8081-exec-9] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:58:54.243 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:58:54.243 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:58:54.244 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.dto.RoleResponse@16d921f6, br.gov.go.seds.sigtef.dto.RoleResponse@34d29707, b (truncated)...]
+2026-06-29 10:58:54.244 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.dto.RoleResponse@6a3475aa, br.gov.go.seds.sigtef.dto.RoleResponse@1458588d, b (truncated)...]
+2026-06-29 10:58:54.247 [http-nio-8081-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:58:54.246 [http-nio-8081-exec-7] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:37.571 [http-nio-8081-exec-4] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/settings", parameters={}
+2026-06-29 10:59:37.575 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.SystemSettingController#getAllSettings()
+2026-06-29 10:59:37.584 [http-nio-8081-exec-8] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/settings", parameters={}
+2026-06-29 10:59:37.586 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.SystemSettingController#getAllSettings()
+2026-06-29 10:59:37.599 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:37.599 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.SystemSetting@669bf88d, br.gov.go.seds.sigtef.model.SystemSetting@324c8 (truncated)...]
+2026-06-29 10:59:37.604 [http-nio-8081-exec-4] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:37.607 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:37.609 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.SystemSetting@24237f71, br.gov.go.seds.sigtef.model.SystemSetting@3c275 (truncated)...]
+2026-06-29 10:59:37.610 [http-nio-8081-exec-8] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:40.213 [http-nio-8081-exec-10] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/entities", parameters={}
+2026-06-29 10:59:40.214 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.LegalEntityController#getAllEntities()
+2026-06-29 10:59:40.217 [http-nio-8081-exec-6] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/entities", parameters={}
+2026-06-29 10:59:40.218 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.LegalEntityController#getAllEntities()
+2026-06-29 10:59:40.244 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:40.244 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.LegalEntity@267b3c9f, br.gov.go.seds.sigtef.model.LegalEntity@60f434fb, (truncated)...]
+2026-06-29 10:59:40.245 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:40.246 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.LegalEntity@23dca36d, br.gov.go.seds.sigtef.model.LegalEntity@16ef5c26, (truncated)...]
+2026-06-29 10:59:40.316 [http-nio-8081-exec-6] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:40.317 [http-nio-8081-exec-10] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:42.230 [http-nio-8081-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/cities", parameters={}
+2026-06-29 10:59:42.231 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.CityController#findAll()
+2026-06-29 10:59:42.231 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/programs", parameters={}
+2026-06-29 10:59:42.231 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.ProgramController#findAll()
+2026-06-29 10:59:42.233 [http-nio-8081-exec-5] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/cities", parameters={}
+2026-06-29 10:59:42.233 [http-nio-8081-exec-9] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/domain-data/type/CONCESSIONARIA", parameters={}
+2026-06-29 10:59:42.234 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.CityController#findAll()
+2026-06-29 10:59:42.236 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.DomainDataController#findByType(String)
+2026-06-29 10:59:42.246 [http-nio-8081-exec-7] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/document-types", parameters={}
+2026-06-29 10:59:42.247 [http-nio-8081-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/programs", parameters={}
+2026-06-29 10:59:42.247 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:42.251 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.DocumentTypeController#findAll()
+2026-06-29 10:59:42.252 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.ProgramController#findAll()
+2026-06-29 10:59:42.252 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.Program@14b9599c]]
+2026-06-29 10:59:42.268 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:42.286 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:42.286 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:42.287 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.DocumentType@59c65a94, br.gov.go.seds.sigtef.model.DocumentType@3f4933e (truncated)...]
+2026-06-29 10:59:42.287 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.Program@6a501e21]]
+2026-06-29 10:59:42.288 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:42.290 [http-nio-8081-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:42.292 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:42.293 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.City@414f1733, br.gov.go.seds.sigtef.model.City@5afbcd09, br.gov.go.sed (truncated)...]
+2026-06-29 10:59:42.295 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.City@fde0656, br.gov.go.seds.sigtef.model.City@3eb76bbb, br.gov.go.seds (truncated)...]
+2026-06-29 10:59:42.296 [http-nio-8081-exec-7] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:42.302 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:42.304 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[]]
+2026-06-29 10:59:42.307 [http-nio-8081-exec-4] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/document-types", parameters={}
+2026-06-29 10:59:42.307 [http-nio-8081-exec-9] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:42.308 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.DocumentTypeController#findAll()
+2026-06-29 10:59:42.316 [http-nio-8081-exec-8] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/domain-data/type/CONCESSIONARIA", parameters={}
+2026-06-29 10:59:42.317 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.DomainDataController#findByType(String)
+2026-06-29 10:59:42.324 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:42.324 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.DocumentType@6c2e1c88, br.gov.go.seds.sigtef.model.DocumentType@4ea6267 (truncated)...]
+2026-06-29 10:59:42.326 [http-nio-8081-exec-4] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:42.326 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:42.327 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[]]
+2026-06-29 10:59:42.329 [http-nio-8081-exec-8] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:42.334 [http-nio-8081-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:42.334 [http-nio-8081-exec-5] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:45.586 [http-nio-8081-exec-6] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/entities", parameters={}
+2026-06-29 10:59:45.586 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.LegalEntityController#getAllEntities()
+2026-06-29 10:59:45.596 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:45.601 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.LegalEntity@6e47f94b, br.gov.go.seds.sigtef.model.LegalEntity@30a9eddd, (truncated)...]
+2026-06-29 10:59:45.622 [http-nio-8081-exec-6] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 10:59:45.831 [http-nio-8081-exec-10] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/entities", parameters={}
+2026-06-29 10:59:45.831 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.LegalEntityController#getAllEntities()
+2026-06-29 10:59:45.835 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 10:59:45.836 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.LegalEntity@6f9ce5d4, br.gov.go.seds.sigtef.model.LegalEntity@661b6422, (truncated)...]
+2026-06-29 10:59:45.856 [http-nio-8081-exec-10] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:00:38.644 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/notifications/my?page=0&size=15", parameters={masked}
+2026-06-29 11:00:38.644 [http-nio-8081-exec-1] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/], classpath [resources/], classpath [static/], classpath [public/], ServletContext [/]]
+2026-06-29 11:00:38.648 [http-nio-8081-exec-1] DEBUG o.s.w.s.r.ResourceHttpRequestHandler - Resource not found
+2026-06-29 11:00:38.651 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource api/notifications/my.]
+2026-06-29 11:00:38.651 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Completed 404 NOT_FOUND
+2026-06-29 11:00:38.659 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - "ERROR" dispatch for GET "/error?page=0&size=15", parameters={masked}
+2026-06-29 11:00:38.660 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2026-06-29 11:00:38.664 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:00:38.669 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [{timestamp=Mon Jun 29 11:00:38 GMT-03:00 2026, status=404, error=Not Found, path=/api/notifications/ (truncated)...]
+2026-06-29 11:00:38.676 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Exiting from "ERROR" dispatch, status 404
+2026-06-29 11:00:38.839 [http-nio-8081-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/notifications/my?page=0&size=15", parameters={masked}
+2026-06-29 11:00:38.839 [http-nio-8081-exec-3] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/], classpath [resources/], classpath [static/], classpath [public/], ServletContext [/]]
+2026-06-29 11:00:38.841 [http-nio-8081-exec-3] DEBUG o.s.w.s.r.ResourceHttpRequestHandler - Resource not found
+2026-06-29 11:00:38.843 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource api/notifications/my.]
+2026-06-29 11:00:38.844 [http-nio-8081-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - Completed 404 NOT_FOUND
+2026-06-29 11:00:38.844 [http-nio-8081-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - "ERROR" dispatch for GET "/error?page=0&size=15", parameters={masked}
+2026-06-29 11:00:38.845 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2026-06-29 11:00:38.846 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:00:38.846 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [{timestamp=Mon Jun 29 11:00:38 GMT-03:00 2026, status=404, error=Not Found, path=/api/notifications/ (truncated)...]
+2026-06-29 11:00:38.847 [http-nio-8081-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - Exiting from "ERROR" dispatch, status 404
+2026-06-29 11:00:39.667 [http-nio-8081-exec-7] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/reports/entities?page=0&size=10&programMatchMode=CONTAINS", parameters={masked}
+2026-06-29 11:00:39.667 [http-nio-8081-exec-9] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/reports/entities?page=0&size=10&programMatchMode=CONTAINS", parameters={masked}
+2026-06-29 11:00:39.667 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.ReportController#getEntityReport(ReportFilterDTO, Pageable)
+2026-06-29 11:00:39.668 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.ReportController#getEntityReport(ReportFilterDTO, Pageable)
+2026-06-29 11:00:39.717 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:00:39.717 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:00:39.718 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [Page 1 of 1 containing br.gov.go.seds.sigtef.dto.admin.EntityReportDTO instances]
+2026-06-29 11:00:39.718 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [Page 1 of 1 containing br.gov.go.seds.sigtef.dto.admin.EntityReportDTO instances]
+2026-06-29 11:00:39.719 [http-nio-8081-exec-9] WARN  o.s.d.w.c.SpringDataJacksonConfiguration$PageModule$PlainPageSerializationWarning - Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2026-06-29 11:00:39.728 [http-nio-8081-exec-9] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:00:39.728 [http-nio-8081-exec-7] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:00:43.678 [http-nio-8081-exec-4] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/imports", parameters={}
+2026-06-29 11:00:43.678 [http-nio-8081-exec-8] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/imports", parameters={}
+2026-06-29 11:00:43.678 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.ImportController#listBatches()
+2026-06-29 11:00:43.678 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.ImportController#listBatches()
+2026-06-29 11:00:43.687 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:00:43.687 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:00:43.687 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[]]
+2026-06-29 11:00:43.687 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[]]
+2026-06-29 11:00:43.688 [http-nio-8081-exec-4] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:00:43.690 [http-nio-8081-exec-8] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:00:47.002 [http-nio-8081-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/reports/entities?page=0&size=10&programMatchMode=CONTAINS", parameters={masked}
+2026-06-29 11:00:47.002 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.ReportController#getEntityReport(ReportFilterDTO, Pageable)
+2026-06-29 11:00:47.013 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:00:47.014 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [Page 1 of 1 containing br.gov.go.seds.sigtef.dto.admin.EntityReportDTO instances]
+2026-06-29 11:00:47.015 [http-nio-8081-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:00:47.274 [http-nio-8081-exec-5] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/reports/entities?page=0&size=10&programMatchMode=CONTAINS", parameters={masked}
+2026-06-29 11:00:47.274 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.ReportController#getEntityReport(ReportFilterDTO, Pageable)
+2026-06-29 11:00:47.287 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:00:47.287 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [Page 1 of 1 containing br.gov.go.seds.sigtef.dto.admin.EntityReportDTO instances]
+2026-06-29 11:00:47.288 [http-nio-8081-exec-5] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:03:45.897 [http-nio-8081-exec-10] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/reports/issues?page=0&size=10", parameters={masked}
+2026-06-29 11:03:45.898 [http-nio-8081-exec-6] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/reports/issues?page=0&size=10", parameters={masked}
+2026-06-29 11:03:45.898 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.ReportController#getIssueReport(IssueReportFilterDTO, Pageable)
+2026-06-29 11:03:45.898 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.ReportController#getIssueReport(IssueReportFilterDTO, Pageable)
+2026-06-29 11:03:45.908 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:03:45.908 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:03:45.908 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [Page 1 of 0 containing UNKNOWN instances]
+2026-06-29 11:03:45.909 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [Page 1 of 0 containing UNKNOWN instances]
+2026-06-29 11:03:45.909 [http-nio-8081-exec-6] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:03:45.909 [http-nio-8081-exec-10] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:03:51.139 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/reports/entities?page=0&size=10&programMatchMode=CONTAINS", parameters={masked}
+2026-06-29 11:03:51.140 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.ReportController#getEntityReport(ReportFilterDTO, Pageable)
+2026-06-29 11:03:51.154 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:03:51.154 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [Page 1 of 1 containing br.gov.go.seds.sigtef.dto.admin.EntityReportDTO instances]
+2026-06-29 11:03:51.156 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:19:30.084 [http-nio-8081-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/monthly-executions?competence=2026-06", parameters={masked}
+2026-06-29 11:19:30.084 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.MonthlyExecutionController#findByFilters(String, UUID, UUID, String, Pageable)
+2026-06-29 11:19:30.107 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:19:30.108 [http-nio-8081-exec-3] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [Page 1 of 1 containing br.gov.go.seds.sigtef.model.MonthlyExecution instances]
+2026-06-29 11:19:30.123 [http-nio-8081-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:19:30.522 [http-nio-8081-exec-7] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/settings", parameters={}
+2026-06-29 11:19:30.522 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.SystemSettingController#getAllSettings()
+2026-06-29 11:19:30.528 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:19:30.528 [http-nio-8081-exec-7] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.SystemSetting@48d70cd4, br.gov.go.seds.sigtef.model.SystemSetting@65423 (truncated)...]
+2026-06-29 11:19:30.528 [http-nio-8081-exec-7] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:19:30.567 [http-nio-8081-exec-9] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/monthly-executions?competence=2026-06", parameters={masked}
+2026-06-29 11:19:30.567 [http-nio-8081-exec-4] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/settings", parameters={}
+2026-06-29 11:19:30.569 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.MonthlyExecutionController#findByFilters(String, UUID, UUID, String, Pageable)
+2026-06-29 11:19:30.569 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.SystemSettingController#getAllSettings()
+2026-06-29 11:19:30.582 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:19:30.583 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:19:30.584 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.SystemSetting@5d8db139, br.gov.go.seds.sigtef.model.SystemSetting@56deb (truncated)...]
+2026-06-29 11:19:30.584 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [Page 1 of 1 containing br.gov.go.seds.sigtef.model.MonthlyExecution instances]
+2026-06-29 11:19:30.586 [http-nio-8081-exec-4] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:19:30.608 [http-nio-8081-exec-9] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:19:31.299 [http-nio-8081-exec-6] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/roles/permissions", parameters={}
+2026-06-29 11:19:31.299 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.RoleController#getAllPermissions()
+2026-06-29 11:19:31.300 [http-nio-8081-exec-5] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/roles", parameters={}
+2026-06-29 11:19:31.300 [http-nio-8081-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/roles/permissions", parameters={}
+2026-06-29 11:19:31.300 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.RoleController#getAllRoles()
+2026-06-29 11:19:31.300 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.RoleController#getAllPermissions()
+2026-06-29 11:19:31.302 [http-nio-8081-exec-8] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/admin/roles", parameters={}
+2026-06-29 11:19:31.302 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.RoleController#getAllRoles()
+2026-06-29 11:19:31.306 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:19:31.306 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[usuarios:visualizar, usuarios:criar, usuarios:editar, usuarios:desativar, entidades:visualizar, ent (truncated)...]
+2026-06-29 11:19:31.306 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:19:31.307 [http-nio-8081-exec-6] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:19:31.307 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[usuarios:visualizar, usuarios:criar, usuarios:editar, usuarios:desativar, entidades:visualizar, ent (truncated)...]
+2026-06-29 11:19:31.307 [http-nio-8081-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:19:31.314 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:19:31.314 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:19:31.314 [http-nio-8081-exec-5] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.dto.RoleResponse@5e638b64, br.gov.go.seds.sigtef.dto.RoleResponse@543cce5b, b (truncated)...]
+2026-06-29 11:19:31.314 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.dto.RoleResponse@622b6e68, br.gov.go.seds.sigtef.dto.RoleResponse@1ca376a, br (truncated)...]
+2026-06-29 11:19:31.315 [http-nio-8081-exec-5] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:19:31.315 [http-nio-8081-exec-8] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:19:34.921 [http-nio-8081-exec-10] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/settings", parameters={}
+2026-06-29 11:19:34.923 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.SystemSettingController#getAllSettings()
+2026-06-29 11:19:34.926 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/settings", parameters={}
+2026-06-29 11:19:34.926 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to br.gov.go.seds.sigtef.controller.SystemSettingController#getAllSettings()
+2026-06-29 11:19:34.932 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:19:34.934 [http-nio-8081-exec-10] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.SystemSetting@172d1d4d, br.gov.go.seds.sigtef.model.SystemSetting@27a69 (truncated)...]
+2026-06-29 11:19:34.935 [http-nio-8081-exec-10] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2026-06-29 11:19:34.937 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2026-06-29 11:19:34.937 [http-nio-8081-exec-1] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [[br.gov.go.seds.sigtef.model.SystemSetting@57ff3143, br.gov.go.seds.sigtef.model.SystemSetting@4aa40 (truncated)...]
+2026-06-29 11:19:34.938 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
