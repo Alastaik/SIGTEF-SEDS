@@ -32,14 +32,18 @@ sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 80 -j ACCEPT
 sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT
 sudo netfilter-persistent save 2>/dev/null || echo "Aviso: netfilter-persistent não encontrado. As regras de iptables podem sumir ao reiniciar a VM."
 
-echo "Garantindo diretórios e permissões..."
+echo "Garantindo diretórios e permissões do Block Volume e Certbot..."
 mkdir -p ./backend/logs
-mkdir -p ./backend/uploads
+sudo mkdir -p /data/postgres
+sudo mkdir -p /data/uploads
+sudo mkdir -p /data/backups
 mkdir -p ./certbot/conf
 mkdir -p ./certbot/www
 
 sudo chmod -R 777 ./backend/logs
-sudo chmod -R 777 ./backend/uploads
+sudo chmod -R 777 /data/postgres
+sudo chmod -R 777 /data/uploads
+sudo chmod -R 777 /data/backups
 sudo chmod -R 777 ./certbot/www
 
 echo "Iniciando a stack via Docker Compose..."
