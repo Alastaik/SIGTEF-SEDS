@@ -123,7 +123,6 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<jvmArguments>-XX:+UseZGC</jvmArguments>
-					<executable>C:\Program Files\Java\jdk-21.0.10\bin\java.exe</executable>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
@@ -140,7 +139,6 @@
 					<source>${java.version}</source>
 					<target>${java.version}</target>
 					<fork>true</fork>
-					<executable>C:\Program Files\Java\jdk-21.0.10\bin\javac</executable>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
