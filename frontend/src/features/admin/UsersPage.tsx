@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { RequirePermission } from '../auth/RequirePermission';
 import { Plus, Edit2, Ban, CheckCircle } from 'lucide-react';
+import { UserFormModal } from './components/UserFormModal';
 
 interface User {
   id: string;
@@ -15,6 +16,7 @@ interface User {
 export function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -40,12 +42,25 @@ export function UsersPage() {
         </div>
         
         <RequirePermission permission="usuarios:criar">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-colors">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-colors"
+          >
             <Plus size={18} />
             Novo Usuário
           </button>
         </RequirePermission>
       </div>
+
+      {isModalOpen && (
+        <UserFormModal 
+          onClose={() => setIsModalOpen(false)} 
+          onSuccess={() => {
+            setIsModalOpen(false);
+            fetchUsers();
+          }} 
+        />
+      )}
 
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
         {loading ? (
