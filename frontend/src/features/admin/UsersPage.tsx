@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { RequirePermission } from '../auth/RequirePermission';
-import { Plus, Edit2, Ban, CheckCircle } from 'lucide-react';
+import { Plus, Edit2, Ban, CheckCircle, Trash2, Lock, Unlock } from 'lucide-react';
 import { UserFormModal } from './components/UserFormModal';
 
 interface User {
@@ -30,6 +30,31 @@ export function UsersPage() {
       console.error('Failed to fetch users', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleActive = async (id: string, currentStatus: boolean) => {
+    const action = currentStatus ? 'inativar' : 'ativar';
+    if (!window.confirm(`Tem certeza que deseja ${action} este usuário?`)) return;
+    
+    try {
+      await api.patch(`/admin/users/${id}/toggle-active`);
+      fetchUsers();
+    } catch (error) {
+      console.error(`Falha ao ${action} usuário`, error);
+      alert(`Erro ao tentar ${action} o usuário.`);
+    }
+  };
+
+  const deleteUser = async (id: string) => {
+    if (!window.confirm('CUIDADO: Tem certeza que deseja EXCLUIR PERMANENTEMENTE este usuário? Esta ação não pode ser desfeita e pode falhar se o usuário tiver registros vinculados.')) return;
+    
+    try {
+      await api.delete(`/admin/users/${id}`);
+      fetchUsers();
+    } catch (error) {
+      console.error('Falha ao excluir usuário', error);
+      alert('Erro ao tentar excluir o usuário. É provável que ele já possua registros vinculados no sistema. Tente inativá-lo em vez disso.');
     }
   };
 
@@ -94,6 +119,24 @@ export function UsersPage() {
                     <RequirePermission permission="usuarios:editar">
                       <button className="text-slate-400 hover:text-blue-600 transition-colors" title="Editar">
                         <Edit2 size={18} />
+                      </button>
+                    </RequirePermission>
+                    <RequirePermission permission="usuarios:inativar">
+                      <button 
+                        onClick={() => toggleActive(user.id, user.active)}
+                        className={`${user.active ? 'text-amber-500 hover:text-amber-600' : 'text-emerald-500 hover:text-emerald-600'} transition-colors ml-2`} 
+                        title={user.active ? "Inativar Usuário" : "Ativar Usuário"}
+                      >
+                        {user.active ? <Lock size={18} /> : <Unlock size={18} />}
+                      </button>
+                    </RequirePermission>
+                    <RequirePermission permission="usuarios:excluir">
+                      <button 
+                        onClick={() => deleteUser(user.id)}
+                        className="text-red-400 hover:text-red-600 transition-colors ml-2" 
+                        title="Excluir Permanentemente"
+                      >
+                        <Trash2 size={18} />
                       </button>
                     </RequirePermission>
                   </td>

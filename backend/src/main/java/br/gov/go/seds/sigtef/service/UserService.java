@@ -59,6 +59,15 @@ public class UserService {
     }
 
     @Transactional
+    public UserResponse toggleActive(UUID id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+        user.setActive(!user.getActive());
+        User savedUser = userRepository.save(user);
+        return mapToResponse(savedUser);
+    }
+
+    @Transactional
     public void delete(UUID id) {
         // By default, if user is referenced in other tables (created_by, updated_by), it will throw constraint exception.
         // Usually we don't hard delete users. But since we are adding it for Admin:

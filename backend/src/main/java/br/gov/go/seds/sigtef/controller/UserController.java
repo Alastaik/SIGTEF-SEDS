@@ -31,8 +31,14 @@ public class UserController {
         return ResponseEntity.ok(userService.create(request));
     }
 
+    @PatchMapping("/{id}/toggle-active")
+    @PreAuthorize("hasAuthority('usuarios:inativar') or hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<UserResponse> toggleActive(@PathVariable UUID id) {
+        return ResponseEntity.ok(userService.toggleActive(id));
+    }
+
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_GESTOR')")
+    @PreAuthorize("hasAuthority('usuarios:excluir') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
