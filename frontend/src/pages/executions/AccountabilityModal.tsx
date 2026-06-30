@@ -22,6 +22,7 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
   const [addingDoc, setAddingDoc] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [documents, setDocuments] = useState<FiscalDocument[]>([]);
+  const [complementaryDocuments, setComplementaryDocuments] = useState<any[]>([]);
   const [docForm, setDocForm] = useState<FiscalDocument>({
     documentType: 'NF-e',
     value: 0,
@@ -81,6 +82,12 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
         setDocuments(response.data.fiscalDocuments);
       } else if (response.data?.accountability?.fiscalDocuments?.length > 0) {
         setDocuments(response.data.accountability.fiscalDocuments);
+      }
+
+      if (response.data?.complementaryDocuments?.length > 0) {
+        setComplementaryDocuments(response.data.complementaryDocuments);
+      } else if (response.data?.accountability?.complementaryDocuments?.length > 0) {
+        setComplementaryDocuments(response.data.accountability.complementaryDocuments);
       }
     } catch (error) {
       console.error('Erro ao carregar submissão para pendências', error);
@@ -365,6 +372,70 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
                     <p className="text-xs text-gray-400">Use o formulário acima para adicionar documentos fiscais.</p>
                   </div>
                 )}
+              </div>
+
+              {/* Complementary Documents Section */}
+              <div className="mt-10 mb-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                  <Paperclip size={20} /> Documentos Complementares
+                </h3>
+                
+                <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm mb-4">
+                  <DocumentUploader
+                    ownerModule="ACCOUNTABILITY"
+                    role="ANEXO_COMPLEMENTAR"
+                    label="Adicionar Novo Documento Complementar"
+                    description="PDF, JPG ou PNG (Max: 10MB)"
+                    onUploadSuccess={async (doc) => {
+                      if (doc) {
+                        try {
+                          if (!draftStarted.current) {
+                            await accountabilityApi.startDraft(execution.id);
+                            draftStarted.current = true;
+                          }
+                          await accountabilityApi.addComplementaryDocument(execution.id, doc.id);
+                          setComplementaryDocuments(prev => [...prev, doc]);
+                        } catch (e: any) {
+                          setErrorMsg(e?.response?.data?.message || 'Erro ao vincular documento complementar.');
+                        }
+                      }
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  {complementaryDocuments.map(doc => (
+                    <div key={doc.id} className="flex justify-between items-center bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <FileText className="text-gray-400" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{doc.name || 'Documento Anexado'}</p>
+                          {doc.documentType && <p className="text-xs text-gray-500">{doc.documentType.name}</p>}
+                        </div>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          if (confirm('Deseja remover este documento?')) {
+                            try {
+                              await accountabilityApi.removeComplementaryDocument(execution.id, doc.id);
+                              setComplementaryDocuments(prev => prev.filter(d => d.id !== doc.id));
+                            } catch (e: any) {
+                              setErrorMsg(e?.response?.data?.message || 'Erro ao remover documento.');
+                            }
+                          }
+                        }}
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                  {complementaryDocuments.length === 0 && (
+                    <div className="text-center py-6 bg-white rounded-lg border border-dashed border-gray-300">
+                      <p className="text-sm text-gray-500">Nenhum documento complementar adicionado.</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

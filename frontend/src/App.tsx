@@ -1,6 +1,6 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './features/auth/AuthContext';
+import { AuthProvider, useAuth } from './features/auth/AuthContext';
 import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { AdminLayout } from './components/AdminLayout';
 import { AdminDashboard } from './features/admin/dashboard/AdminDashboard';
@@ -57,6 +57,13 @@ import { PortalIssues } from './features/portal/pages/PortalIssues';
 import { PortalNotifications } from './features/portal/pages/PortalNotifications';
 
 const queryClient = new QueryClient();
+
+function RootRedirect() {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  return <Navigate to={user.userType === 'EXTERNO' ? '/portal' : '/admin'} replace />;
+}
 
 function App() {
   return (
@@ -127,7 +134,8 @@ function App() {
               </Route>
             </Route>
 
-            <Route path="/" element={<ProtectedRoute />} />
+            <Route path="/" element={<RootRedirect />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

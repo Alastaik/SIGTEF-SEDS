@@ -77,6 +77,14 @@ export const accountabilityApi = {
     return response.data;
   },
 
+  addComplementaryDocument: async (executionId: string, documentId: string): Promise<void> => {
+    await api.post(`/accountabilities/executions/${executionId}/complementary-documents/${documentId}`);
+  },
+
+  removeComplementaryDocument: async (executionId: string, documentId: string): Promise<void> => {
+    await api.delete(`/accountabilities/executions/${executionId}/complementary-documents/${documentId}`);
+  },
+
   getLatestReview: async (executionId: string): Promise<AccountabilityReview | null> => {
     const response = await api.get(`/accountabilities/executions/${executionId}/latest-review`);
     return response.data || null;

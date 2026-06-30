@@ -17,6 +17,7 @@ export function GuidedAccountabilityFlow() {
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [documents, setDocuments] = useState<FiscalDocument[]>([]);
+  const [complementaryDocuments, setComplementaryDocuments] = useState<any[]>([]);
   const [addingDoc, setAddingDoc] = useState(false);
   const [docForm, setDocForm] = useState<Partial<FiscalDocument>>({
     documentType: 'NF-e',
@@ -58,6 +59,12 @@ export function GuidedAccountabilityFlow() {
                 setDocuments(subResponse.data.fiscalDocuments);
               } else if (subResponse.data?.accountability?.fiscalDocuments?.length > 0) {
                 setDocuments(subResponse.data.accountability.fiscalDocuments);
+              }
+
+              if (subResponse.data?.complementaryDocuments?.length > 0) {
+                setComplementaryDocuments(subResponse.data.complementaryDocuments);
+              } else if (subResponse.data?.accountability?.complementaryDocuments?.length > 0) {
+                setComplementaryDocuments(subResponse.data.accountability.complementaryDocuments);
               }
             } catch (err) {
               console.error("Nenhuma submissão existente", err);
@@ -101,7 +108,8 @@ export function GuidedAccountabilityFlow() {
     { number: 2, title: 'Notas Fiscais', desc: 'Registro de Despesas' },
     { number: 3, title: 'Anexos', desc: 'Arquivos em PDF' },
     { number: 4, title: 'Pagamentos', desc: 'Comprovantes' },
-    { number: 5, title: 'Revisão', desc: 'Conferência Final' },
+    { number: 5, title: 'Complementares', desc: 'Outros Documentos' },
+    { number: 6, title: 'Revisão', desc: 'Conferência Final' },
   ];
 
   if (loading) return <div className="p-8 text-center">Iniciando prestação de contas...</div>;
@@ -486,6 +494,59 @@ export function GuidedAccountabilityFlow() {
 
           {currentStep === 5 && (
             <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Documentos Complementares</h2>
+              <p className="text-gray-500 mb-6">Anexe arquivos obrigatórios que não possuem dados financeiros, como Lista de Beneficiados, Fotos ou Relatórios de Atividades.</p>
+              
+              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-6">
+                <DocumentUploader
+                  ownerModule="ACCOUNTABILITY"
+                  role="ANEXO_COMPLEMENTAR"
+                  label="Adicionar Documento Complementar"
+                  description="PDF, JPG ou PNG (Max: 10MB)"
+                  onUploadSuccess={async (doc) => {
+                    if (doc) {
+                      await accountabilityApi.addComplementaryDocument(execution.id, doc.id);
+                      setComplementaryDocuments(prev => [...prev, doc]);
+                    }
+                  }}
+                />
+              </div>
+
+              {complementaryDocuments.length > 0 ? (
+                <div className="space-y-3">
+                  {complementaryDocuments.map(doc => (
+                    <div key={doc.id} className="flex justify-between items-center bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <FileText className="text-gray-400" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{doc.name || 'Documento Anexado'}</p>
+                          {doc.documentType && <p className="text-xs text-gray-500">{doc.documentType.name}</p>}
+                        </div>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          if (confirm('Deseja remover este documento?')) {
+                            await accountabilityApi.removeComplementaryDocument(execution.id, doc.id);
+                            setComplementaryDocuments(prev => prev.filter(d => d.id !== doc.id));
+                          }
+                        }}
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-gray-50 border border-gray-200 border-dashed rounded-xl p-8 text-center text-gray-500">
+                  <p>Nenhum documento complementar adicionado.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {currentStep === 6 && (
+            <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">Revisão Final</h2>
               <p className="text-gray-500 mb-6">Confira se os totais batem com o valor repassado. Após o envio, os documentos não poderão ser alterados até que a SEDS analise.</p>
               
@@ -533,6 +594,12 @@ export function GuidedAccountabilityFlow() {
                         {documents.filter(d => d.documentType === 'Comprovante').length}
                       </span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Documentos Complementares:</span>
+                      <span className="font-medium text-gray-900">
+                        {complementaryDocuments.length}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -557,7 +624,7 @@ export function GuidedAccountabilityFlow() {
             
             <button 
               onClick={async () => {
-                if (currentStep < 5) {
+                if (currentStep < 6) {
                   setCurrentStep(prev => prev + 1);
                 } else {
                   if (confirm('Tem certeza que deseja enviar esta prestação de contas para a SEDS?')) {
@@ -578,8 +645,8 @@ export function GuidedAccountabilityFlow() {
               disabled={loading}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm inline-flex items-center disabled:opacity-50"
             >
-              {currentStep === 5 ? 'Confirmar Envio' : 'Próxima Etapa'} 
-              {currentStep < 5 && <ChevronRight size={16} className="ml-1" />}
+              {currentStep === 6 ? 'Confirmar Envio' : 'Próxima Etapa'} 
+              {currentStep < 6 && <ChevronRight size={16} className="ml-1" />}
             </button>
           </div>
         </div>

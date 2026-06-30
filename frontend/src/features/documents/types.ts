@@ -1,6 +1,6 @@
 export type DocumentOwnerModule = 'ACCOUNTABILITY' | 'AGREEMENT' | 'ISSUE' | 'ENTITY' | 'GENERAL';
 export type RetentionPolicy = 'DO_NOT_EXPUNGE' | 'EXPUNGE_AFTER_90_DAYS' | 'EXPUNGE_AFTER_5_YEARS' | 'FISCAL_XML_10_YEARS';
-export type DocumentLinkRole = 'COMPROVANTE' | 'TERMO_ASSINADO' | 'ADITIVO' | 'RESPOSTA_PENDENCIA' | 'PARECER' | 'ANEXO_GERAL';
+export type DocumentLinkRole = 'COMPROVANTE' | 'TERMO_ASSINADO' | 'ADITIVO' | 'RESPOSTA_PENDENCIA' | 'PARECER' | 'ANEXO_GERAL' | 'ANEXO_COMPLEMENTAR';
 
 export interface DocumentResponse {
     id: string;

@@ -49,6 +49,14 @@ public class AccountabilitySubmission {
     @Builder.Default
     private java.util.List<FiscalDocument> fiscalDocuments = new java.util.ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @org.hibernate.annotations.Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)
+    @JoinTable(name = "accountability_submission_documents",
+            joinColumns = @JoinColumn(name = "submission_id"),
+            inverseJoinColumns = @JoinColumn(name = "document_id"))
+    @Builder.Default
+    private java.util.List<Document> complementaryDocuments = new java.util.ArrayList<>();
+
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();

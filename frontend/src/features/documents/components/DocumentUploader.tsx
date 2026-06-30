@@ -4,53 +4,55 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { documentService } from '../api';
 import type { DocumentOwnerModule, DocumentLinkRole, RetentionPolicy } from '../types';
 
-interface DocumentUploaderProps {
-    linkedEntityType: string;
-    linkedEntityId: string;
-    ownerModule: DocumentOwnerModule;
-    role?: DocumentLinkRole;
-    retentionPolicy?: RetentionPolicy;
-    documentTypeId?: string;
-    label?: string;
-    description?: string;
-    acceptedTypes?: string;
-    maxSizeMB?: number;
-    onUploadSuccess?: () => void;
-}
+    interface DocumentUploaderProps {
+        linkedEntityType?: string;
+        linkedEntityId?: string;
+        ownerModule: DocumentOwnerModule;
+        role?: DocumentLinkRole;
+        retentionPolicy?: RetentionPolicy;
+        documentTypeId?: string;
+        label?: string;
+        description?: string;
+        acceptedTypes?: string;
+        maxSizeMB?: number;
+        onUploadSuccess?: (doc?: any) => void;
+    }
 
-export function DocumentUploader({
-    linkedEntityType,
-    linkedEntityId,
-    ownerModule,
-    role = 'ANEXO_GERAL',
-    retentionPolicy = 'EXPUNGE_AFTER_90_DAYS',
-    documentTypeId,
-    label = 'Anexar Documento',
-    description = 'Arraste e solte ou clique para selecionar',
-    acceptedTypes = '*/*',
-    maxSizeMB = 50,
-    onUploadSuccess
-}: DocumentUploaderProps) {
-    const [dragActive, setDragActive] = useState(false);
-    const [file, setFile] = useState<File | null>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
-    const queryClient = useQueryClient();
+    export function DocumentUploader({
+        linkedEntityType,
+        linkedEntityId,
+        ownerModule,
+        role = 'ANEXO_GERAL',
+        retentionPolicy = 'EXPUNGE_AFTER_90_DAYS',
+        documentTypeId,
+        label = 'Anexar Documento',
+        description = 'Arraste e solte ou clique para selecionar',
+        acceptedTypes = '*/*',
+        maxSizeMB = 50,
+        onUploadSuccess
+    }: DocumentUploaderProps) {
+        const [dragActive, setDragActive] = useState(false);
+        const [file, setFile] = useState<File | null>(null);
+        const inputRef = useRef<HTMLInputElement>(null);
+        const queryClient = useQueryClient();
 
-    const uploadMutation = useMutation({
-        mutationFn: (selectedFile: File) => documentService.upload({
-            file: selectedFile,
-            linkedEntityType,
-            linkedEntityId,
-            ownerModule,
-            role,
-            retentionPolicy,
-            documentTypeId
-        }),
-        onSuccess: () => {
-            setFile(null);
-            queryClient.invalidateQueries({ queryKey: ['documents', linkedEntityType, linkedEntityId] });
-            if (onUploadSuccess) onUploadSuccess();
-        },
+        const uploadMutation = useMutation({
+            mutationFn: (selectedFile: File) => documentService.upload({
+                file: selectedFile,
+                linkedEntityType,
+                linkedEntityId,
+                ownerModule,
+                role,
+                retentionPolicy,
+                documentTypeId
+            }),
+            onSuccess: (data) => {
+                setFile(null);
+                if (linkedEntityType && linkedEntityId) {
+                    queryClient.invalidateQueries({ queryKey: ['documents', linkedEntityType, linkedEntityId] });
+                }
+                if (onUploadSuccess) onUploadSuccess(data);
+            },
         onError: (err: any) => {
             alert('Erro ao enviar documento: ' + (err.response?.data?.message || err.message));
             setFile(null);

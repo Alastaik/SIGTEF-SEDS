@@ -40,6 +40,24 @@ public class AccountabilityController {
         return ResponseEntity.ok(service.updateFiscalDocument(documentId, document));
     }
 
+    @PostMapping("/executions/{executionId}/complementary-documents/{documentId}")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE')")
+    public ResponseEntity<Void> addComplementaryDocument(
+            @PathVariable UUID executionId, 
+            @PathVariable UUID documentId) {
+        service.addComplementaryDocument(executionId, documentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/executions/{executionId}/complementary-documents/{documentId}")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE')")
+    public ResponseEntity<Void> removeComplementaryDocument(
+            @PathVariable UUID executionId, 
+            @PathVariable UUID documentId) {
+        service.removeComplementaryDocument(executionId, documentId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/executions/{executionId}/submit")
     @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE')")
     public ResponseEntity<Accountability> submitByExecution(@PathVariable UUID executionId, @AuthenticationPrincipal br.gov.go.seds.sigtef.security.UserDetailsImpl user) {

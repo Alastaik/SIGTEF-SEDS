@@ -27,6 +27,7 @@ public class AccountabilityService {
     private final AccountabilityIssueService accountabilityIssueService;
     private final DocumentLinkRepository documentLinkRepository;
     private final UserRepository userRepository;
+    private final DocumentRepository documentRepository;
 
     @Transactional
     public Accountability startDraft(UUID executionId, UUID userId) {
@@ -118,6 +119,12 @@ public class AccountabilityService {
                 documentLinkRepository.save(newLink);
             }
         }
+
+        // Clone Complementary Documents
+        if (oldSubmission.getComplementaryDocuments() != null) {
+            newSubmission.setComplementaryDocuments(new java.util.ArrayList<>(oldSubmission.getComplementaryDocuments()));
+            submissionRepository.save(newSubmission);
+        }
     }
 
     @Transactional
@@ -161,7 +168,37 @@ public class AccountabilityService {
         return fiscalDocumentRepository.save(existing);
     }
 
+    @Transactional
+    public void addComplementaryDocument(UUID executionId, UUID documentId) {
+        Accountability accountability = accountabilityRepository.findByMonthlyExecutionId(executionId)
+                .orElseThrow(() -> new IllegalArgumentException("Accountability not started for this execution"));
 
+        List<AccountabilitySubmission> submissions = submissionRepository.findByAccountabilityIdOrderByVersionNumberDesc(accountability.getId());
+        if (submissions.isEmpty()) throw new IllegalStateException("No submissions found");
+
+        AccountabilitySubmission submission = submissions.get(0);
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new IllegalArgumentException("Document not found"));
+
+        if (!submission.getComplementaryDocuments().contains(document)) {
+            submission.getComplementaryDocuments().add(document);
+            submissionRepository.save(submission);
+        }
+    }
+
+    @Transactional
+    public void removeComplementaryDocument(UUID executionId, UUID documentId) {
+        Accountability accountability = accountabilityRepository.findByMonthlyExecutionId(executionId)
+                .orElseThrow(() -> new IllegalArgumentException("Accountability not started for this execution"));
+
+        List<AccountabilitySubmission> submissions = submissionRepository.findByAccountabilityIdOrderByVersionNumberDesc(accountability.getId());
+        if (submissions.isEmpty()) throw new IllegalStateException("No submissions found");
+
+        AccountabilitySubmission submission = submissions.get(0);
+        
+        submission.getComplementaryDocuments().removeIf(doc -> doc.getId().equals(documentId));
+        submissionRepository.save(submission);
+    }
 
     @Transactional
     public Accountability submitByExecution(UUID executionId, UUID userId) {
