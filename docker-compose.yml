@@ -9,7 +9,12 @@ services:
       POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-sigtef_password}
       POSTGRES_DB: ${POSTGRES_DB:-sigtef_db}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - /data/postgres:/var/lib/postgresql/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     restart: unless-stopped
     networks:
       - sigtef-network
@@ -31,8 +36,13 @@ services:
       - JWT_SECRET=${JWT_SECRET:-fallback_secret_only_for_dev_change_it}
       - JAVA_OPTS=${JAVA_OPTS:--Xmx1g -Xms512m}
     volumes:
-      - ./backend/uploads:/app/uploads
+      - /data/uploads:/app/uploads
       - ./backend/logs:/app/logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       - postgres
     restart: unless-stopped
@@ -52,6 +62,11 @@ services:
     container_name: sigtef_frontend
     depends_on:
       - backend
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     restart: unless-stopped
     networks:
       - sigtef-network
@@ -74,12 +89,14 @@ services:
     depends_on:
       - frontend
       - backend
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     restart: unless-stopped
     networks:
       - sigtef-network
-
-volumes:
-  postgres_data:
 
 networks:
   sigtef-network:

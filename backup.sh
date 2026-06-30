@@ -5,11 +5,11 @@
 # 0 2 * * * /opt/sigtef/backup.sh >> /var/log/sigtef-backup.log 2>&1
 
 # Variáveis
-BACKUP_DIR="/var/backups/sigtef"
+BACKUP_DIR="/data/backups/sigtef"
 DB_CONTAINER="sigtef_postgres"
 DB_USER="sigtef_user"
 DB_NAME="sigtef_db"
-UPLOADS_DIR="./backend/uploads"
+UPLOADS_DIR="/data/uploads"
 DATE=$(date +"%Y%m%d_%H%M%S")
 RETENTION_DAYS=7
 
