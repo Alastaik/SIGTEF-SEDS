@@ -25,6 +25,9 @@ public class JwtUtils {
     @Value("${app.jwt.expirationMs}")
     private int jwtExpirationMs;
 
+    @Value("${app.jwt.secure:false}")
+    private boolean jwtSecure;
+
     private final String jwtCookieName = "sigtef-jwt";
 
     public String getJwtFromCookies(HttpServletRequest request) {
@@ -42,7 +45,7 @@ public class JwtUtils {
                 .path("/api")
                 .maxAge(24 * 60 * 60) // 24 hours
                 .httpOnly(true)
-                .secure(false) // TODO: set to true in production with HTTPS
+                .secure(jwtSecure)
                 .sameSite("Strict")
                 .build();
     }
@@ -52,7 +55,7 @@ public class JwtUtils {
                 .path("/api")
                 .maxAge(0)
                 .httpOnly(true)
-                .secure(false)
+                .secure(jwtSecure)
                 .sameSite("Strict")
                 .build();
     }

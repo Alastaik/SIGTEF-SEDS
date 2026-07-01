@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { RequirePermission } from '../auth/RequirePermission';
+import { useAuth } from '../auth/AuthContext';
 import { Plus, Edit2, Ban, CheckCircle, Trash2, Lock, Unlock } from 'lucide-react';
 import { UserFormModal } from './components/UserFormModal';
 
@@ -13,9 +14,25 @@ interface User {
   roles: string[];
 }
 
+const getRoleRank = (roleName: string) => {
+  switch (roleName) {
+    case "ROLE_ADMIN": return 100;
+    case "ROLE_GESTOR": return 80;
+    case "ROLE_ANALISTA": return 60;
+    case "ROLE_REPRESENTANTE": return 40;
+    default: return 0;
+  }
+};
+
+const getMaxRank = (roles: string[]) => {
+  return roles.reduce((max, role) => Math.max(max, getRoleRank(role)), 0);
+};
+
 export function UsersPage() {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -31,6 +48,11 @@ export function UsersPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenModal = (user?: User) => {
+    setUserToEdit(user || null);
+    setIsModalOpen(true);
   };
 
   const toggleActive = async (id: string, currentStatus: boolean) => {
@@ -58,6 +80,8 @@ export function UsersPage() {
     }
   };
 
+  const currentUserRank = currentUser ? getMaxRank(currentUser.authorities) : 0;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -68,7 +92,7 @@ export function UsersPage() {
         
         <RequirePermission permission="usuarios:criar">
           <button 
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => handleOpenModal()}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-colors"
           >
             <Plus size={18} />
@@ -79,9 +103,14 @@ export function UsersPage() {
 
       {isModalOpen && (
         <UserFormModal 
-          onClose={() => setIsModalOpen(false)} 
+          userToEdit={userToEdit}
+          onClose={() => {
+            setIsModalOpen(false);
+            setUserToEdit(null);
+          }} 
           onSuccess={() => {
             setIsModalOpen(false);
+            setUserToEdit(null);
             fetchUsers();
           }} 
         />
@@ -102,46 +131,59 @@ export function UsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-slate-900">{user.name}</td>
-                  <td className="px-6 py-4 text-slate-600">{user.email}</td>
-                  <td className="px-6 py-4 text-slate-600 capitalize">{user.userType.toLowerCase()}</td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                      user.active ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {user.active ? <CheckCircle size={14} /> : <Ban size={14} />}
-                      {user.active ? 'Ativo' : 'Inativo'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    <RequirePermission permission="usuarios:editar">
-                      <button className="text-slate-400 hover:text-blue-600 transition-colors" title="Editar">
-                        <Edit2 size={18} />
-                      </button>
-                    </RequirePermission>
-                    <RequirePermission permission="usuarios:inativar">
-                      <button 
-                        onClick={() => toggleActive(user.id, user.active)}
-                        className={`${user.active ? 'text-amber-500 hover:text-amber-600' : 'text-emerald-500 hover:text-emerald-600'} transition-colors ml-2`} 
-                        title={user.active ? "Inativar Usuário" : "Ativar Usuário"}
-                      >
-                        {user.active ? <Lock size={18} /> : <Unlock size={18} />}
-                      </button>
-                    </RequirePermission>
-                    <RequirePermission permission="usuarios:excluir">
-                      <button 
-                        onClick={() => deleteUser(user.id)}
-                        className="text-red-400 hover:text-red-600 transition-colors ml-2" 
-                        title="Excluir Permanentemente"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </RequirePermission>
-                  </td>
-                </tr>
-              ))}
+              {users.map((user) => {
+                const targetUserRank = getMaxRank(user.roles);
+                const canModify = currentUserRank >= targetUserRank;
+
+                return (
+                  <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-slate-900">{user.name}</td>
+                    <td className="px-6 py-4 text-slate-600">{user.email}</td>
+                    <td className="px-6 py-4 text-slate-600 capitalize">{user.userType.toLowerCase()}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                        user.active ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {user.active ? <CheckCircle size={14} /> : <Ban size={14} />}
+                        {user.active ? 'Ativo' : 'Inativo'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right space-x-2">
+                      {canModify && (
+                        <>
+                          <RequirePermission permission="usuarios:editar">
+                            <button 
+                              onClick={() => handleOpenModal(user)}
+                              className="text-slate-400 hover:text-blue-600 transition-colors" 
+                              title="Editar"
+                            >
+                              <Edit2 size={18} />
+                            </button>
+                          </RequirePermission>
+                          <RequirePermission permission="usuarios:inativar">
+                            <button 
+                              onClick={() => toggleActive(user.id, user.active)}
+                              className={`${user.active ? 'text-amber-500 hover:text-amber-600' : 'text-emerald-500 hover:text-emerald-600'} transition-colors ml-2`} 
+                              title={user.active ? "Inativar Usuário" : "Ativar Usuário"}
+                            >
+                              {user.active ? <Lock size={18} /> : <Unlock size={18} />}
+                            </button>
+                          </RequirePermission>
+                          <RequirePermission permission="usuarios:excluir">
+                            <button 
+                              onClick={() => deleteUser(user.id)}
+                              className="text-red-400 hover:text-red-600 transition-colors ml-2" 
+                              title="Excluir Permanentemente"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </RequirePermission>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
               {users.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center text-slate-500">

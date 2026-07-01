@@ -31,6 +31,14 @@ public class UserController {
         return ResponseEntity.ok(userService.create(request));
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('usuarios:editar') or hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable UUID id,
+            @Valid @RequestBody br.gov.go.seds.sigtef.dto.UserUpdateRequest request) {
+        return ResponseEntity.ok(userService.update(id, request));
+    }
+
     @PatchMapping("/{id}/toggle-active")
     @PreAuthorize("hasAuthority('usuarios:inativar') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<UserResponse> toggleActive(@PathVariable UUID id) {

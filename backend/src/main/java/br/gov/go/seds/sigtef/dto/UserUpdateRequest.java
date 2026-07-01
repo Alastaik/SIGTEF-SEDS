@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class UserCreateRequest {
+public class UserUpdateRequest {
     @NotBlank
     private String name;
 
@@ -19,8 +19,7 @@ public class UserCreateRequest {
     @Email
     private String email;
 
-    @NotBlank
-    @jakarta.validation.constraints.Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
+    @jakarta.validation.constraints.Size(min = 6, message = "A nova senha deve ter no mínimo 6 caracteres")
     private String password;
 
     @NotBlank

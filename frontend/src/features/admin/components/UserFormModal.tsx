@@ -9,20 +9,21 @@ interface Role {
 }
 
 interface UserFormModalProps {
+  userToEdit?: any;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export function UserFormModal({ onClose, onSuccess }: UserFormModalProps) {
+export function UserFormModal({ userToEdit, onClose, onSuccess }: UserFormModalProps) {
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
   
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: userToEdit?.name || '',
+    email: userToEdit?.email || '',
     password: '',
-    userType: 'INTERNO',
-    active: true,
+    userType: userToEdit?.userType || 'INTERNO',
+    active: userToEdit?.active ?? true,
     roleIds: [] as string[]
   });
 
@@ -33,7 +34,17 @@ export function UserFormModal({ onClose, onSuccess }: UserFormModalProps) {
   const fetchRoles = async () => {
     try {
       const response = await api.get('/admin/roles');
-      setRoles(response.data);
+      const fetchedRoles = response.data;
+      setRoles(fetchedRoles);
+      
+      if (userToEdit && userToEdit.roles) {
+        // Map role names from userToEdit.roles to role IDs
+        const userRoleIds = fetchedRoles
+          .filter((r: Role) => userToEdit.roles.includes(r.name))
+          .map((r: Role) => r.id);
+          
+        setFormData(prev => ({ ...prev, roleIds: userRoleIds }));
+      }
     } catch (error) {
       toast.error('Erro ao buscar perfis de acesso.');
     }
@@ -43,11 +54,21 @@ export function UserFormModal({ onClose, onSuccess }: UserFormModalProps) {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/admin/users', formData);
-      toast.success('Usuário criado com sucesso!');
+      const payload = { ...formData };
+      if (!payload.password) {
+        delete (payload as any).password;
+      }
+
+      if (userToEdit) {
+        await api.put(`/admin/users/${userToEdit.id}`, payload);
+        toast.success('Usuário atualizado com sucesso!');
+      } else {
+        await api.post('/admin/users', payload);
+        toast.success('Usuário criado com sucesso!');
+      }
       onSuccess();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Erro ao criar usuário');
+      toast.error(error.response?.data?.message || `Erro ao ${userToEdit ? 'atualizar' : 'criar'} usuário`);
     } finally {
       setLoading(false);
     }
@@ -66,7 +87,9 @@ export function UserFormModal({ onClose, onSuccess }: UserFormModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-          <h2 className="text-lg font-semibold text-slate-800">Novo Usuário (SEDS)</h2>
+          <h2 className="text-lg font-semibold text-slate-800">
+            {userToEdit ? 'Editar Usuário (SEDS)' : 'Novo Usuário (SEDS)'}
+          </h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
             <X size={20} />
           </button>
@@ -99,15 +122,29 @@ export function UserFormModal({ onClose, onSuccess }: UserFormModalProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Senha Inicial</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                {userToEdit ? 'Nova Senha (deixe em branco para manter)' : 'Senha Inicial'}
+              </label>
               <input
                 type="password"
-                required
+                required={!userToEdit}
                 value={formData.password}
                 onChange={e => setFormData({ ...formData, password: e.target.value })}
                 className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Defina uma senha provisória"
+                placeholder={userToEdit ? 'Nova senha' : 'Defina uma senha provisória'}
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Usuário</label>
+              <select
+                value={formData.userType}
+                onChange={e => setFormData({ ...formData, userType: e.target.value })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="INTERNO">Interno (SEDS)</option>
+                <option value="EXTERNO">Externo (Entidade)</option>
+              </select>
             </div>
 
             <div className="pt-2">
@@ -144,7 +181,7 @@ export function UserFormModal({ onClose, onSuccess }: UserFormModalProps) {
             disabled={loading}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors disabled:opacity-50"
           >
-            {loading ? 'Salvando...' : 'Criar Usuário'}
+            {loading ? 'Salvando...' : (userToEdit ? 'Atualizar Usuário' : 'Criar Usuário')}
           </button>
         </div>
       </div>
