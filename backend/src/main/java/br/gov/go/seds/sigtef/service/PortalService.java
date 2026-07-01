@@ -140,7 +140,7 @@ public class PortalService {
                     .id(rev.getId())
                     .date(rev.getReviewedAt())
                     .title("Entrou em Análise / Analisada")
-                    .description("Status da análise: " + rev.getStatus().name())
+                    .description("Status da análise: " + (rev.getStatus() != null ? rev.getStatus().name() : "Desconhecido"))
                     .type("ANALISE")
                     .actor("SEDS")
                     .build());
@@ -191,7 +191,7 @@ public class PortalService {
                 .build());
         }
         
-        timeline.sort(java.util.Comparator.comparing(br.gov.go.seds.sigtef.dto.TimelineEventDTO::getDate));
+        timeline.sort(java.util.Comparator.comparing(br.gov.go.seds.sigtef.dto.TimelineEventDTO::getDate, java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())));
         return timeline;
     }
 }
