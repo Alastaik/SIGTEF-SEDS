@@ -9,7 +9,8 @@ public enum AccountabilityStatus {
     APPROVED("Aprovada"),
     REJECTED("Reprovada"),
     CANCELED("Cancelada"),
-    CLOSED("Fechada");
+    CLOSED("Fechada"),
+    CLOSED_UNREALIZED("Fechada sem realização");
 
     private final String description;
 

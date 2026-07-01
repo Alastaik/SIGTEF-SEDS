@@ -20,6 +20,9 @@ public class AdminDashboardDTO {
     private long pendingAccountabilities;
     private long accountabilitiesInAnalysis;
     private long accountabilitiesApprovedThisMonth;
+    private long entitiesWithOneOverdue;
+    private long entitiesWithTwoOverdue;
+    private long entitiesSuspended;
     
     // Pendências
     private long openIssues;

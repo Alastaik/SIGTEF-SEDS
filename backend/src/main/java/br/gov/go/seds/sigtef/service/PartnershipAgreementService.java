@@ -162,8 +162,11 @@ public class PartnershipAgreementService {
                 .attendanceFrequency(request.getAttendanceFrequency())
                 .attendanceDays(request.getAttendanceDays())
                 .perCapitaValue(request.getPerCapitaValue())
-                .consumerUnit(consumerUnit)
-                .active(request.getActive() != null ? request.getActive() : true)
+                .consumerUnit(request.getConsumerUnitId() != null ?
+                        consumerUnitRepository.findById(request.getConsumerUnitId())
+                                .orElseThrow(() -> new IllegalArgumentException("Unidade consumidora não encontrada"))
+                        : null)
+                .status(request.getStatus() != null ? request.getStatus() : ProgramStatus.ACTIVE)
                 .build();
 
         agreementProgram = programRepository.save(agreementProgram);
@@ -222,7 +225,7 @@ public class PartnershipAgreementService {
                 .perCapitaValue(program.getPerCapitaValue())
                 .consumerUnitId(program.getConsumerUnit() != null ? program.getConsumerUnit().getId() : null)
                 .consumerUnitName(program.getConsumerUnit() != null ? program.getConsumerUnit().getUnitNumber() : null)
-                .active(program.getActive())
+                .status(program.getStatus())
                 .createdAt(program.getCreatedAt())
                 .updatedAt(program.getUpdatedAt())
                 .build();

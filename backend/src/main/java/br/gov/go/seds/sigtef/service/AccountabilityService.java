@@ -307,4 +307,22 @@ public class AccountabilityService {
 
         return fiscalDocumentRepository.save(document);
     }
+    
+    @Transactional
+    public void reopenAccountabilityByExecution(UUID executionId, int days) {
+        Accountability acc = accountabilityRepository.findByMonthlyExecutionId(executionId)
+                .orElseThrow(() -> new IllegalArgumentException("Prestação não encontrada"));
+        
+        if (acc.getStatus() != AccountabilityStatus.CLOSED_UNREALIZED) {
+            throw new IllegalStateException("Apenas prestações fechadas sem realização podem ser reabertas");
+        }
+        
+        acc.setStatus(AccountabilityStatus.DRAFT);
+        acc.setReopenedUntil(java.time.LocalDateTime.now().plusDays(days));
+        accountabilityRepository.save(acc);
+        
+        MonthlyExecution execution = acc.getMonthlyExecution();
+        execution.setStatus(MonthlyExecutionStatus.ACCOUNTABILITY_DRAFT);
+        executionRepository.save(execution);
+    }
 }

@@ -7,7 +7,8 @@ import {
   CheckCircle, 
   Clock, 
   TrendingUp, 
-  Wallet 
+  Wallet,
+  Lock
 } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatters';
 
@@ -20,6 +21,9 @@ interface DashboardStats {
   accountabilitiesApprovedThisMonth: number;
   openIssues: number;
   overdueIssues: number;
+  entitiesWithOneOverdue: number;
+  entitiesWithTwoOverdue: number;
+  entitiesSuspended: number;
   totalTransferredThisMonth: number;
   totalApprovedThisMonth: number;
 }
@@ -146,6 +150,45 @@ export function AdminDashboard() {
           <div>
             <p className="text-sm font-medium text-slate-500">Pendências Abertas</p>
             <p className="text-2xl font-bold text-slate-800">{stats.openIssues}</p>
+          </div>
+        </div>
+
+        {/* Inadimplência: 1 Atraso */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-amber-50 text-amber-600 rounded-lg">
+              <AlertTriangle size={24} />
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Entidades com 1 Atraso</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.entitiesWithOneOverdue}</p>
+          </div>
+        </div>
+
+        {/* Inadimplência: 2 Atrasos */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-orange-50 text-orange-600 rounded-lg">
+              <AlertTriangle size={24} />
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Entidades com 2 Atrasos</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.entitiesWithTwoOverdue}</p>
+          </div>
+        </div>
+
+        {/* Inadimplência: Suspensas (3+ Atrasos) */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-red-50 text-red-600 rounded-lg">
+              <Lock size={24} />
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Entidades Suspensas (3+)</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.entitiesSuspended}</p>
           </div>
         </div>
 

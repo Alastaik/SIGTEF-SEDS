@@ -4,6 +4,7 @@ import br.gov.go.seds.sigtef.model.enums.AttendanceFrequency;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.UUID;
+import br.gov.go.seds.sigtef.model.enums.ProgramStatus;
 
 @Data
 public class AgreementProgramRequestDTO {
@@ -15,5 +16,5 @@ public class AgreementProgramRequestDTO {
     private Integer attendanceDays;
     private BigDecimal perCapitaValue;
     private UUID consumerUnitId;
-    private Boolean active;
+    private ProgramStatus status;
 }

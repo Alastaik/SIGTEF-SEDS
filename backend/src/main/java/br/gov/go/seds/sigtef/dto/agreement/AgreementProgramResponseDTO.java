@@ -6,6 +6,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import br.gov.go.seds.sigtef.model.enums.ProgramStatus;
 
 @Data
 @Builder
@@ -22,7 +23,7 @@ public class AgreementProgramResponseDTO {
     private BigDecimal perCapitaValue;
     private UUID consumerUnitId;
     private String consumerUnitName;
-    private Boolean active;
+    private ProgramStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

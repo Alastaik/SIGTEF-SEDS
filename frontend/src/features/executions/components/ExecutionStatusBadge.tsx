@@ -14,6 +14,7 @@ export const getExecutionStatusLabel = (status: string): string => {
     case 'CLOSED': return 'Fechado';
     case 'BLOCKED': return 'Bloqueado';
     case 'CANCELED': return 'Cancelado';
+    case 'ACCOUNTABILITY_CLOSED_UNREALIZED': return 'Fechada s/ Realização';
     default: return status;
   }
 };
@@ -42,6 +43,8 @@ export function ExecutionStatusBadge({ status }: { status: string }) {
       return <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1 w-max"><AlertTriangle size={12}/> {label}</span>;
     case 'CLOSED': 
       return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1 w-max"><Lock size={12}/> {label}</span>;
+    case 'ACCOUNTABILITY_CLOSED_UNREALIZED': 
+      return <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1 w-max"><Lock size={12}/> {label}</span>;
     case 'BLOCKED': 
       return <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium flex items-center gap-1 w-max"><Lock size={12}/> {label}</span>;
     case 'CANCELED': 

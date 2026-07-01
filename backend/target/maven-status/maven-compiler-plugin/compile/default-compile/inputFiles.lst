@@ -123,6 +123,7 @@ C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\InspectionStatus.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\InvitationStatus.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\IrregularitySeverity.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\ProgramStatus.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\RepresentativeRole.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\RepresentativeStatus.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\RetentionPolicy.java

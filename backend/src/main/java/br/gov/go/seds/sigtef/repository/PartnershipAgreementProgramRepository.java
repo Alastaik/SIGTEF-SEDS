@@ -18,7 +18,10 @@ public interface PartnershipAgreementProgramRepository extends JpaRepository<Par
             "JOIN FETCH pap.partnershipAgreement pa " +
             "JOIN FETCH pa.legalEntity " +
             "LEFT JOIN FETCH pap.consumerUnit " +
-            "WHERE pap.active = true " +
+            "WHERE pap.status = 'ACTIVE' " +
             "AND pa.status IN ('ACTIVE', 'SIGNED', 'IN_EXECUTION')")
     List<PartnershipAgreementProgram> findActiveProgramsForExecutionGeneration();
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT pap.partnershipAgreement.legalEntity.id) FROM PartnershipAgreementProgram pap WHERE pap.status = 'SUSPENDED'")
+    long countEntitiesWithSuspendedPrograms();
 }

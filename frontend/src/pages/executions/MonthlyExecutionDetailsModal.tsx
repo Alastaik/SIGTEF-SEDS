@@ -289,6 +289,32 @@ export function MonthlyExecutionDetailsModal({ execution, onClose, onUpdate }: M
                 <FileText size={16} /> Prestar Contas
               </button>
             ) : null}
+            {execution.status === 'ACCOUNTABILITY_CLOSED_UNREALIZED' && (
+              <RequirePermission permission="ROLE_GESTOR">
+                <button 
+                  onClick={async () => {
+                    const days = prompt('Deseja reabrir a prestação de contas? Informe por quantos dias (padrão: 15):', '15');
+                    if (days !== null) {
+                      setLoading(true);
+                      try {
+                        // Assuming you have an API call here. We will need to add it to accountabilityApi
+                        await api.post(`/accountabilities/${execution.id}/reopen?days=${days}`);
+                        alert('Prestação reaberta com sucesso.');
+                        onUpdate();
+                      } catch (e) {
+                        alert('Erro ao reabrir prestação.');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }
+                  }}
+                  disabled={loading}
+                  className="bg-orange-600 text-white hover:bg-orange-700 px-4 py-2 rounded-md font-medium text-sm transition-colors flex items-center gap-2"
+                >
+                  <Unlock size={16} /> Reabrir Prestação
+                </button>
+              </RequirePermission>
+            )}
             <button
               onClick={onClose}
               className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md font-medium text-sm transition-colors"

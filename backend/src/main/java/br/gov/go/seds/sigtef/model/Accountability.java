@@ -34,6 +34,9 @@ public class Accountability {
     @Column(name = "proven_value", precision = 10, scale = 2)
     private BigDecimal provenValue;
 
+    @Column(name = "reopened_until")
+    private LocalDateTime reopenedUntil;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

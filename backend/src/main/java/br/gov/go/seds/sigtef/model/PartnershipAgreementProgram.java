@@ -58,9 +58,10 @@ public class PartnershipAgreementProgram {
     @JoinColumn(name = "consumer_unit_id")
     private LegalEntityConsumerUnit consumerUnit;
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
     @Builder.Default
-    private Boolean active = true;
+    private br.gov.go.seds.sigtef.model.enums.ProgramStatus status = br.gov.go.seds.sigtef.model.enums.ProgramStatus.ACTIVE;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default

@@ -100,4 +100,13 @@ public class AccountabilityController {
             @RequestBody br.gov.go.seds.sigtef.dto.DocumentReviewRequestDTO request) {
         return ResponseEntity.ok(service.reviewFiscalDocument(documentId, request));
     }
+
+    @PostMapping("/executions/{executionId}/reopen")
+    @PreAuthorize("hasAnyRole('GESTOR', 'ADMIN')")
+    public ResponseEntity<Void> reopenAccountability(
+            @PathVariable UUID executionId, 
+            @RequestParam(defaultValue = "15") int days) {
+        service.reopenAccountabilityByExecution(executionId, days);
+        return ResponseEntity.ok().build();
+    }
 }

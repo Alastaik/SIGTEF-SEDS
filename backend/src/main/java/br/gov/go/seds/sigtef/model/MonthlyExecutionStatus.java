@@ -12,7 +12,8 @@ public enum MonthlyExecutionStatus {
     REJECTED("Prestação Reprovada"),
     CLOSED("Fechado"),
     BLOCKED("Bloqueado"),
-    CANCELED("Cancelado");
+    CANCELED("Cancelado"),
+    ACCOUNTABILITY_CLOSED_UNREALIZED("Fechada sem Realização");
 
     private final String description;
 

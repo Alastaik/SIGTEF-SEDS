@@ -5,6 +5,10 @@ import br.gov.go.seds.sigtef.model.MonthlyExecutionStatus;
 import br.gov.go.seds.sigtef.model.PartnershipAgreementProgram;
 import br.gov.go.seds.sigtef.repository.MonthlyExecutionRepository;
 import br.gov.go.seds.sigtef.repository.PartnershipAgreementProgramRepository;
+import br.gov.go.seds.sigtef.repository.AccountabilityRepository;
+import br.gov.go.seds.sigtef.model.Accountability;
+import br.gov.go.seds.sigtef.model.enums.AccountabilityStatus;
+import br.gov.go.seds.sigtef.model.enums.ProgramStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +28,7 @@ public class MonthlyExecutionService {
     private final MonthlyExecutionRepository repository;
     private final PartnershipAgreementProgramRepository programRepository;
     private final CalculationSimulatorService calculationSimulatorService;
+    private final AccountabilityRepository accountabilityRepository;
 
     public Page<MonthlyExecution> findByFilters(String competence, UUID legalEntityId, UUID programId, String status, Pageable pageable) {
         return repository.findByFilters(competence, legalEntityId, programId, status, pageable);
@@ -78,6 +83,7 @@ public class MonthlyExecutionService {
         if (value != null && value.compareTo(java.math.BigDecimal.ZERO) >= 0) {
             if (Boolean.TRUE.equals(exec.getPartnershipAgreementProgram().getProgram().getRequiresAccountability())) {
                 exec.setStatus(MonthlyExecutionStatus.READY_FOR_ACCOUNTABILITY);
+                checkAndCloseOverdueAccountabilities(exec.getPartnershipAgreementProgram());
             } else {
                 exec.setStatus(MonthlyExecutionStatus.CLOSED);
             }
@@ -98,6 +104,7 @@ public class MonthlyExecutionService {
                 exec.setTransferDate(date);
                 if (Boolean.TRUE.equals(exec.getPartnershipAgreementProgram().getProgram().getRequiresAccountability())) {
                     exec.setStatus(MonthlyExecutionStatus.READY_FOR_ACCOUNTABILITY);
+                    checkAndCloseOverdueAccountabilities(exec.getPartnershipAgreementProgram());
                 } else {
                     exec.setStatus(MonthlyExecutionStatus.CLOSED);
                 }
@@ -144,5 +151,33 @@ public class MonthlyExecutionService {
             }
         }
         return count;
+    }
+
+    private void checkAndCloseOverdueAccountabilities(PartnershipAgreementProgram program) {
+        // Find all accountabilities for this program
+        List<Accountability> accountabilities = accountabilityRepository.findByMonthlyExecutionPartnershipAgreementProgramId(program.getId());
+        int closedCount = 0;
+        
+        for (Accountability acc : accountabilities) {
+            if (acc.getStatus() == AccountabilityStatus.DRAFT || acc.getStatus() == AccountabilityStatus.PENDING_CORRECTION) {
+                // Check if reopenedUntil is null or past
+                if (acc.getReopenedUntil() == null || acc.getReopenedUntil().isBefore(java.time.LocalDateTime.now())) {
+                    acc.setStatus(AccountabilityStatus.CLOSED_UNREALIZED);
+                    accountabilityRepository.save(acc);
+                    
+                    MonthlyExecution pastExec = acc.getMonthlyExecution();
+                    pastExec.setStatus(MonthlyExecutionStatus.ACCOUNTABILITY_CLOSED_UNREALIZED);
+                    repository.save(pastExec);
+                }
+            }
+            if (acc.getStatus() == AccountabilityStatus.CLOSED_UNREALIZED) {
+                closedCount++;
+            }
+        }
+        
+        if (closedCount >= 3 && program.getStatus() != ProgramStatus.SUSPENDED) {
+            program.setStatus(ProgramStatus.SUSPENDED);
+            programRepository.save(program);
+        }
     }
 }

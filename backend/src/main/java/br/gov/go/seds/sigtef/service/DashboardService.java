@@ -23,6 +23,8 @@ public class DashboardService {
     private final MonthlyExecutionRepository executionRepository;
     private final AccountabilityReviewRepository reviewRepository;
     private final AccountabilityIssueRepository issueRepository;
+    private final br.gov.go.seds.sigtef.repository.AccountabilityRepository accountabilityRepository;
+    private final br.gov.go.seds.sigtef.repository.PartnershipAgreementProgramRepository programRepository;
 
     @Transactional(readOnly = true)
     public AdminDashboardDTO getGeneralDashboard() {
@@ -39,6 +41,11 @@ public class DashboardService {
         long inAnalysisAccs = executionRepository.countByStatus(br.gov.go.seds.sigtef.model.MonthlyExecutionStatus.UNDER_REVIEW);
         long approvedAccs = executionRepository.countByStatus(br.gov.go.seds.sigtef.model.MonthlyExecutionStatus.APPROVED);
         
+        // Atrasos e Suspensões
+        long entitiesWithOneOverdue = accountabilityRepository.findEntitiesWithOverdueCount(1L).size();
+        long entitiesWithTwoOverdue = accountabilityRepository.findEntitiesWithOverdueCount(2L).size();
+        long entitiesSuspended = programRepository.countEntitiesWithSuspendedPrograms();
+        
         // Pendências
         long openIssues = issueRepository.countByStatus(IssueStatus.OPEN);
         long overdueIssues = issueRepository.countByStatusAndDeadlineBefore(IssueStatus.OPEN, LocalDate.now());
@@ -54,6 +61,9 @@ public class DashboardService {
                 .pendingAccountabilities(pendingAccs)
                 .accountabilitiesInAnalysis(inAnalysisAccs)
                 .accountabilitiesApprovedThisMonth(approvedAccs)
+                .entitiesWithOneOverdue(entitiesWithOneOverdue)
+                .entitiesWithTwoOverdue(entitiesWithTwoOverdue)
+                .entitiesSuspended(entitiesSuspended)
                 .openIssues(openIssues)
                 .overdueIssues(overdueIssues)
                 .totalTransferredThisMonth(totalTransferred)

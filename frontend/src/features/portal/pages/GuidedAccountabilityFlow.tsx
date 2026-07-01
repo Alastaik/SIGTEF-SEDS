@@ -115,12 +115,31 @@ export function GuidedAccountabilityFlow() {
   if (loading) return <div className="p-8 text-center">Iniciando prestação de contas...</div>;
   if (!execution) return <div className="p-8 text-center text-red-500">Competência não encontrada.</div>;
 
+  const isEditable = execution.status === 'READY_FOR_ACCOUNTABILITY' || 
+                     execution.status === 'ACCOUNTABILITY_DRAFT' || 
+                     execution.status === 'PENDING_CORRECTION';
+
   return (
     <div className="max-w-5xl mx-auto">
       {/* Header e Progressão */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Prestar Contas</h1>
         <p className="text-gray-500">Competência: {execution.competence} • {execution.partnershipAgreementProgram?.program?.name}</p>
+        
+        {!isEditable && (
+          <div className="mt-4 bg-red-50 border-l-4 border-red-500 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <CheckCircle className="h-5 w-5 text-red-400" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">
+                  Esta prestação de contas não pode mais ser editada. Status: <strong>{execution.status === 'ACCOUNTABILITY_CLOSED_UNREALIZED' ? 'Fechada sem Realização' : execution.status}</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         
         <div className="mt-8 relative overflow-x-auto hide-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
           <div className="min-w-[500px] sm:min-w-full">
@@ -644,7 +663,7 @@ export function GuidedAccountabilityFlow() {
                   }
                 }
               }}
-              disabled={loading}
+              disabled={loading || !isEditable}
               className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm flex justify-center items-center disabled:opacity-50"
             >
               {currentStep === 6 ? 'Confirmar Envio' : 'Próxima Etapa'} 

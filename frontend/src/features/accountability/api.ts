@@ -3,7 +3,7 @@ import { api } from '../../lib/api';
 export interface Accountability {
   id: string;
   monthlyExecutionId: string;
-  status: 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'PENDING_CORRECTION' | 'RESUBMITTED' | 'APPROVED' | 'REJECTED' | 'CANCELED' | 'CLOSED';
+  status: 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'PENDING_CORRECTION' | 'RESUBMITTED' | 'APPROVED' | 'REJECTED' | 'CANCELED' | 'CLOSED' | 'CLOSED_UNREALIZED';
   provenValue?: number;
   createdAt: string;
   updatedAt?: string;
@@ -12,7 +12,7 @@ export interface Accountability {
 
 export interface AccountabilityReview {
   id: string;
-  status: 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'PENDING_CORRECTION' | 'RESUBMITTED' | 'APPROVED' | 'REJECTED' | 'CANCELED' | 'CLOSED';
+  status: 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'PENDING_CORRECTION' | 'RESUBMITTED' | 'APPROVED' | 'REJECTED' | 'CANCELED' | 'CLOSED' | 'CLOSED_UNREALIZED';
   comments?: string;
   reviewedAt: string;
 }
