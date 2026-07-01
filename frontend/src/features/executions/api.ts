@@ -10,7 +10,7 @@ export interface MonthlyExecution {
   expectedGoal?: number;
   expectedServiceDays?: number;
   consumerUnit?: any;
-  status: 'WAITING_TRANSFER' | 'READY_FOR_ACCOUNTABILITY' | 'ACCOUNTABILITY_DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'PENDING_CORRECTION' | 'RESUBMITTED' | 'APPROVED' | 'REJECTED' | 'CLOSED' | 'BLOCKED' | 'CANCELED';
+  status: 'WAITING_TRANSFER' | 'READY_FOR_ACCOUNTABILITY' | 'ACCOUNTABILITY_DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'PENDING_CORRECTION' | 'RESUBMITTED' | 'APPROVED' | 'REJECTED' | 'CLOSED' | 'BLOCKED' | 'CANCELED' | 'ACCOUNTABILITY_CLOSED_UNREALIZED';
   blocked: boolean;
   blockReason?: string;
   blockedBy?: any;
