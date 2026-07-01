@@ -66,23 +66,25 @@ export function PortalAgreements() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-600">
-              <thead className="bg-white border-b border-gray-200 text-gray-700">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Termo</th>
-                  <th className="px-6 py-4 font-semibold">Programa(s)</th>
-                  <th className="px-6 py-4 font-semibold">Valor Total</th>
-                  <th className="px-6 py-4 font-semibold">Vigência</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
+            <table className="w-full text-left text-sm text-gray-600 block md:table">
+              <thead className="bg-white border-b border-gray-200 text-gray-700 hidden md:table-header-group">
+                <tr className="block md:table-row">
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Termo</th>
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Programa(s)</th>
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Valor Total</th>
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Vigência</th>
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 block md:table-row-group">
                 {agreements.map((agreement) => (
-                  <tr key={agreement.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-gray-900">
+                  <tr key={agreement.id} className="hover:bg-gray-50 transition-colors block md:table-row bg-white border-b border-gray-100 md:border-none mb-4 md:mb-0 shadow-sm md:shadow-none rounded-lg md:rounded-none">
+                    <td className="px-6 py-4 font-medium text-gray-900 block md:table-cell flex items-center justify-between md:justify-start">
+                      <span className="md:hidden font-semibold text-gray-500 mr-2">Termo:</span>
                       {agreement.agreementNumber} / {agreement.year}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 block md:table-cell">
+                      <span className="md:hidden font-semibold text-gray-500 block mb-1">Programa(s):</span>
                       <div className="space-y-1">
                          {agreement.programs?.map((pa: any) => (
                             <div key={pa.id} className="text-sm">
@@ -91,10 +93,12 @@ export function PortalAgreements() {
                          ))}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 block md:table-cell flex justify-between md:justify-start items-center">
+                      <span className="md:hidden font-semibold text-gray-500">Valor Total:</span>
                       {formatCurrency(agreement.globalValue || 0)}
                     </td>
-                    <td className="px-6 py-4 text-gray-500">
+                    <td className="px-6 py-4 text-gray-500 block md:table-cell">
+                      <span className="md:hidden font-semibold text-gray-500 block mb-1">Vigência:</span>
                       <div className="flex items-center gap-1">
                         <Calendar size={14} />
                         {agreement.startDate ? new Date(agreement.startDate).toLocaleDateString('pt-BR') : '-'}
@@ -102,7 +106,8 @@ export function PortalAgreements() {
                         {agreement.endDate ? new Date(agreement.endDate).toLocaleDateString('pt-BR') : '-'}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 block md:table-cell flex justify-between md:justify-start items-center">
+                      <span className="md:hidden font-semibold text-gray-500">Status:</span>
                       {getStatusBadge(agreement.status)}
                     </td>
                   </tr>

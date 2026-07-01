@@ -122,23 +122,25 @@ export function GuidedAccountabilityFlow() {
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Prestar Contas</h1>
         <p className="text-gray-500">Competência: {execution.competence} • {execution.partnershipAgreementProgram?.program?.name}</p>
         
-        <div className="mt-8 relative">
-          <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
-            <div style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500 transition-all duration-500"></div>
-          </div>
-          <div className="flex justify-between">
-            {steps.map(step => (
-              <div key={step.number} className="flex flex-col items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mb-2 transition-colors ${
-                  currentStep > step.number ? 'bg-green-500 text-white' : 
-                  currentStep === step.number ? 'bg-blue-600 text-white ring-4 ring-blue-100' : 
-                  'bg-gray-200 text-gray-500'
-                }`}>
-                  {currentStep > step.number ? <CheckCircle size={16} /> : step.number}
+        <div className="mt-8 relative overflow-x-auto hide-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="min-w-[500px] sm:min-w-full">
+            <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+              <div style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500 transition-all duration-500"></div>
+            </div>
+            <div className="flex justify-between">
+              {steps.map(step => (
+                <div key={step.number} className="flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mb-2 transition-colors ${
+                    currentStep > step.number ? 'bg-green-500 text-white' : 
+                    currentStep === step.number ? 'bg-blue-600 text-white ring-4 ring-blue-100' : 
+                    'bg-gray-200 text-gray-500'
+                  }`}>
+                    {currentStep > step.number ? <CheckCircle size={16} /> : step.number}
+                  </div>
+                  <span className={`text-xs font-medium ${currentStep === step.number ? 'text-blue-600' : 'text-gray-500'}`}>{step.title}</span>
                 </div>
-                <span className={`text-xs font-medium ${currentStep === step.number ? 'text-blue-600' : 'text-gray-500'}`}>{step.title}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -196,7 +198,7 @@ export function GuidedAccountabilityFlow() {
                 <div className="bg-white p-6 border border-blue-200 rounded-xl shadow-sm mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Nova Nota Fiscal</h3>
                   <form onSubmit={handleAddDocument}>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Documento</label>
                         <select
@@ -382,7 +384,7 @@ export function GuidedAccountabilityFlow() {
                 <div className="bg-white p-6 border border-purple-200 rounded-xl shadow-sm mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Novo Comprovante</h3>
                   <form onSubmit={handleAddDocument}>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Identificação / Transação</label>
                         <input
@@ -608,17 +610,17 @@ export function GuidedAccountabilityFlow() {
         </div>
 
         {/* Footer com Botões de Ação */}
-        <div className="border-t border-gray-200 p-4 bg-gray-50 rounded-b-xl flex justify-between items-center">
+        <div className="border-t border-gray-200 p-4 bg-gray-50 rounded-b-xl flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-4">
           <button 
             onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
             disabled={currentStep === 1 || loading}
-            className={`px-4 py-2 font-medium rounded-lg inline-flex items-center transition-colors ${currentStep === 1 || loading ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-200'}`}
+            className={`px-4 py-2 font-medium rounded-lg flex items-center justify-center transition-colors ${currentStep === 1 || loading ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-200'}`}
           >
             <ChevronLeft size={16} className="mr-1" /> Voltar
           </button>
           
-          <div className="flex gap-3">
-            <button className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg font-medium hover:bg-gray-50 inline-flex items-center">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button className="w-full sm:w-auto px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg font-medium hover:bg-gray-50 flex justify-center items-center">
               <Save size={16} className="mr-2" /> Salvar Rascunho
             </button>
             
@@ -643,7 +645,7 @@ export function GuidedAccountabilityFlow() {
                 }
               }}
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm inline-flex items-center disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm flex justify-center items-center disabled:opacity-50"
             >
               {currentStep === 6 ? 'Confirmar Envio' : 'Próxima Etapa'} 
               {currentStep < 6 && <ChevronRight size={16} className="ml-1" />}

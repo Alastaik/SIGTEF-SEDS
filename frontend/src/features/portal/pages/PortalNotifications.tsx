@@ -71,15 +71,15 @@ export function PortalNotifications() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Central de Notificações</h1>
           <p className="text-gray-500">Acompanhe os avisos e atualizações do sistema</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row w-full md:w-auto gap-2 sm:gap-4">
           <button
             onClick={() => { setPage(0); setUnreadOnly(!unreadOnly); }}
-            className={`px-4 py-2 text-sm font-medium rounded-md border ${
+            className={`w-full sm:w-auto px-4 py-2 text-sm font-medium rounded-md border text-center ${
               unreadOnly ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white text-gray-700 border-gray-300'
             }`}
           >
@@ -87,7 +87,7 @@ export function PortalNotifications() {
           </button>
           <button
             onClick={markAllAsRead}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-center"
           >
             Marcar todas como lidas
           </button>

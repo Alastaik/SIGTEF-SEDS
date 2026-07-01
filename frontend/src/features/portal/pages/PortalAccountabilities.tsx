@@ -147,32 +147,36 @@ export function PortalAccountabilities() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-600">
-              <thead className="bg-white border-b border-gray-200 text-gray-700">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Competência</th>
-                  <th className="px-6 py-4 font-semibold">Programa</th>
-                  <th className="px-6 py-4 font-semibold">Valor Repassado</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
-                  <th className="px-6 py-4 font-semibold text-right">Ações</th>
+            <table className="w-full text-left text-sm text-gray-600 block md:table">
+              <thead className="bg-white border-b border-gray-200 text-gray-700 hidden md:table-header-group">
+                <tr className="block md:table-row">
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Competência</th>
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Programa</th>
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Valor Repassado</th>
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Status</th>
+                  <th className="px-6 py-4 font-semibold text-right block md:table-cell">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 block md:table-row-group">
                 {accountabilities.map((acc) => (
-                  <tr key={acc.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-gray-900">
+                  <tr key={acc.id} className="hover:bg-gray-50 transition-colors block md:table-row bg-white border-b border-gray-100 md:border-none mb-4 md:mb-0 shadow-sm md:shadow-none rounded-lg md:rounded-none">
+                    <td className="px-6 py-4 font-medium text-gray-900 block md:table-cell flex items-center justify-between md:justify-start">
+                      <span className="md:hidden font-semibold text-gray-500">Competência:</span>
                       {acc.competence}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 block md:table-cell">
+                      <span className="md:hidden font-semibold text-gray-500 block mb-1">Programa:</span>
                       {acc.partnershipAgreementProgram?.program?.name}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 block md:table-cell flex justify-between md:justify-start items-center">
+                      <span className="md:hidden font-semibold text-gray-500">Valor Repassado:</span>
                       {formatCurrency(acc.transferredValue || 0)}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 block md:table-cell flex justify-between md:justify-start items-center">
+                      <span className="md:hidden font-semibold text-gray-500">Status:</span>
                       {getStatusBadge(acc.status)}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right block md:table-cell flex justify-center md:justify-end border-t md:border-t-0 mt-2 md:mt-0 pt-4 md:pt-4">
                       <Link 
                         to={`/portal/accountabilities/${acc.id}`}
                         className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm"

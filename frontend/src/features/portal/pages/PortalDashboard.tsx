@@ -65,16 +65,16 @@ export function PortalDashboard() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4">Ações Rápidas</h2>
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
           <Link 
             to="/portal/competences"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors inline-block"
+            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center text-center"
           >
             Nova Prestação de Contas
           </Link>
           <Link 
             to="/portal/agreements"
-            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors inline-block"
+            className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center text-center"
           >
             Ver meus Termos
           </Link>

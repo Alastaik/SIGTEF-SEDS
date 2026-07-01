@@ -124,30 +124,34 @@ export function PortalCompetences() {
           <div className="p-8 text-center text-gray-500">Nenhuma competência encontrada para esta entidade.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-600">
-              <thead className="bg-gray-50 border-b border-gray-200 text-gray-700">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Competência</th>
-                  <th className="px-6 py-4 font-semibold">Programa</th>
-                  <th className="px-6 py-4 font-semibold">Valor Previsto</th>
-                  <th className="px-6 py-4 font-semibold">Repasse</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
-                  <th className="px-6 py-4 font-semibold text-right">Ações</th>
+            <table className="w-full text-left text-sm text-gray-600 block md:table">
+              <thead className="bg-gray-50 border-b border-gray-200 text-gray-700 hidden md:table-header-group">
+                <tr className="block md:table-row">
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Competência</th>
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Programa</th>
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Valor Previsto</th>
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Repasse</th>
+                  <th className="px-6 py-4 font-semibold block md:table-cell">Status</th>
+                  <th className="px-6 py-4 font-semibold text-right block md:table-cell">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 block md:table-row-group">
                 {competences.map((comp) => (
-                  <tr key={comp.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-gray-900">
+                  <tr key={comp.id} className="hover:bg-gray-50 transition-colors block md:table-row bg-white border-b border-gray-100 md:border-none mb-4 md:mb-0 shadow-sm md:shadow-none rounded-lg md:rounded-none">
+                    <td className="px-6 py-4 font-medium text-gray-900 block md:table-cell flex items-center justify-between md:justify-start">
+                      <span className="md:hidden font-semibold text-gray-500">Competência:</span>
                       {comp.competence}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 block md:table-cell">
+                      <span className="md:hidden font-semibold text-gray-500 block mb-1">Programa:</span>
                       {comp.partnershipAgreementProgram?.program?.name}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 block md:table-cell flex items-center justify-between md:justify-start">
+                      <span className="md:hidden font-semibold text-gray-500">Valor Previsto:</span>
                       {formatCurrency(comp.expectedValue || 0)}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 block md:table-cell">
+                      <span className="md:hidden font-semibold text-gray-500 block mb-1">Repasse:</span>
                       {comp.transferredValue ? (
                         <div>
                           <div className="text-gray-900 font-medium">{formatCurrency(comp.transferredValue)}</div>
@@ -157,10 +161,11 @@ export function PortalCompetences() {
                         <span className="text-gray-400">Aguardando</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 block md:table-cell flex justify-between md:justify-start items-center">
+                      <span className="md:hidden font-semibold text-gray-500">Status:</span>
                       {getStatusBadge(comp.status)}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right block md:table-cell flex justify-center md:justify-end border-t md:border-t-0 mt-2 md:mt-0 pt-4 md:pt-4">
                       {comp.status === 'PENDING_ACCOUNTABILITY' || comp.status === 'PENDING_CORRECTION' ? (
                         <button className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm">
                           Prestar Contas <ArrowRight size={16} className="ml-1" />

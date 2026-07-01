@@ -95,7 +95,7 @@ export function PortalIssues() {
         </div>
       ) : (
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 space-y-4">
+          <div className={`md:col-span-1 space-y-4 ${selectedIssue ? 'hidden md:block' : 'block'}`}>
             {issues.map((issue) => (
               <div 
                 key={issue.id} 
@@ -123,25 +123,35 @@ export function PortalIssues() {
             ))}
           </div>
 
-          <div className="md:col-span-2">
+          <div className={`md:col-span-2 ${!selectedIssue ? 'hidden md:flex' : 'flex'} flex-col`}>
             {selectedIssue ? (
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-full min-h-[600px]">
-                <div className="p-6 border-b border-gray-200 bg-gray-50 flex justify-between items-start">
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">{selectedIssue.title}</h2>
-                    <div className="flex items-center gap-3">
-                      {getStatusBadge(selectedIssue.status)}
-                      <span className="text-sm text-gray-500">Criado em {new Date(selectedIssue.createdAt).toLocaleDateString('pt-BR')}</span>
+                <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setSelectedIssue(null)}
+                      className="md:hidden p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-full hover:bg-gray-200"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-1">{selectedIssue.title}</h2>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {getStatusBadge(selectedIssue.status)}
+                        <span className="text-sm text-gray-500">Criado em {new Date(selectedIssue.createdAt).toLocaleDateString('pt-BR')}</span>
+                      </div>
                     </div>
                   </div>
-                  {getPriorityBadge(selectedIssue.priority)}
+                  <div className="hidden sm:block">
+                    {getPriorityBadge(selectedIssue.priority)}
+                  </div>
                 </div>
                 
-                <div className="p-6 flex-1 overflow-y-auto bg-gray-50">
+                <div className="p-4 sm:p-6 flex-1 overflow-y-auto bg-gray-50">
                   {/* Descrição Original da SEDS */}
                   <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm shrink-0">
                         S
                       </div>
                       <span className="font-semibold text-gray-900">Analista SEDS</span>
@@ -154,10 +164,10 @@ export function PortalIssues() {
                     <div className="space-y-4 mb-6">
                       <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Histórico de Interações</h4>
                       {selectedIssue.responses.map((resp: any) => (
-                        <div key={resp.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm ml-6">
-                          <div className="flex items-center justify-between mb-3">
+                        <div key={resp.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm ml-4 sm:ml-6">
+                          <div className="flex flex-wrap items-center justify-between mb-3 gap-2">
                             <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-sm">
+                              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-sm shrink-0">
                                 E
                               </div>
                               <span className="font-semibold text-gray-900">Sua Entidade</span>
@@ -205,7 +215,7 @@ export function PortalIssues() {
                           </div>
                         </form>
                       ) : (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-5">
                           <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
                             <CheckCircle size={18} /> Resposta salva com sucesso!
                           </h4>
@@ -213,7 +223,7 @@ export function PortalIssues() {
                             Se necessário, você pode anexar documentos complementares (comprovantes, notas fiscais corrigidas) abaixo para enviar junto com sua justificativa.
                           </p>
                           
-                          <div className="bg-white p-4 rounded-lg border border-blue-100 mb-4">
+                          <div className="bg-white p-4 rounded-lg border border-blue-100 mb-4 overflow-hidden">
                             <DocumentUploader
                               linkedEntityType="ACCOUNTABILITY_ISSUE_RESPONSE"
                               linkedEntityId={activeResponseId}
