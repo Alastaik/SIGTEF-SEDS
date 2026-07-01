@@ -40,93 +40,98 @@ export function AdminLayout() {
           <p className="text-sm text-slate-400 mt-1 text-center">Gestão de Fomentos</p>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+          <div className="mb-2 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Operação</div>
           <Link to="/admin" className={linkClass('/admin')}>
-            <LayoutDashboard size={20} />
+            <LayoutDashboard size={18} />
             Dashboard
           </Link>
 
-          <RequirePermission permission="usuarios:visualizar">
-            <Link to="/admin/users" className={linkClass('/admin/users')}>
-              <Users size={20} />
-              Usuários
-            </Link>
-          </RequirePermission>
-
-          <RequirePermission permission="ROLE_ADMIN">
-            <Link to="/admin/roles" className={linkClass('/admin/roles')}>
-              <Shield size={20} />
-              Perfis de Acesso
-            </Link>
-          </RequirePermission>
-
-          <RequirePermission permission="SETTINGS_VIEW">
-            <Link to="/admin/settings" className={linkClass('/admin/settings')}>
-              <Settings size={20} />
-              Configurações
-            </Link>
-          </RequirePermission>
-
-          <RequirePermission permission="ROLE_ADMIN">
-            <Link to="/admin/base-registries" className={linkClass('/admin/base-registries')}>
-              <LayoutDashboard size={20} />
-              Cadastros Base
-            </Link>
-          </RequirePermission>
-
           <RequirePermission permission="entidades:visualizar">
             <Link to="/admin/entities" className={linkClass('/admin/entities')}>
-              <Building2 size={20} />
+              <Building2 size={18} />
               Entidades
             </Link>
           </RequirePermission>
 
           <RequirePermission permission="agreements:view">
             <Link to="/admin/agreements" className={linkClass('/admin/agreements')}>
-              <FileText size={20} />
+              <FileText size={18} />
               Termos de Fomento
             </Link>
           </RequirePermission>
 
+          <RequirePermission permission="notifications:view">
+            <Link to="/admin/notifications" className={linkClass('/admin/notifications')}>
+              <Bell size={18} />
+              Notificações
+            </Link>
+          </RequirePermission>
+
+          <div className="mt-6 mb-2 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Acompanhamento</div>
+          
           <RequirePermission permission="ROLE_GESTOR">
             <Link to="/admin/executions" className={linkClass('/admin/executions')}>
-              <CalendarDays size={20} />
+              <CalendarDays size={18} />
               Lançamentos Mensais
             </Link>
           </RequirePermission>
 
           <RequirePermission permission="ROLE_SEDS">
             <Link to="/admin/analysis" className={linkClass('/admin/analysis')}>
-              <FileCheck size={20} />
+              <FileCheck size={18} />
               Análise de Prestações
             </Link>
           </RequirePermission>
 
           <RequirePermission permission="ROLE_SEDS">
             <Link to="/admin/inspections" className={linkClass('/admin/inspections')}>
-              <CheckSquare size={20} />
+              <CheckSquare size={18} />
               Fiscalização
-            </Link>
-          </RequirePermission>
-
-          <RequirePermission permission="notifications:view">
-            <Link to="/admin/notifications" className={linkClass('/admin/notifications')}>
-              <Bell size={20} />
-              Notificações
             </Link>
           </RequirePermission>
 
           <RequirePermission permission="reports:view">
             <Link to="/admin/reports" className={linkClass('/admin/reports')}>
-              <BarChart2 size={20} />
+              <BarChart2 size={18} />
               Relatórios
+            </Link>
+          </RequirePermission>
+
+          <div className="mt-6 mb-2 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Administração</div>
+          
+          <RequirePermission permission="ROLE_ADMIN">
+            <Link to="/admin/base-registries" className={linkClass('/admin/base-registries')}>
+              <LayoutDashboard size={18} />
+              Cadastros Base
             </Link>
           </RequirePermission>
 
           <RequirePermission permission="ROLE_ADMIN">
             <Link to="/admin/imports" className={linkClass('/admin/imports')}>
-              <FileUp size={20} />
+              <FileUp size={18} />
               Importações
+            </Link>
+          </RequirePermission>
+
+          <RequirePermission permission="usuarios:visualizar">
+            <Link to="/admin/users" className={linkClass('/admin/users')}>
+              <Users size={18} />
+              Usuários
+            </Link>
+          </RequirePermission>
+
+          <RequirePermission permission="ROLE_ADMIN">
+            <Link to="/admin/roles" className={linkClass('/admin/roles')}>
+              <Shield size={18} />
+              Perfis de Acesso
+            </Link>
+          </RequirePermission>
+
+          <RequirePermission permission="SETTINGS_VIEW">
+            <Link to="/admin/settings" className={linkClass('/admin/settings')}>
+              <Settings size={18} />
+              Configurações
             </Link>
           </RequirePermission>
         </nav>
