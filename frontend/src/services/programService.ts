@@ -12,6 +12,7 @@ export interface Program {
   requiresInvoice: boolean;
   requiresReceipt: boolean;
   requiresItemization: boolean;
+  requiresAccountability: boolean;
   active: boolean;
   calculationType?: string;
 }

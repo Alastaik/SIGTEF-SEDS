@@ -76,7 +76,11 @@ public class MonthlyExecutionService {
         exec.setTransferDate(date);
         
         if (value != null && value.compareTo(java.math.BigDecimal.ZERO) >= 0) {
-            exec.setStatus(MonthlyExecutionStatus.READY_FOR_ACCOUNTABILITY);
+            if (Boolean.TRUE.equals(exec.getPartnershipAgreementProgram().getProgram().getRequiresAccountability())) {
+                exec.setStatus(MonthlyExecutionStatus.READY_FOR_ACCOUNTABILITY);
+            } else {
+                exec.setStatus(MonthlyExecutionStatus.CLOSED);
+            }
         } else {
             exec.setStatus(MonthlyExecutionStatus.WAITING_TRANSFER);
         }
@@ -92,7 +96,11 @@ public class MonthlyExecutionService {
             if (exec.getStatus() == MonthlyExecutionStatus.WAITING_TRANSFER && Boolean.FALSE.equals(exec.getBlocked())) {
                 exec.setTransferredValue(exec.getExpectedValue());
                 exec.setTransferDate(date);
-                exec.setStatus(MonthlyExecutionStatus.READY_FOR_ACCOUNTABILITY);
+                if (Boolean.TRUE.equals(exec.getPartnershipAgreementProgram().getProgram().getRequiresAccountability())) {
+                    exec.setStatus(MonthlyExecutionStatus.READY_FOR_ACCOUNTABILITY);
+                } else {
+                    exec.setStatus(MonthlyExecutionStatus.CLOSED);
+                }
                 repository.save(exec);
                 count++;
             }

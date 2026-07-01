@@ -58,6 +58,10 @@ public class Program {
     @Column(name = "requires_itemization", nullable = false)
     private boolean requiresItemization = false;
 
+    @Column(name = "requires_accountability", nullable = false)
+    @Builder.Default
+    private Boolean requiresAccountability = true;
+
     @Column(nullable = false)
     private boolean active = true;
 

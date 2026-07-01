@@ -45,6 +45,7 @@ export function ProgramsPage() {
       requiresInvoice: false,
       requiresReceipt: false,
       requiresItemization: false,
+      requiresAccountability: true,
       active: true,
       calculationType: 'VALOR_FIXO' as any // Adding calculationType to the default state
     } as any);
@@ -233,6 +234,14 @@ export function ProgramsPage() {
                   <div>
                     <span className="block text-sm font-medium text-slate-700">Exige Recibo/Boleto</span>
                     <span className="text-xs text-slate-500">Obrigatório recibo ou boleto para prestação.</span>
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" checked={selected.requiresAccountability !== false} onChange={e => updateField('requiresAccountability', e.target.checked)} className="mt-1" />
+                  <div>
+                    <span className="block text-sm font-medium text-slate-700">Exige Prestação de Contas</span>
+                    <span className="text-xs text-slate-500">Se desmarcado, a competência é fechada automaticamente após o repasse.</span>
                   </div>
                 </label>
               </div>
