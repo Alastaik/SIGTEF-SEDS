@@ -25,9 +25,9 @@ export interface Agreement {
   startDate?: string;
   endDate?: string | null;
   hasEndDate?: boolean;
-  globalValue?: number | null;
+  globalValue?: number;
   annualValue?: number;
-  status: 'DRAFT' | 'ACTIVE' | 'SUSPENDED' | 'CANCELED' | 'FINISHED';
+  status: AgreementStatus;
   notes?: string;
   createdAt: string;
   updatedAt?: string;
