@@ -3,6 +3,7 @@ package br.gov.go.seds.sigtef.service;
 import br.gov.go.seds.sigtef.dto.agreement.*;
 import br.gov.go.seds.sigtef.model.*;
 import br.gov.go.seds.sigtef.model.enums.AgreementStatus;
+import br.gov.go.seds.sigtef.model.enums.ProgramStatus;
 import br.gov.go.seds.sigtef.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

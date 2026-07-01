@@ -44,15 +44,19 @@ public class ImportBatch {
     @Column(name = "original_file_name")
     private String originalFileName;
 
+    @Builder.Default
     @Column(name = "total_rows")
     private Integer totalRows = 0;
 
+    @Builder.Default
     @Column(name = "valid_rows")
     private Integer validRows = 0;
 
+    @Builder.Default
     @Column(name = "error_rows")
     private Integer errorRows = 0;
 
+    @Builder.Default
     @Column(name = "applied_rows")
     private Integer appliedRows = 0;
 

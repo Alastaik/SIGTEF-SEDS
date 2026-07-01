@@ -28,7 +28,7 @@ public class CalculationSimulatorService {
         // 1. Encontrar o vínculo
         List<PartnershipAgreementProgram> programs = agreementProgramRepository.findByPartnershipAgreementId(agreementId);
         PartnershipAgreementProgram agreementProgram = programs.stream()
-                .filter(p -> p.getProgram().getId().equals(programId) && p.getActive())
+                .filter(p -> p.getProgram().getId().equals(programId) && p.getStatus() == br.gov.go.seds.sigtef.model.enums.ProgramStatus.ACTIVE)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Programa não está vinculado a este termo ou está inativo."));
 
