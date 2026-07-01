@@ -175,14 +175,13 @@ export function EntityDetailsLayout() {
         <main className="flex-1 min-w-0 bg-white border border-slate-200 rounded-lg min-h-[500px]">
           <Routes>
             <Route path="/" element={<EntityGeneralTab entity={entity} />} />
-            <Route path="/enderecos" element={<EntityAddressesTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
-            <Route path="/contatos" element={<EntityContactsTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
-            <Route path="/responsaveis" element={<EntityResponsiblesTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
-            <Route path="/acessos" element={<EntityRepresentativesTab entity={entity} />} />
-            <Route path="/unidades" element={<EntityConsumerUnitsTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
-            <Route path="/notas" element={<EntityHistoryTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
-            <Route path="/historico" element={<EntityHistoryTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
-            <Route path="/historico" element={<EntityHistoryTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
+            <Route path="enderecos" element={<EntityAddressesTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
+            <Route path="contatos" element={<EntityContactsTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
+            <Route path="responsaveis" element={<EntityResponsiblesTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
+            <Route path="acessos" element={<EntityRepresentativesTab entity={entity} />} />
+            <Route path="unidades" element={<EntityConsumerUnitsTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
+            <Route path="notas" element={<EntityHistoryTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
+            <Route path="historico" element={<EntityHistoryTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
           </Routes>
         </main>
       </div>
