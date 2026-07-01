@@ -77,6 +77,7 @@ C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\UserDTO.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\UserInfoResponse.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\UserResponse.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\UserUpdateRequest.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\event\AccountabilityApprovedEvent.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\event\AccountabilitySubmittedEvent.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\event\IssueCreatedEvent.java
