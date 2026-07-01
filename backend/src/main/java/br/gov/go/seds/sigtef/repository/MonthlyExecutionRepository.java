@@ -19,6 +19,7 @@ public interface MonthlyExecutionRepository extends JpaRepository<MonthlyExecuti
     )
     java.math.BigDecimal sumTransferredValueByAgreementId(@org.springframework.data.repository.query.Param("agreementId") UUID agreementId);
 
+    MonthlyExecution findFirstByPartnershipAgreementProgramOrderByCompetenceDesc(br.gov.go.seds.sigtef.model.PartnershipAgreementProgram program);
 
     @Query("SELECT me FROM MonthlyExecution me " +
            "JOIN FETCH me.partnershipAgreementProgram pap " +

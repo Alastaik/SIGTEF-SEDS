@@ -17,6 +17,5 @@ public class AgreementRequestDTO {
     private LocalDate signatureDate;
     private LocalDate startDate;
     private LocalDate endDate;
-    private BigDecimal globalValue;
     private String notes;
 }

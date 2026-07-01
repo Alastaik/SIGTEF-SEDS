@@ -38,6 +38,7 @@ public class ReportService {
     private final MonthlyExecutionRepository monthlyExecutionRepository;
     private final br.gov.go.seds.sigtef.repository.AccountabilityIssueRepository accountabilityIssueRepository;
     private final br.gov.go.seds.sigtef.repository.RelatorioEntidadeViewRepository viewRepository;
+    private final br.gov.go.seds.sigtef.repository.PartnershipAgreementAddendumRepository addendumRepository;
 
     @Transactional(readOnly = true)
     public Page<EntityReportDTO> getEntityReport(ReportFilterDTO filter, Pageable pageable) {
@@ -77,9 +78,37 @@ public class ReportService {
                     .sumTransferredValueByAgreementId(agreement.getId());
             if (transferred == null) transferred = BigDecimal.ZERO;
 
+            // Valor Global
+            BigDecimal global = BigDecimal.ZERO;
+            Boolean hasEndDate = agreement.getEndDate() != null;
+            long totalMonths = 0;
+            if (agreement.getStartDate() != null && hasEndDate) {
+                totalMonths = ChronoUnit.MONTHS.between(agreement.getStartDate().withDayOfMonth(1), agreement.getEndDate().withDayOfMonth(1)) + 1;
+            }
+            List<br.gov.go.seds.sigtef.model.PartnershipAgreementProgram> agreementPrograms = programRepository.findByPartnershipAgreementId(agreement.getId());
+            for (br.gov.go.seds.sigtef.model.PartnershipAgreementProgram p : agreementPrograms) {
+                BigDecimal monthlyValue = BigDecimal.ZERO;
+                if (p.getGoalQuantity() != null && p.getPerCapitaValue() != null && p.getAttendanceDays() != null) {
+                    monthlyValue = p.getPerCapitaValue().multiply(new BigDecimal(p.getGoalQuantity())).multiply(new BigDecimal(p.getAttendanceDays()));
+                } else {
+                    br.gov.go.seds.sigtef.model.MonthlyExecution latestExec = monthlyExecutionRepository.findFirstByPartnershipAgreementProgramOrderByCompetenceDesc(p);
+                    if (latestExec != null && latestExec.getExpectedValue() != null) {
+                        monthlyValue = latestExec.getExpectedValue();
+                    }
+                }
+                if (totalMonths > 0) {
+                    global = global.add(monthlyValue.multiply(new BigDecimal(totalMonths)));
+                }
+            }
+            List<br.gov.go.seds.sigtef.model.PartnershipAgreementAddendum> addendums = addendumRepository.findByPartnershipAgreementIdOrderByCreatedAtDesc(agreement.getId());
+            for (br.gov.go.seds.sigtef.model.PartnershipAgreementAddendum ad : addendums) {
+                if (ad.getValueAddition() != null && br.gov.go.seds.sigtef.model.enums.AddendumStatus.ACTIVE.equals(ad.getStatus())) {
+                    global = global.add(ad.getValueAddition());
+                }
+            }
+
             // Percentual executado
             double percent = 0.0;
-            BigDecimal global = agreement.getGlobalValue();
             if (global != null && global.compareTo(BigDecimal.ZERO) > 0) {
                 percent = transferred
                         .multiply(BigDecimal.valueOf(100))

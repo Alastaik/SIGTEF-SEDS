@@ -25,7 +25,9 @@ public class AgreementResponseDTO {
     private LocalDate signatureDate;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Boolean hasEndDate;
     private BigDecimal globalValue;
+    private BigDecimal annualValue;
     private AgreementStatus status;
     private String notes;
     private LocalDateTime createdAt;

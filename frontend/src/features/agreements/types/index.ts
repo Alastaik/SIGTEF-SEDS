@@ -23,9 +23,11 @@ export interface Agreement {
   objectDescription?: string;
   signatureDate?: string;
   startDate?: string;
-  endDate?: string;
-  globalValue?: number;
-  status: AgreementStatus;
+  endDate?: string | null;
+  hasEndDate?: boolean;
+  globalValue?: number | null;
+  annualValue?: number;
+  status: 'DRAFT' | 'ACTIVE' | 'SUSPENDED' | 'CANCELED' | 'FINISHED';
   notes?: string;
   createdAt: string;
   updatedAt?: string;
@@ -42,7 +44,6 @@ export interface AgreementRequest {
   signatureDate?: string;
   startDate?: string;
   endDate?: string;
-  globalValue?: number;
   notes?: string;
 }
 

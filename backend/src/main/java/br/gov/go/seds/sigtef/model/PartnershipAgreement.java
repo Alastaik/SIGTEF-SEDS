@@ -61,9 +61,6 @@ public class PartnershipAgreement {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Column(name = "global_value", precision = 15, scale = 2)
-    private BigDecimal globalValue;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private AgreementStatus status;

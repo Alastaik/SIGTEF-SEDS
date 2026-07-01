@@ -23,6 +23,8 @@ public class PartnershipAgreementService {
     private final DomainDataRepository domainDataRepository;
     private final ProgramRepository programRefRepository;
     private final LegalEntityConsumerUnitRepository consumerUnitRepository;
+    private final MonthlyExecutionRepository executionRepository;
+    private final PartnershipAgreementAddendumRepository addendumRepository;
 
     @Transactional
     public AgreementResponseDTO createAgreement(AgreementRequestDTO request) {
@@ -50,7 +52,6 @@ public class PartnershipAgreementService {
                 .signatureDate(request.getSignatureDate())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
-                .globalValue(request.getGlobalValue())
                 .status(AgreementStatus.DRAFT) // Begins as DRAFT
                 .notes(request.getNotes())
                 .build();
@@ -99,7 +100,6 @@ public class PartnershipAgreementService {
         agreement.setSignatureDate(request.getSignatureDate());
         agreement.setStartDate(request.getStartDate());
         agreement.setEndDate(request.getEndDate());
-        agreement.setGlobalValue(request.getGlobalValue());
         agreement.setNotes(request.getNotes());
 
         agreement = agreementRepository.save(agreement);
@@ -189,6 +189,46 @@ public class PartnershipAgreementService {
     // --- Mappers ---
 
     private AgreementResponseDTO mapToResponseDTO(PartnershipAgreement agreement) {
+        java.math.BigDecimal globalValue = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal annualValue = java.math.BigDecimal.ZERO;
+        Boolean hasEndDate = agreement.getEndDate() != null;
+        long totalMonths = 0;
+        
+        if (agreement.getStartDate() != null && hasEndDate) {
+            totalMonths = java.time.temporal.ChronoUnit.MONTHS.between(
+                agreement.getStartDate().withDayOfMonth(1), 
+                agreement.getEndDate().withDayOfMonth(1)
+            ) + 1;
+        }
+
+        List<PartnershipAgreementProgram> programs = programRepository.findByPartnershipAgreementId(agreement.getId());
+        for (PartnershipAgreementProgram p : programs) {
+            java.math.BigDecimal monthlyValueForProgram = java.math.BigDecimal.ZERO;
+            
+            if (p.getGoalQuantity() != null && p.getPerCapitaValue() != null && p.getAttendanceDays() != null) {
+                monthlyValueForProgram = p.getPerCapitaValue()
+                    .multiply(new java.math.BigDecimal(p.getGoalQuantity()))
+                    .multiply(new java.math.BigDecimal(p.getAttendanceDays()));
+            } else {
+                MonthlyExecution latestExecution = executionRepository.findFirstByPartnershipAgreementProgramOrderByCompetenceDesc(p);
+                if (latestExecution != null && latestExecution.getExpectedValue() != null) {
+                    monthlyValueForProgram = latestExecution.getExpectedValue();
+                }
+            }
+            
+            annualValue = annualValue.add(monthlyValueForProgram.multiply(new java.math.BigDecimal(12)));
+            if (totalMonths > 0) {
+                globalValue = globalValue.add(monthlyValueForProgram.multiply(new java.math.BigDecimal(totalMonths)));
+            }
+        }
+
+        List<br.gov.go.seds.sigtef.model.PartnershipAgreementAddendum> addendums = addendumRepository.findByPartnershipAgreementIdOrderByCreatedAtDesc(agreement.getId());
+        for (br.gov.go.seds.sigtef.model.PartnershipAgreementAddendum ad : addendums) {
+            if (ad.getValueAddition() != null && br.gov.go.seds.sigtef.model.enums.AddendumStatus.ACTIVE.equals(ad.getStatus())) {
+                globalValue = globalValue.add(ad.getValueAddition());
+            }
+        }
+
         return AgreementResponseDTO.builder()
                 .id(agreement.getId())
                 .legalEntityId(agreement.getLegalEntity() != null ? agreement.getLegalEntity().getId() : null)
@@ -204,7 +244,9 @@ public class PartnershipAgreementService {
                 .signatureDate(agreement.getSignatureDate())
                 .startDate(agreement.getStartDate())
                 .endDate(agreement.getEndDate())
-                .globalValue(agreement.getGlobalValue())
+                .hasEndDate(hasEndDate)
+                .globalValue(hasEndDate ? globalValue : null)
+                .annualValue(annualValue)
                 .status(agreement.getStatus())
                 .notes(agreement.getNotes())
                 .createdAt(agreement.getCreatedAt())

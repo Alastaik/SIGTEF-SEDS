@@ -83,10 +83,24 @@ export function AgreementGeneralTab({ agreement, onUpdate }: AgreementGeneralTab
             <p className="mt-1 text-slate-900">{agreement.seiProcessNumber || '-'}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-slate-500">Valor Global Previsto</h3>
-            <p className="mt-1 text-slate-900">
-              {agreement.globalValue ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(agreement.globalValue) : '-'}
-            </p>
+            <h3 className="text-sm font-medium text-slate-500 flex items-center gap-1">
+              Valores Calculados (R$)
+              <div className="w-3 h-3 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[10px]" title="Calculado automaticamente com base nos programas">?</div>
+            </h3>
+            <div className="mt-1 flex flex-col gap-1">
+              <p className="text-slate-900 text-sm">
+                <span className="text-slate-500 mr-2">Global:</span> 
+                {agreement.hasEndDate === false ? (
+                  <span className="text-orange-500 text-xs bg-orange-50 px-1 py-0.5 rounded">Termo sem data de fim</span>
+                ) : (
+                  agreement.globalValue ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(agreement.globalValue) : '-'
+                )}
+              </p>
+              <p className="text-slate-900 text-sm">
+                <span className="text-slate-500 mr-2">Anual:</span>
+                {agreement.annualValue ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(agreement.annualValue) : '-'}
+              </p>
+            </div>
           </div>
           <div className="md:col-span-2">
             <h3 className="text-sm font-medium text-slate-500">Objeto</h3>
@@ -154,18 +168,33 @@ export function AgreementGeneralTab({ agreement, onUpdate }: AgreementGeneralTab
               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Valor Global Previsto (R$)
+            <label className="flex items-center text-sm font-medium text-slate-700 mb-1 group relative">
+              Valores Calculados (R$)
+              <div className="ml-2 w-4 h-4 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs cursor-help">
+                ?
+              </div>
+              <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-64 p-2 bg-slate-800 text-white text-xs rounded shadow-lg z-10">
+                Os valores são calculados automaticamente com base nos programas vinculados (suas metas e meses de vigência) e nos últimos lançamentos (para água e energia).
+              </div>
             </label>
-            <input
-              type="number"
-              step="0.01"
-              name="globalValue"
-              value={formData.globalValue}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            />
+            <div className="flex flex-col gap-2 p-3 bg-slate-50 rounded-md border border-slate-200">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-500">Valor Anual (12 meses):</span>
+                <span className="font-semibold text-slate-700">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(agreement.annualValue || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-sm border-t border-slate-200 pt-2">
+                <span className="text-slate-500">Valor Global Previsto:</span>
+                {agreement.hasEndDate === false ? (
+                  <span className="text-orange-500 font-medium text-xs bg-orange-50 px-2 py-1 rounded">Termo sem data de fim</span>
+                ) : (
+                  <span className="font-semibold text-blue-600">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(agreement.globalValue || 0)}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 

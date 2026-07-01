@@ -17,7 +17,6 @@ export function AgreementForm() {
     year: new Date().getFullYear(),
     seiProcessNumber: '',
     objectDescription: '',
-    globalValue: 0,
   });
 
   useEffect(() => {
@@ -47,8 +46,7 @@ export function AgreementForm() {
         agreementNumber: formData.agreementNumber,
         year: formData.year,
         seiProcessNumber: formData.seiProcessNumber,
-        objectDescription: formData.objectDescription,
-        globalValue: formData.globalValue
+        objectDescription: formData.objectDescription
       });
 
       // Redirect to details
@@ -63,7 +61,7 @@ export function AgreementForm() {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'year' || name === 'globalValue' ? Number(value) : value
+      [name]: name === 'year' ? Number(value) : value
     }));
   };
 
@@ -153,19 +151,6 @@ export function AgreementForm() {
                   value={formData.seiProcessNumber}
                   onChange={handleChange}
                   placeholder="Ex: 2024000000000"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Valor Global Previsto (R$)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  name="globalValue"
-                  value={formData.globalValue}
-                  onChange={handleChange}
                   className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 />
               </div>

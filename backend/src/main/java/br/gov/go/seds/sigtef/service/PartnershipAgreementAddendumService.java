@@ -93,8 +93,7 @@ public class PartnershipAgreementAddendumService {
         }
 
         if (isValor && addendum.getValueAddition() != null) {
-            BigDecimal currentValue = agreement.getGlobalValue() != null ? agreement.getGlobalValue() : BigDecimal.ZERO;
-            agreement.setGlobalValue(currentValue.add(addendum.getValueAddition()));
+            // value is dynamically computed now based on programs + addendums
         }
 
         agreementRepository.save(agreement);
