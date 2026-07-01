@@ -21,4 +21,10 @@ public class DashboardController {
     public ResponseEntity<AdminDashboardDTO> getGeneralDashboard() {
         return ResponseEntity.ok(dashboardService.getGeneralDashboard());
     }
+
+    @GetMapping("/delayed-entities")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('GESTOR') or hasRole('SEDS')")
+    public ResponseEntity<java.util.List<br.gov.go.seds.sigtef.dto.admin.DelayedEntityDTO>> getDelayedEntities() {
+        return ResponseEntity.ok(dashboardService.getDelayedEntities());
+    }
 }

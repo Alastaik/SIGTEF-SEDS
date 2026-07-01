@@ -42,15 +42,17 @@ public class DashboardService {
         long approvedAccs = executionRepository.countByStatus(br.gov.go.seds.sigtef.model.MonthlyExecutionStatus.APPROVED);
         
         // Atrasos e Suspensões
-        long entitiesWithOneOverdue = accountabilityRepository.findEntitiesWithOverdueCount(1L).size();
-        long entitiesWithTwoOverdue = accountabilityRepository.findEntitiesWithOverdueCount(2L).size();
-        long entitiesSuspended = programRepository.countEntitiesWithSuspendedPrograms();
+        List<br.gov.go.seds.sigtef.model.Accountability> overdueAccountabilities = accountabilityRepository.findAllOverdueAccountabilities();
+        long totalDelayedEntities = overdueAccountabilities.stream()
+            .map(a -> a.getMonthlyExecution().getPartnershipAgreementProgram().getPartnershipAgreement().getLegalEntity().getId())
+            .distinct()
+            .count();
         
         // Pendências
         long openIssues = issueRepository.countByStatus(IssueStatus.OPEN);
         long overdueIssues = issueRepository.countByStatusAndDeadlineBefore(IssueStatus.OPEN, LocalDate.now());
         
-        // Placeholder for financial values (needs complex query or sum, will use mock for initial dashboard until Sprint 3)
+        // Placeholder for financial values
         BigDecimal totalTransferred = BigDecimal.ZERO;
         BigDecimal totalApproved = BigDecimal.ZERO;
 
@@ -61,13 +63,47 @@ public class DashboardService {
                 .pendingAccountabilities(pendingAccs)
                 .accountabilitiesInAnalysis(inAnalysisAccs)
                 .accountabilitiesApprovedThisMonth(approvedAccs)
-                .entitiesWithOneOverdue(entitiesWithOneOverdue)
-                .entitiesWithTwoOverdue(entitiesWithTwoOverdue)
-                .entitiesSuspended(entitiesSuspended)
+                .totalDelayedEntities(totalDelayedEntities)
                 .openIssues(openIssues)
                 .overdueIssues(overdueIssues)
                 .totalTransferredThisMonth(totalTransferred)
                 .totalApprovedThisMonth(totalApproved)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.List<br.gov.go.seds.sigtef.dto.admin.DelayedEntityDTO> getDelayedEntities() {
+        List<br.gov.go.seds.sigtef.model.Accountability> overdueAccountabilities = accountabilityRepository.findAllOverdueAccountabilities();
+        
+        // Group by Legal Entity ID
+        java.util.Map<java.util.UUID, java.util.List<br.gov.go.seds.sigtef.model.Accountability>> grouped = overdueAccountabilities.stream()
+                .collect(java.util.stream.Collectors.groupingBy(a -> a.getMonthlyExecution().getPartnershipAgreementProgram().getPartnershipAgreement().getLegalEntity().getId()));
+
+        return grouped.entrySet().stream().map(entry -> {
+            br.gov.go.seds.sigtef.model.LegalEntity entity = entry.getValue().get(0).getMonthlyExecution().getPartnershipAgreementProgram().getPartnershipAgreement().getLegalEntity();
+            
+            java.util.List<br.gov.go.seds.sigtef.dto.admin.DelayedAccountabilityDTO> delayedDtos = entry.getValue().stream()
+                    .map(a -> br.gov.go.seds.sigtef.dto.admin.DelayedAccountabilityDTO.builder()
+                            .accountabilityId(a.getId())
+                            .month(a.getMonthlyExecution().getMonth())
+                            .year(a.getMonthlyExecution().getYear())
+                            .programName(a.getMonthlyExecution().getPartnershipAgreementProgram().getProgram().getName())
+                            .status(a.getStatus())
+                            .build())
+                    .sorted((d1, d2) -> {
+                        if (d1.getYear() != d2.getYear()) return Integer.compare(d2.getYear(), d1.getYear());
+                        return Integer.compare(d2.getMonth(), d1.getMonth());
+                    })
+                    .collect(java.util.stream.Collectors.toList());
+
+            return br.gov.go.seds.sigtef.dto.admin.DelayedEntityDTO.builder()
+                    .entityId(entity.getId())
+                    .entityName(entity.getTradeName() != null ? entity.getTradeName() : entity.getCompanyName())
+                    .cnpj(entity.getCnpj())
+                    .totalDelayedMonths(delayedDtos.size())
+                    .delayedAccountabilities(delayedDtos)
+                    .build();
+        }).sorted(java.util.Comparator.comparingLong(br.gov.go.seds.sigtef.dto.admin.DelayedEntityDTO::getTotalDelayedMonths).reversed())
+        .collect(java.util.stream.Collectors.toList());
     }
 }

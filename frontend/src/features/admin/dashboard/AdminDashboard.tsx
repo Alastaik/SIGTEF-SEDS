@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../../lib/api';
 import { 
   Building2, 
@@ -21,9 +22,7 @@ interface DashboardStats {
   accountabilitiesApprovedThisMonth: number;
   openIssues: number;
   overdueIssues: number;
-  entitiesWithOneOverdue: number;
-  entitiesWithTwoOverdue: number;
-  entitiesSuspended: number;
+  totalDelayedEntities: number;
   totalTransferredThisMonth: number;
   totalApprovedThisMonth: number;
 }
@@ -31,6 +30,7 @@ interface DashboardStats {
 export function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchStats();
@@ -153,42 +153,22 @@ export function AdminDashboard() {
           </div>
         </div>
 
-        {/* Inadimplência: 1 Atraso */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        {/* Inadimplência: Entidades Atrasadas */}
+        <div 
+          className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 cursor-pointer hover:border-red-400 hover:shadow-md transition-all group"
+          onClick={() => navigate('/admin/atrasos')}
+        >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-amber-50 text-amber-600 rounded-lg">
+            <div className="p-3 bg-red-50 text-red-600 rounded-lg group-hover:bg-red-100 transition-colors">
               <AlertTriangle size={24} />
             </div>
+            <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-1 rounded-full group-hover:bg-red-100 transition-colors">
+              Ver Detalhes &rarr;
+            </span>
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">Entidades com 1 Atraso</p>
-            <p className="text-2xl font-bold text-slate-800">{stats.entitiesWithOneOverdue}</p>
-          </div>
-        </div>
-
-        {/* Inadimplência: 2 Atrasos */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-orange-50 text-orange-600 rounded-lg">
-              <AlertTriangle size={24} />
-            </div>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-slate-500">Entidades com 2 Atrasos</p>
-            <p className="text-2xl font-bold text-slate-800">{stats.entitiesWithTwoOverdue}</p>
-          </div>
-        </div>
-
-        {/* Inadimplência: Suspensas (3+ Atrasos) */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-red-50 text-red-600 rounded-lg">
-              <Lock size={24} />
-            </div>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-slate-500">Entidades Suspensas (3+)</p>
-            <p className="text-2xl font-bold text-slate-800">{stats.entitiesSuspended}</p>
+            <p className="text-sm font-medium text-slate-500 group-hover:text-slate-700 transition-colors">Entidades com Prestações Atrasadas</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.totalDelayedEntities}</p>
           </div>
         </div>
 

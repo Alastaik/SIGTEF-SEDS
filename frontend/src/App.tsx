@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './features/auth/AuthContext';
 import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { AdminLayout } from './components/AdminLayout';
 import { AdminDashboard } from './features/admin/dashboard/AdminDashboard';
+import { DelayedEntitiesPage } from './features/admin/dashboard/DelayedEntitiesPage';
 import { UsersPage } from './features/admin/UsersPage';
 import LoginPage from './pages/LoginPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -81,6 +82,7 @@ function App() {
             <Route element={<ProtectedRoute allowedType="INTERNO" />}>
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />
+                <Route path="atrasos" element={<DelayedEntitiesPage />} />
                 <Route path="users" element={<UsersPage />} />
                 <Route path="roles" element={<RolesPage />} />
                 <Route path="audit" element={<AuditPage />} />

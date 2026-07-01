@@ -29,4 +29,12 @@ public interface AccountabilityRepository extends JpaRepository<Accountability, 
            "GROUP BY a.monthlyExecution.partnershipAgreementProgram.partnershipAgreement.legalEntity.id " +
            "HAVING COUNT(a.id) = :overdueCount")
     List<UUID> findEntitiesWithOverdueCount(@Param("overdueCount") long overdueCount);
+
+    @Query("SELECT a FROM Accountability a " +
+           "JOIN FETCH a.monthlyExecution me " +
+           "JOIN FETCH me.partnershipAgreementProgram pap " +
+           "JOIN FETCH pap.partnershipAgreement pa " +
+           "JOIN FETCH pa.legalEntity le " +
+           "WHERE a.status = 'CLOSED_UNREALIZED'")
+    List<Accountability> findAllOverdueAccountabilities();
 }

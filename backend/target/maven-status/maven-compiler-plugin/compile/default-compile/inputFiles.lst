@@ -35,6 +35,8 @@ C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\admin\AdminDashboardDTO.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\admin\AgreementReportDTO.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\admin\AgreementReportFilterDTO.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\admin\DelayedAccountabilityDTO.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\admin\DelayedEntityDTO.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\admin\EntityReportDTO.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\admin\ExecutionReportDTO.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\admin\ExecutionReportFilterDTO.java
