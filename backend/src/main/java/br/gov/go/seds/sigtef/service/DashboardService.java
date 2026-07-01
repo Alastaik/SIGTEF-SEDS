@@ -42,7 +42,7 @@ public class DashboardService {
         long approvedAccs = executionRepository.countByStatus(br.gov.go.seds.sigtef.model.MonthlyExecutionStatus.APPROVED);
         
         // Atrasos e Suspensões
-        List<br.gov.go.seds.sigtef.model.Accountability> overdueAccountabilities = accountabilityRepository.findAllOverdueAccountabilities();
+        java.util.List<br.gov.go.seds.sigtef.model.Accountability> overdueAccountabilities = accountabilityRepository.findAllOverdueAccountabilities();
         long totalDelayedEntities = overdueAccountabilities.stream()
             .map(a -> a.getMonthlyExecution().getPartnershipAgreementProgram().getPartnershipAgreement().getLegalEntity().getId())
             .distinct()
@@ -73,7 +73,7 @@ public class DashboardService {
 
     @Transactional(readOnly = true)
     public java.util.List<br.gov.go.seds.sigtef.dto.admin.DelayedEntityDTO> getDelayedEntities() {
-        List<br.gov.go.seds.sigtef.model.Accountability> overdueAccountabilities = accountabilityRepository.findAllOverdueAccountabilities();
+        java.util.List<br.gov.go.seds.sigtef.model.Accountability> overdueAccountabilities = accountabilityRepository.findAllOverdueAccountabilities();
         
         // Group by Legal Entity ID
         java.util.Map<java.util.UUID, java.util.List<br.gov.go.seds.sigtef.model.Accountability>> grouped = overdueAccountabilities.stream()
@@ -83,13 +83,18 @@ public class DashboardService {
             br.gov.go.seds.sigtef.model.LegalEntity entity = entry.getValue().get(0).getMonthlyExecution().getPartnershipAgreementProgram().getPartnershipAgreement().getLegalEntity();
             
             java.util.List<br.gov.go.seds.sigtef.dto.admin.DelayedAccountabilityDTO> delayedDtos = entry.getValue().stream()
-                    .map(a -> br.gov.go.seds.sigtef.dto.admin.DelayedAccountabilityDTO.builder()
-                            .accountabilityId(a.getId())
-                            .month(a.getMonthlyExecution().getMonth())
-                            .year(a.getMonthlyExecution().getYear())
-                            .programName(a.getMonthlyExecution().getPartnershipAgreementProgram().getProgram().getName())
-                            .status(a.getStatus())
-                            .build())
+                    .map(a -> {
+                        String competence = a.getMonthlyExecution().getCompetence();
+                        int year = Integer.parseInt(competence.substring(0, 4));
+                        int month = Integer.parseInt(competence.substring(5, 7));
+                        return br.gov.go.seds.sigtef.dto.admin.DelayedAccountabilityDTO.builder()
+                                .accountabilityId(a.getId())
+                                .month(month)
+                                .year(year)
+                                .programName(a.getMonthlyExecution().getPartnershipAgreementProgram().getProgram().getName())
+                                .status(a.getStatus())
+                                .build();
+                    })
                     .sorted((d1, d2) -> {
                         if (d1.getYear() != d2.getYear()) return Integer.compare(d2.getYear(), d1.getYear());
                         return Integer.compare(d2.getMonth(), d1.getMonth());
@@ -98,7 +103,7 @@ public class DashboardService {
 
             return br.gov.go.seds.sigtef.dto.admin.DelayedEntityDTO.builder()
                     .entityId(entity.getId())
-                    .entityName(entity.getTradeName() != null ? entity.getTradeName() : entity.getCompanyName())
+                    .entityName(entity.getTradeName() != null ? entity.getTradeName() : entity.getCorporateName())
                     .cnpj(entity.getCnpj())
                     .totalDelayedMonths(delayedDtos.size())
                     .delayedAccountabilities(delayedDtos)
