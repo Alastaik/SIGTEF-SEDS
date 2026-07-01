@@ -168,6 +168,7 @@ export function AgreementGeneralTab({ agreement, onUpdate }: AgreementGeneralTab
               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
           </div>
+          <div>
             <label className="flex items-center text-sm font-medium text-slate-700 mb-1 group relative">
               Valores Calculados (R$)
               <div className="ml-2 w-4 h-4 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs cursor-help">
