@@ -48,9 +48,9 @@ export function AgreementAddendumsList({ agreement, onUpdate }: Props) {
     try {
       await agreementService.deleteAddendum(deletingId);
       await fetchAddendums();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete addendum', error);
-      alert('Erro ao excluir aditivo. Verifique se ele já foi aplicado.');
+      alert(error.response?.data?.message || 'Erro ao excluir aditivo. Verifique se ele já foi aplicado.');
     } finally {
       setShowDeleteModal(false);
       setDeletingId(null);
@@ -65,9 +65,9 @@ export function AgreementAddendumsList({ agreement, onUpdate }: Props) {
       await agreementService.changeAddendumStatus(id, 'APPLIED');
       await fetchAddendums();
       onUpdate(); // Atualiza o termo pai no layout
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to apply addendum', error);
-      alert('Erro ao aplicar aditivo.');
+      alert(error.response?.data?.message || 'Erro ao aplicar aditivo.');
     }
   };
 

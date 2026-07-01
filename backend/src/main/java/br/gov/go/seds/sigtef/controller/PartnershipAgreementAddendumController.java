@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/agreements")
+@RequestMapping("/api/agreements")
 @RequiredArgsConstructor
 public class PartnershipAgreementAddendumController {
 
