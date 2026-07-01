@@ -126,12 +126,12 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
     try {
       const payload: any = {
         programId: formData.programId,
-        expectedMonthlyValue: formData.expectedMonthlyValue || null,
-        expectedTotalValue: formData.expectedTotalValue || null,
-        goalQuantity: formData.goalQuantity || null,
+        expectedMonthlyValue: formData.expectedMonthlyValue != null ? formData.expectedMonthlyValue : null,
+        expectedTotalValue: formData.expectedTotalValue != null ? formData.expectedTotalValue : null,
+        goalQuantity: formData.goalQuantity != null ? formData.goalQuantity : null,
         attendanceFrequency: formData.attendanceFrequency || null,
-        attendanceDays: formData.attendanceDays || null,
-        perCapitaValue: formData.perCapitaValue || null,
+        attendanceDays: formData.attendanceDays != null ? formData.attendanceDays : null,
+        perCapitaValue: formData.perCapitaValue != null ? formData.perCapitaValue : null,
       };
 
       if (formData.consumerUnitId) {
@@ -152,9 +152,9 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
       });
       fetchData();
       onUpdate();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to add program', error);
-      alert('Erro ao vincular programa.');
+      alert(error.response?.data?.message || 'Erro ao vincular programa.');
     } finally {
       setIsSaving(false);
     }
