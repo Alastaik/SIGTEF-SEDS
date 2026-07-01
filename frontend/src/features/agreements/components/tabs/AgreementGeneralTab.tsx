@@ -19,7 +19,10 @@ export function AgreementGeneralTab({ agreement, onUpdate }: AgreementGeneralTab
     seiProcessNumber: agreement.seiProcessNumber || '',
     objectDescription: agreement.objectDescription || '',
     globalValue: agreement.globalValue || 0,
-    notes: agreement.notes || ''
+    notes: agreement.notes || '',
+    signatureDate: agreement.signatureDate || '',
+    startDate: agreement.startDate || '',
+    endDate: agreement.endDate || ''
   });
 
   useEffect(() => {
@@ -29,7 +32,10 @@ export function AgreementGeneralTab({ agreement, onUpdate }: AgreementGeneralTab
       seiProcessNumber: agreement.seiProcessNumber || '',
       objectDescription: agreement.objectDescription || '',
       globalValue: agreement.globalValue || 0,
-      notes: agreement.notes || ''
+      notes: agreement.notes || '',
+      signatureDate: agreement.signatureDate || '',
+      startDate: agreement.startDate || '',
+      endDate: agreement.endDate || ''
     });
   }, [agreement]);
 
@@ -49,7 +55,10 @@ export function AgreementGeneralTab({ agreement, onUpdate }: AgreementGeneralTab
     try {
       await agreementService.updateAgreement(agreement.id, {
         legalEntityId: agreement.legalEntityId,
-        ...formData
+        ...formData,
+        signatureDate: formData.signatureDate || undefined,
+        startDate: formData.startDate || undefined,
+        endDate: formData.endDate || undefined
       });
       setIsEditing(false);
       onUpdate();
@@ -100,6 +109,14 @@ export function AgreementGeneralTab({ agreement, onUpdate }: AgreementGeneralTab
                 <span className="text-slate-500 mr-2">Anual:</span>
                 {agreement.annualValue ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(agreement.annualValue) : '-'}
               </p>
+            </div>
+          </div>
+          <div>
+            <h3 className="text-sm font-medium text-slate-500">Datas</h3>
+            <div className="mt-1 flex flex-col gap-1 text-sm text-slate-900">
+              <p><span className="text-slate-500 mr-2">Assinatura:</span> {agreement.signatureDate ? new Date(agreement.signatureDate).toLocaleDateString('pt-BR') : '-'}</p>
+              <p><span className="text-slate-500 mr-2">Início:</span> {agreement.startDate ? new Date(agreement.startDate).toLocaleDateString('pt-BR') : '-'}</p>
+              <p><span className="text-slate-500 mr-2">Fim:</span> {agreement.endDate ? new Date(agreement.endDate).toLocaleDateString('pt-BR') : '-'}</p>
             </div>
           </div>
           <div className="md:col-span-2">
@@ -196,6 +213,45 @@ export function AgreementGeneralTab({ agreement, onUpdate }: AgreementGeneralTab
                 )}
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Data de Assinatura
+            </label>
+            <input
+              type="date"
+              name="signatureDate"
+              value={formData.signatureDate}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Data de Início
+            </label>
+            <input
+              type="date"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Data de Fim (Opcional)
+            </label>
+            <input
+              type="date"
+              name="endDate"
+              value={formData.endDate}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
           </div>
         </div>
 

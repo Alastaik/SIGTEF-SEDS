@@ -17,6 +17,9 @@ export function AgreementForm() {
     year: new Date().getFullYear(),
     seiProcessNumber: '',
     objectDescription: '',
+    signatureDate: '',
+    startDate: '',
+    endDate: '',
   });
 
   useEffect(() => {
@@ -46,7 +49,10 @@ export function AgreementForm() {
         agreementNumber: formData.agreementNumber,
         year: formData.year,
         seiProcessNumber: formData.seiProcessNumber,
-        objectDescription: formData.objectDescription
+        objectDescription: formData.objectDescription,
+        signatureDate: formData.signatureDate || undefined,
+        startDate: formData.startDate || undefined,
+        endDate: formData.endDate || undefined
       });
 
       // Redirect to details
@@ -168,6 +174,45 @@ export function AgreementForm() {
                 className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 placeholder="Descrição resumida do objeto do termo de fomento"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Data de Assinatura
+                </label>
+                <input
+                  type="date"
+                  name="signatureDate"
+                  value={formData.signatureDate}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Data de Início
+                </label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Data de Fim (Opcional)
+                </label>
+                <input
+                  type="date"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                />
+              </div>
             </div>
 
           </div>
