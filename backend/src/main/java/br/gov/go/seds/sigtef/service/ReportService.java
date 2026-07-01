@@ -102,7 +102,7 @@ public class ReportService {
             }
             List<br.gov.go.seds.sigtef.model.PartnershipAgreementAddendum> addendums = addendumRepository.findByPartnershipAgreementIdOrderByCreatedAtDesc(agreement.getId());
             for (br.gov.go.seds.sigtef.model.PartnershipAgreementAddendum ad : addendums) {
-                if (ad.getValueAddition() != null && br.gov.go.seds.sigtef.model.enums.AddendumStatus.ACTIVE.equals(ad.getStatus())) {
+                if (ad.getValueAddition() != null && br.gov.go.seds.sigtef.model.enums.AddendumStatus.APPLIED.equals(ad.getStatus())) {
                     global = global.add(ad.getValueAddition());
                 }
             }
