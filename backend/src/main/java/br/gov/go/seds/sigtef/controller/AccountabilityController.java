@@ -19,13 +19,13 @@ public class AccountabilityController {
     private final AccountabilityService service;
 
     @PostMapping("/start/{executionId}")
-    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE')")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_REPRESENTANTE')")
     public ResponseEntity<Accountability> startDraft(@PathVariable UUID executionId, @AuthenticationPrincipal br.gov.go.seds.sigtef.security.UserDetailsImpl user) {
         return ResponseEntity.ok(service.startDraft(executionId, user.getId()));
     }
 
     @PostMapping("/executions/{executionId}/documents")
-    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE')")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_REPRESENTANTE')")
     public ResponseEntity<FiscalDocument> addDocument(
             @PathVariable UUID executionId, 
             @RequestBody FiscalDocument document) {
@@ -33,7 +33,7 @@ public class AccountabilityController {
     }
 
     @PutMapping("/executions/{executionId}/documents/{documentId}")
-    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE')")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_REPRESENTANTE')")
     public ResponseEntity<FiscalDocument> updateDocument(
             @PathVariable UUID documentId, 
             @RequestBody FiscalDocument document) {
@@ -41,7 +41,7 @@ public class AccountabilityController {
     }
 
     @PostMapping("/executions/{executionId}/complementary-documents/{documentId}")
-    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE')")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_REPRESENTANTE')")
     public ResponseEntity<Void> addComplementaryDocument(
             @PathVariable UUID executionId, 
             @PathVariable UUID documentId) {
@@ -50,7 +50,7 @@ public class AccountabilityController {
     }
 
     @DeleteMapping("/executions/{executionId}/complementary-documents/{documentId}")
-    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE')")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_REPRESENTANTE')")
     public ResponseEntity<Void> removeComplementaryDocument(
             @PathVariable UUID executionId, 
             @PathVariable UUID documentId) {
@@ -59,19 +59,19 @@ public class AccountabilityController {
     }
 
     @PostMapping("/executions/{executionId}/submit")
-    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE')")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_REPRESENTANTE')")
     public ResponseEntity<Accountability> submitByExecution(@PathVariable UUID executionId, @AuthenticationPrincipal br.gov.go.seds.sigtef.security.UserDetailsImpl user) {
         return ResponseEntity.ok(service.submitByExecution(executionId, user.getId()));
     }
 
     @GetMapping("/executions/{executionId}")
-    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE') or hasAuthority('ROLE_SEDS')")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_REPRESENTANTE') or hasAuthority('ROLE_GESTOR') or hasAuthority('ROLE_ANALISTA')")
     public ResponseEntity<br.gov.go.seds.sigtef.model.AccountabilitySubmission> getSubmission(@PathVariable UUID executionId) {
         return ResponseEntity.ok(service.getSubmissionByExecution(executionId));
     }
 
     @GetMapping("/executions/{executionId}/latest-review")
-    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_ENTIDADE') or hasAuthority('ROLE_SEDS')")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_REPRESENTANTE') or hasAuthority('ROLE_GESTOR') or hasAuthority('ROLE_ANALISTA')")
     public ResponseEntity<AccountabilityReview> getLatestReview(@PathVariable UUID executionId) {
         AccountabilityReview review = service.getLatestReviewByExecution(executionId);
         if (review == null) {
@@ -81,7 +81,7 @@ public class AccountabilityController {
     }
 
     @PostMapping("/executions/{executionId}/analyze")
-    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SEDS')")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_GESTOR') or hasAuthority('ROLE_ANALISTA')")
     public ResponseEntity<br.gov.go.seds.sigtef.model.AccountabilityReview> analyzeExecution(
             @PathVariable UUID executionId,
             @RequestBody br.gov.go.seds.sigtef.dto.AccountabilityReviewRequestDTO request,
@@ -93,7 +93,7 @@ public class AccountabilityController {
     }
 
     @PutMapping("/executions/{executionId}/documents/{documentId}/review")
-    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SEDS')")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_GESTOR') or hasAuthority('ROLE_ANALISTA')")
     public ResponseEntity<FiscalDocument> reviewFiscalDocument(
             @PathVariable UUID executionId,
             @PathVariable UUID documentId,
