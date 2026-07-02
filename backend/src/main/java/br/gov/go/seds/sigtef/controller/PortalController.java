@@ -55,6 +55,27 @@ public class PortalController {
         return ResponseEntity.ok(portalService.getCompetences(entityId, competence, status, pageable));
     }
 
+    @GetMapping("/competences/{id}")
+    public ResponseEntity<br.gov.go.seds.sigtef.model.MonthlyExecution> getCompetenceById(
+            @PathVariable UUID id,
+            @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId) {
+        
+        if (entityId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        br.gov.go.seds.sigtef.model.MonthlyExecution execution = portalService.getCompetenceById(id);
+        
+        // Verifica se a execução pertence à entidade logada
+        if (execution.getPartnershipAgreementProgram() == null ||
+            execution.getPartnershipAgreementProgram().getPartnershipAgreement() == null ||
+            !execution.getPartnershipAgreementProgram().getPartnershipAgreement().getLegalEntity().getId().equals(entityId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(execution);
+    }
+
     @GetMapping("/agreements")
     public ResponseEntity<List<br.gov.go.seds.sigtef.model.PartnershipAgreement>> getAgreements(
             @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId) {

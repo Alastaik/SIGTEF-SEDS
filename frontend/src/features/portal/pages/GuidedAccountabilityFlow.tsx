@@ -31,17 +31,10 @@ export function GuidedAccountabilityFlow() {
   useEffect(() => {
     const fetchExecution = async () => {
       try {
-        const response = await api.get(`/monthly-executions`); // Aqui não temos um get by id pronto para o portal, mas podemos pegar todos e filtrar ou o backend poderia ter um.
-        // Vamos usar a API padrão para pegar a execution
-        const responseList = await api.get(`/monthly-executions?competence=&legalEntityId=&programId=&status=`); 
-        // Na verdade a paginação pode atrapalhar. Melhor usar a API /accountabilities/executions/:id pra ver a submissão, e uma api específica pra pegar a execution.
-        // Ou usar o accountabilityApi.startDraft direto que já retorna algo?
-        
-        // Simulação de busca
-        const res = await api.get(`/monthly-executions`);
-        const found = res.data.content.find((e: any) => e.id === id);
-        if (found) {
-          setExecution(found);
+        // Buscar a execution no novo endpoint do portal
+        const res = await api.get(`/portal/competences/${id}`);
+        if (res.data) {
+          setExecution(res.data);
           
           if (!draftStarted.current) {
             draftStarted.current = true;
