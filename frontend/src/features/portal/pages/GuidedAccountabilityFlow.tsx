@@ -220,7 +220,7 @@ export function GuidedAccountabilityFlow() {
 
               {addingDoc && (
                 <div className="bg-white p-6 border border-blue-200 rounded-xl shadow-sm mb-8 ring-4 ring-blue-50">
-                  {!savedDocId && docCategory !== 'COMPLEMENTARY' && (
+                  {!savedDocId && (
                     <div className="mb-6 flex space-x-2 border-b border-gray-200 pb-4">
                       <button
                         onClick={() => handleCategoryChange('FISCAL')}
@@ -413,12 +413,6 @@ export function GuidedAccountabilityFlow() {
                               onUpdate={(updated: any) => setDocuments(docs => docs.map(d => d.id === updated.id ? updated : d))}
                               onRemove={(id: string) => setDocuments(docs => docs.filter(d => d.id !== id))}
                             />
-                            {/* Visual cue for missing attachment */}
-                            <div className="absolute top-4 right-20 pointer-events-none">
-                               <DocumentList linkedEntityType="FISCAL_DOCUMENT" linkedEntityId={doc.id!} readonly={true} emptyMessage={
-                                 <span className="text-orange-500 bg-orange-50 px-2 py-0.5 rounded text-xs border border-orange-200 flex items-center"><AlertCircle size={12} className="mr-1"/> Sem anexo</span>
-                               } />
-                            </div>
                           </div>
                         ))}
                       </div>
@@ -438,11 +432,6 @@ export function GuidedAccountabilityFlow() {
                               onUpdate={(updated: any) => setDocuments(docs => docs.map(d => d.id === updated.id ? updated : d))}
                               onRemove={(id: string) => setDocuments(docs => docs.filter(d => d.id !== id))}
                             />
-                            <div className="absolute top-4 right-20 pointer-events-none">
-                               <DocumentList linkedEntityType="FISCAL_DOCUMENT" linkedEntityId={doc.id!} readonly={true} emptyMessage={
-                                 <span className="text-orange-500 bg-orange-50 px-2 py-0.5 rounded text-xs border border-orange-200 flex items-center"><AlertCircle size={12} className="mr-1"/> Sem anexo</span>
-                               } />
-                            </div>
                           </div>
                         ))}
                       </div>
