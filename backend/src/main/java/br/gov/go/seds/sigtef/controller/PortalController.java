@@ -64,16 +64,12 @@ public class PortalController {
             return ResponseEntity.badRequest().build();
         }
 
-        br.gov.go.seds.sigtef.model.MonthlyExecution execution = portalService.getCompetenceById(id);
-        
-        // Verifica se a execução pertence à entidade logada
-        if (execution.getPartnershipAgreementProgram() == null ||
-            execution.getPartnershipAgreementProgram().getPartnershipAgreement() == null ||
-            !execution.getPartnershipAgreementProgram().getPartnershipAgreement().getLegalEntity().getId().equals(entityId)) {
-            return ResponseEntity.status(403).build();
+        try {
+            br.gov.go.seds.sigtef.model.MonthlyExecution execution = portalService.getCompetenceById(id, entityId);
+            return ResponseEntity.ok(execution);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).build(); // If not found by ID+EntityID, it's forbidden or not found. We return 403 to match previous behavior or 404.
         }
-
-        return ResponseEntity.ok(execution);
     }
 
     @GetMapping("/agreements")

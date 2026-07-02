@@ -41,6 +41,15 @@ public interface MonthlyExecutionRepository extends JpaRepository<MonthlyExecuti
 
     Optional<MonthlyExecution> findByPartnershipAgreementProgramIdAndCompetence(UUID partnershipAgreementProgramId, String competence);
 
+    @Query("SELECT me FROM MonthlyExecution me " +
+           "JOIN FETCH me.partnershipAgreementProgram pap " +
+           "JOIN FETCH pap.program p " +
+           "JOIN FETCH pap.partnershipAgreement pa " +
+           "JOIN FETCH pa.legalEntity le " +
+           "LEFT JOIN FETCH me.consumerUnit cu " +
+           "WHERE me.id = :id AND le.id = :legalEntityId")
+    Optional<MonthlyExecution> findByIdAndEntityId(@Param("id") UUID id, @Param("legalEntityId") UUID legalEntityId);
+
     List<MonthlyExecution> findByPartnershipAgreementProgramId(UUID partnershipAgreementProgramId);
     
     long countByStatus(br.gov.go.seds.sigtef.model.MonthlyExecutionStatus status);

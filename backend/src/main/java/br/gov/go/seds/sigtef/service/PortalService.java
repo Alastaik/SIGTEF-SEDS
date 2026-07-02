@@ -78,8 +78,9 @@ public class PortalService {
         return monthlyExecutionRepository.findByFilters(competence, entityId, null, status, pageable);
     }
     
-    public MonthlyExecution getCompetenceById(UUID executionId) {
-        return monthlyExecutionRepository.findById(executionId).orElseThrow(() -> new RuntimeException("Competence not found"));
+    public MonthlyExecution getCompetenceById(UUID executionId, UUID entityId) {
+        return monthlyExecutionRepository.findByIdAndEntityId(executionId, entityId)
+            .orElseThrow(() -> new RuntimeException("Competence not found"));
     }
 
     public List<PartnershipAgreement> getAgreements(UUID entityId) {
