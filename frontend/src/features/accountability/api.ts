@@ -72,6 +72,10 @@ export const accountabilityApi = {
     return response.data;
   },
 
+  deleteFiscalDocument: async (executionId: string, documentId: string): Promise<void> => {
+    await api.delete(`/accountabilities/executions/${executionId}/documents/${documentId}`);
+  },
+
   submit: async (executionId: string): Promise<Accountability> => {
     const response = await api.post(`/accountabilities/executions/${executionId}/submit`);
     return response.data;

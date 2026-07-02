@@ -682,7 +682,17 @@ export function GuidedAccountabilityFlow() {
                               itemsByCategory={itemsByCategory}
                               setItemsByCategory={setItemsByCategory}
                               onUpdate={(updated: any) => setDocuments(docs => docs.map(d => d.id === updated.id ? updated : d))}
-                              onRemove={(id: string) => setDocuments(docs => docs.filter(d => d.id !== id))}
+                              onRemove={async (id: string) => {
+                                if (confirm('Deseja remover este documento fiscal?')) {
+                                  try {
+                                    await accountabilityApi.deleteFiscalDocument(execution.id, id);
+                                    setDocuments(docs => docs.filter(d => d.id !== id));
+                                  } catch (err) {
+                                    console.error(err);
+                                    alert('Erro ao remover documento.');
+                                  }
+                                }
+                              }}
                             />
                           </div>
                         ))}
@@ -704,7 +714,17 @@ export function GuidedAccountabilityFlow() {
                               itemsByCategory={itemsByCategory}
                               setItemsByCategory={setItemsByCategory}
                               onUpdate={(updated: any) => setDocuments(docs => docs.map(d => d.id === updated.id ? updated : d))}
-                              onRemove={(id: string) => setDocuments(docs => docs.filter(d => d.id !== id))}
+                              onRemove={async (id: string) => {
+                                if (confirm('Deseja remover este comprovante?')) {
+                                  try {
+                                    await accountabilityApi.deleteFiscalDocument(execution.id, id);
+                                    setDocuments(docs => docs.filter(d => d.id !== id));
+                                  } catch (err) {
+                                    console.error(err);
+                                    alert('Erro ao remover documento.');
+                                  }
+                                }
+                              }}
                             />
                           </div>
                         ))}

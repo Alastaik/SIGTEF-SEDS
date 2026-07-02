@@ -40,6 +40,15 @@ public class AccountabilityController {
         return ResponseEntity.ok(service.updateFiscalDocument(documentId, document));
     }
 
+    @DeleteMapping("/executions/{executionId}/documents/{documentId}")
+    @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_REPRESENTANTE')")
+    public ResponseEntity<Void> deleteDocument(
+            @PathVariable UUID executionId, 
+            @PathVariable UUID documentId) {
+        service.deleteFiscalDocument(documentId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/executions/{executionId}/complementary-documents/{documentId}")
     @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_REPRESENTANTE')")
     public ResponseEntity<Void> addComplementaryDocument(

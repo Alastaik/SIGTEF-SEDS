@@ -149,6 +149,23 @@ public class AccountabilityService {
     }
 
     @Transactional
+    public void deleteFiscalDocument(UUID documentId) {
+        FiscalDocument existing = fiscalDocumentRepository.findById(documentId)
+                .orElseThrow(() -> new IllegalArgumentException("Document not found"));
+        
+        List<DocumentLink> links = documentLinkRepository.findByLinkedEntityTypeAndLinkedEntityId("FISCAL_DOCUMENT", documentId);
+        documentLinkRepository.deleteAll(links);
+        
+        // Remove from submission collection to avoid Hibernate resurrecting it
+        if (existing.getSubmission() != null) {
+            existing.getSubmission().getFiscalDocuments().removeIf(doc -> doc.getId().equals(documentId));
+            submissionRepository.save(existing.getSubmission());
+        }
+        
+        fiscalDocumentRepository.delete(existing);
+    }
+
+    @Transactional
     public FiscalDocument updateFiscalDocument(UUID documentId, FiscalDocument updatedDoc) {
         FiscalDocument existing = fiscalDocumentRepository.findById(documentId)
                 .orElseThrow(() -> new IllegalArgumentException("Document not found"));
