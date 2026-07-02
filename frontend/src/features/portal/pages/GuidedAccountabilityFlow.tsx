@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../../lib/api';
 import { accountabilityApi, itemApi } from '../../accountability/api';
 import type { MonthlyExecution } from '../../executions/api';
-import type { FiscalDocument, ItemCategory, Item, FiscalDocumentItem } from '../../accountability/api';
+import type { FiscalDocument, ItemCategory, Item, FiscalDocumentItem, AccountabilityReview } from '../../accountability/api';
 import { CheckCircle, ChevronRight, ChevronLeft, Save, Play, Plus, FileText, Trash2, Paperclip, AlertCircle } from 'lucide-react';
 import { WizardDocumentCard } from '../components/WizardDocumentCard';
 import { DocumentUploader } from '../../documents/components/DocumentUploader';
@@ -18,6 +18,7 @@ export function GuidedAccountabilityFlow() {
   const [currentStep, setCurrentStep] = useState(1);
   const [documents, setDocuments] = useState<FiscalDocument[]>([]);
   const [complementaryDocuments, setComplementaryDocuments] = useState<any[]>([]);
+  const [latestReview, setLatestReview] = useState<AccountabilityReview | null>(null);
   
   const [categories, setCategories] = useState<ItemCategory[]>([]);
   const [itemsByCategory, setItemsByCategory] = useState<Record<string, Item[]>>({});
@@ -57,6 +58,15 @@ export function GuidedAccountabilityFlow() {
         const res = await api.get(`/portal/competences/${id}`);
         if (res.data) {
           setExecution(res.data);
+          
+          if (res.data.status === 'PENDING_CORRECTION') {
+            try {
+              const review = await accountabilityApi.getLatestReview(res.data.id);
+              setLatestReview(review);
+            } catch (err) {
+              console.error("Erro ao carregar review", err);
+            }
+          }
           
           if (!draftStarted.current) {
             draftStarted.current = true;
@@ -270,6 +280,22 @@ export function GuidedAccountabilityFlow() {
                 <p className="text-sm text-red-700">
                   Esta prestação de contas não pode mais ser editada. Status: <strong>{execution.status === 'ACCOUNTABILITY_CLOSED_UNREALIZED' ? 'Fechada sem Realização' : execution.status}</strong>
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {execution.status === 'PENDING_CORRECTION' && latestReview?.comments && (
+          <div className="mt-4 bg-orange-50 border-l-4 border-orange-500 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0"><AlertCircle className="h-5 w-5 text-orange-400" /></div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-orange-800">
+                  Devolvido para correção
+                </h3>
+                <div className="mt-2 text-sm text-orange-700 whitespace-pre-wrap">
+                  {latestReview.comments}
+                </div>
               </div>
             </div>
           </div>
