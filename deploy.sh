@@ -40,11 +40,11 @@ sudo mkdir -p /data/backups
 mkdir -p ./certbot/conf
 mkdir -p ./certbot/www
 
-sudo chmod -R 777 ./backend/logs
-sudo chmod -R 777 /data/postgres
-sudo chmod -R 777 /data/uploads
-sudo chmod -R 777 /data/backups
-sudo chmod -R 777 ./certbot/www
+sudo chmod -R 750 ./backend/logs
+sudo chmod -R 750 /data/postgres
+sudo chmod -R 750 /data/uploads
+sudo chmod -R 750 /data/backups
+sudo chmod -R 750 ./certbot/www
 
 echo "Iniciando a stack via Docker Compose..."
 # Subimos os containers

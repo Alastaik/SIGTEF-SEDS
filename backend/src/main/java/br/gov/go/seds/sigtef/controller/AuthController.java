@@ -152,6 +152,11 @@ public class AuthController {
         if (token == null || newPassword == null || newPassword.isBlank()) {
             return ResponseEntity.badRequest().body("Token e nova senha são obrigatórios.");
         }
+        
+        int minLength = Integer.parseInt(settingService.getValueOrDefault("seguranca.min_password_length", "8"));
+        if (newPassword.length() < minLength) {
+            return ResponseEntity.badRequest().body("A nova senha deve ter no mínimo " + minLength + " caracteres.");
+        }
 
         boolean success = passwordResetService.resetPassword(token, newPassword);
         if (success) {

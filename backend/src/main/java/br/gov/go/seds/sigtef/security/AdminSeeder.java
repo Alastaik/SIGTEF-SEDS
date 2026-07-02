@@ -45,10 +45,12 @@ public class AdminSeeder implements CommandLineRunner {
             Role adminRole = roleRepository.findByName("ROLE_ADMIN")
                     .orElseThrow(() -> new RuntimeException("Role ADMIN not found"));
             
+            String randomPass = java.util.UUID.randomUUID().toString().substring(0, 8);
+
             adminCom = User.builder()
                     .name("Administrador do Sistema (COM)")
                     .email("admin@sigtef.com.br")
-                    .password(passwordEncoder.encode("123456"))
+                    .password(passwordEncoder.encode(randomPass))
                     .userType("INTERNO")
                     .active(true)
                     .roles(Set.of(adminRole))
@@ -58,15 +60,8 @@ public class AdminSeeder implements CommandLineRunner {
             System.out.println("==========================================");
             System.out.println(" Conta ADMIN criada automaticamente:");
             System.out.println(" E-mail: admin@sigtef.com.br");
-            System.out.println(" Senha: 123456");
+            System.out.println(" Senha gerada: " + randomPass);
             System.out.println("==========================================");
-        } else {
-            // Se já existir (devido a migration), atualizamos a senha só para garantir
-            adminCom.setPassword(passwordEncoder.encode("123456"));
-            adminCom.setFailedLoginAttempts(0);
-            adminCom.setLockedUntil(null);
-            adminCom.setActive(true);
-            userRepository.save(adminCom);
         }
     }
 }

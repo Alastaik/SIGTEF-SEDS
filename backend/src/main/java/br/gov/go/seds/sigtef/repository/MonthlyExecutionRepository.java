@@ -52,6 +52,8 @@ public interface MonthlyExecutionRepository extends JpaRepository<MonthlyExecuti
 
     List<MonthlyExecution> findByPartnershipAgreementProgramId(UUID partnershipAgreementProgramId);
     
+    long countByPartnershipAgreementProgramId(UUID partnershipAgreementProgramId);
+    
     long countByStatus(br.gov.go.seds.sigtef.model.MonthlyExecutionStatus status);
     
     long countByStatusIn(List<br.gov.go.seds.sigtef.model.MonthlyExecutionStatus> statuses);

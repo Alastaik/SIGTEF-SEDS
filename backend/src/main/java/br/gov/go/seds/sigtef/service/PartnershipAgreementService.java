@@ -4,6 +4,8 @@ import br.gov.go.seds.sigtef.dto.agreement.*;
 import br.gov.go.seds.sigtef.model.*;
 import br.gov.go.seds.sigtef.model.enums.AgreementStatus;
 import br.gov.go.seds.sigtef.model.enums.ProgramStatus;
+import br.gov.go.seds.sigtef.model.enums.AddendumStatus;
+import br.gov.go.seds.sigtef.model.PartnershipAgreementAddendum;
 import br.gov.go.seds.sigtef.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -62,16 +64,38 @@ public class PartnershipAgreementService {
 
     @Transactional(readOnly = true)
     public List<AgreementResponseDTO> getAllAgreements() {
-        return agreementRepository.findAll().stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+        List<PartnershipAgreement> agreements = agreementRepository.findAll();
+        return mapAgreementsWithPreload(agreements);
     }
 
     @Transactional(readOnly = true)
     public List<AgreementResponseDTO> getAgreementsByEntity(UUID legalEntityId) {
-        return agreementRepository.findByLegalEntityId(legalEntityId).stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+        List<PartnershipAgreement> agreements = agreementRepository.findByLegalEntityId(legalEntityId);
+        return mapAgreementsWithPreload(agreements);
+    }
+
+    private List<AgreementResponseDTO> mapAgreementsWithPreload(List<PartnershipAgreement> agreements) {
+        if (agreements.isEmpty()) return List.of();
+        
+        List<UUID> ids = agreements.stream().map(PartnershipAgreement::getId).toList();
+        
+        // Pre-fetch programs
+        List<PartnershipAgreementProgram> allPrograms = programRepository.findByPartnershipAgreementIdIn(ids);
+        java.util.Map<UUID, List<PartnershipAgreementProgram>> programsMap = allPrograms.stream()
+            .collect(Collectors.groupingBy(p -> p.getPartnershipAgreement().getId()));
+            
+        // Pre-fetch addendums
+        List<PartnershipAgreementAddendum> allAddendums = addendumRepository.findByPartnershipAgreementIdInOrderByCreatedAtDesc(ids);
+        java.util.Map<UUID, List<PartnershipAgreementAddendum>> addendumsMap = allAddendums.stream()
+            .collect(Collectors.groupingBy(a -> a.getPartnershipAgreement().getId()));
+            
+        return agreements.stream()
+            .map(a -> mapToResponseDTO(
+                a, 
+                programsMap.getOrDefault(a.getId(), List.of()), 
+                addendumsMap.getOrDefault(a.getId(), List.of())
+            ))
+            .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -121,6 +145,18 @@ public class PartnershipAgreementService {
         
         // Excluir programas vinculados (PartnershipAgreementProgram) se houver
         List<PartnershipAgreementProgram> programs = programRepository.findByPartnershipAgreementId(id);
+        
+        // INT-02: Verificar se existem execuções mensais vinculadas antes de excluir
+        for (PartnershipAgreementProgram program : programs) {
+            long execCount = executionRepository.countByPartnershipAgreementProgramId(program.getId());
+            if (execCount > 0) {
+                throw new IllegalStateException(
+                    "Não é possível excluir o termo de fomento pois existem " + execCount + 
+                    " lançamento(s) vinculado(s) ao programa '" + program.getProgram().getName() + "'."
+                );
+            }
+        }
+        
         if (!programs.isEmpty()) {
             programRepository.deleteAll(programs);
         }
@@ -189,6 +225,14 @@ public class PartnershipAgreementService {
     // --- Mappers ---
 
     private AgreementResponseDTO mapToResponseDTO(PartnershipAgreement agreement) {
+        List<PartnershipAgreementProgram> programs = programRepository.findByPartnershipAgreementId(agreement.getId());
+        List<PartnershipAgreementAddendum> addendums = addendumRepository.findByPartnershipAgreementIdOrderByCreatedAtDesc(agreement.getId());
+        return mapToResponseDTO(agreement, programs, addendums);
+    }
+
+    private AgreementResponseDTO mapToResponseDTO(PartnershipAgreement agreement, 
+            List<PartnershipAgreementProgram> programs, 
+            List<PartnershipAgreementAddendum> addendums) {
         java.math.BigDecimal globalValue = java.math.BigDecimal.ZERO;
         java.math.BigDecimal annualValue = java.math.BigDecimal.ZERO;
         Boolean hasEndDate = agreement.getEndDate() != null;
@@ -201,7 +245,6 @@ public class PartnershipAgreementService {
             ) + 1;
         }
 
-        List<PartnershipAgreementProgram> programs = programRepository.findByPartnershipAgreementId(agreement.getId());
         for (PartnershipAgreementProgram p : programs) {
             java.math.BigDecimal monthlyValueForProgram = java.math.BigDecimal.ZERO;
             
@@ -209,6 +252,8 @@ public class PartnershipAgreementService {
                 monthlyValueForProgram = p.getPerCapitaValue()
                     .multiply(new java.math.BigDecimal(p.getGoalQuantity()))
                     .multiply(new java.math.BigDecimal(p.getAttendanceDays()));
+            } else if (p.getExpectedMonthlyValue() != null) {
+                monthlyValueForProgram = p.getExpectedMonthlyValue();
             } else {
                 MonthlyExecution latestExecution = executionRepository.findFirstByPartnershipAgreementProgramOrderByCompetenceDesc(p);
                 if (latestExecution != null && latestExecution.getExpectedValue() != null) {
@@ -222,9 +267,8 @@ public class PartnershipAgreementService {
             }
         }
 
-        List<br.gov.go.seds.sigtef.model.PartnershipAgreementAddendum> addendums = addendumRepository.findByPartnershipAgreementIdOrderByCreatedAtDesc(agreement.getId());
-        for (br.gov.go.seds.sigtef.model.PartnershipAgreementAddendum ad : addendums) {
-            if (ad.getValueAddition() != null && br.gov.go.seds.sigtef.model.enums.AddendumStatus.APPLIED.equals(ad.getStatus())) {
+        for (PartnershipAgreementAddendum ad : addendums) {
+            if (ad.getValueAddition() != null && AddendumStatus.APPLIED.equals(ad.getStatus())) {
                 globalValue = globalValue.add(ad.getValueAddition());
             }
         }

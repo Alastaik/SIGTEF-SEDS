@@ -1,6 +1,8 @@
 package br.gov.go.seds.sigtef.controller;
 
 import br.gov.go.seds.sigtef.model.MonthlyExecution;
+import br.gov.go.seds.sigtef.dto.MonthlyExecutionUpdateDTO;
+import br.gov.go.seds.sigtef.dto.MonthlyExecutionTransferDTO;
 import br.gov.go.seds.sigtef.service.MonthlyExecutionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,9 +47,11 @@ public class MonthlyExecutionController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_GESTOR')")
-    public ResponseEntity<MonthlyExecution> update(@PathVariable UUID id, @RequestBody MonthlyExecution execution) {
-        execution.setId(id);
-        return ResponseEntity.ok(service.save(execution));
+    public ResponseEntity<MonthlyExecution> update(@PathVariable UUID id, @RequestBody MonthlyExecutionUpdateDTO dto) {
+        MonthlyExecution existing = service.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Lançamento não encontrado"));
+        // Apenas campos seguros são atualizados; status e valores financeiros só via endpoints específicos
+        return ResponseEntity.ok(service.save(existing));
     }
 
     @PostMapping("/{id}/block")
@@ -65,32 +69,18 @@ public class MonthlyExecutionController {
 
     @PostMapping("/{id}/transfer")
     @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_GESTOR')")
-    public ResponseEntity<MonthlyExecution> registerTransfer(@PathVariable UUID id, @RequestBody Map<String, Object> request) {
-        java.math.BigDecimal value = null;
-        if (request.containsKey("transferredValue") && request.get("transferredValue") != null) {
-            value = new java.math.BigDecimal(request.get("transferredValue").toString());
-        }
-        
-        LocalDate date = null;
-        if (request.containsKey("transferDate") && request.get("transferDate") != null) {
-            date = LocalDate.parse(request.get("transferDate").toString());
-        }
-        
-        return ResponseEntity.ok(service.registerTransfer(id, value, date));
+    public ResponseEntity<MonthlyExecution> registerTransfer(@PathVariable UUID id, @RequestBody MonthlyExecutionTransferDTO request) {
+        return ResponseEntity.ok(service.registerTransfer(id, request.getTransferredValue(), request.getTransferDate()));
     }
 
     @PostMapping("/transfer-batch")
     @PreAuthorize("hasAuthority('SETTINGS_MANAGE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_GESTOR')")
-    public ResponseEntity<Integer> registerBatchTransfer(@RequestBody Map<String, Object> request) {
-        List<String> idsStr = (List<String>) request.get("executionIds");
-        List<UUID> ids = idsStr.stream().map(UUID::fromString).toList();
-
-        LocalDate date = null;
-        if (request.containsKey("transferDate") && request.get("transferDate") != null) {
-            date = LocalDate.parse(request.get("transferDate").toString());
+    public ResponseEntity<Integer> registerBatchTransfer(@RequestBody MonthlyExecutionTransferDTO request) {
+        if (request.getExecutionIds() == null || request.getExecutionIds().isEmpty()) {
+            return ResponseEntity.badRequest().body(0);
         }
 
-        int count = service.registerBatchTransfer(ids, date);
+        int count = service.registerBatchTransfer(request.getExecutionIds(), request.getTransferDate());
         return ResponseEntity.ok(count);
     }
 }

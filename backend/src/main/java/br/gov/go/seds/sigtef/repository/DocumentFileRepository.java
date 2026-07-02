@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface DocumentFileRepository extends JpaRepository<DocumentFile, UUID> {
     @Query("SELECT df FROM DocumentFile df WHERE df.expiredAt <= :now AND df.blockedForAudit = false")
     List<DocumentFile> findExpiredFiles(@Param("now") LocalDateTime now);
+    
+    java.util.Optional<DocumentFile> findByStoredFileName(String storedFileName);
 }

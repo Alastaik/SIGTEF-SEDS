@@ -154,8 +154,13 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
     }
   };
 
-  const handleRemoveDocument = (id: string) => {
-    setDocuments(documents.filter(d => d.id !== id));
+  const handleRemoveDocument = async (id: string) => {
+    try {
+      await accountabilityApi.deleteFiscalDocument(id);
+      setDocuments(documents.filter(d => d.id !== id));
+    } catch (error: any) {
+      setErrorMsg(error?.response?.data?.message || 'Erro ao remover documento. Tente novamente.');
+    }
   };
 
   const totalProven = documents.reduce((acc, curr) => acc + Number(curr.value), 0);

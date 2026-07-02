@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
         <div className="flex flex-col items-center justify-center mb-6">
           <img 
-            src="https://goias.gov.br/social/wp-content/uploads/sites/24/2019/07/logo_seds_-_aplicacao_brasao_b-510-768x434.png" 
+            src="/logo-seds.png" 
             alt="SEDS Logo" 
             className="h-16 mb-4 object-contain" 
           />

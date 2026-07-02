@@ -32,13 +32,15 @@ public class PortalController {
             @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         
-        if (entityId == null) {
+        if (entityId == null || userDetails == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        // Idealmente veriificaríamos se userDetails.getId() tem acesso a esse entityId.
-        
-        return ResponseEntity.ok(portalService.getDashboard(entityId));
+        try {
+            return ResponseEntity.ok(portalService.getDashboard(entityId, userDetails.getId()));
+        } catch (Exception e) {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     @GetMapping("/competences")
@@ -46,25 +48,34 @@ public class PortalController {
             @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId,
             @RequestParam(required = false) String competence,
             @RequestParam(required = false) String status,
-            org.springframework.data.domain.Pageable pageable) {
+            @RequestParam(required = false) String status,
+            org.springframework.data.domain.Pageable pageable,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         
-        if (entityId == null) {
+        if (entityId == null || userDetails == null) {
             return ResponseEntity.badRequest().build();
         }
-
-        return ResponseEntity.ok(portalService.getCompetences(entityId, competence, status, pageable));
+        
+        try {
+            portalService.validateAccess(entityId, userDetails.getId());
+            return ResponseEntity.ok(portalService.getCompetences(entityId, competence, status, pageable));
+        } catch (Exception e) {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     @GetMapping("/competences/{id}")
     public ResponseEntity<br.gov.go.seds.sigtef.model.MonthlyExecution> getCompetenceById(
             @PathVariable UUID id,
-            @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId) {
+            @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         
-        if (entityId == null) {
+        if (entityId == null || userDetails == null) {
             return ResponseEntity.badRequest().build();
         }
 
         try {
+            portalService.validateAccess(entityId, userDetails.getId());
             br.gov.go.seds.sigtef.model.MonthlyExecution execution = portalService.getCompetenceById(id, entityId);
             return ResponseEntity.ok(execution);
         } catch (Exception e) {
@@ -74,33 +85,52 @@ public class PortalController {
 
     @GetMapping("/agreements")
     public ResponseEntity<List<br.gov.go.seds.sigtef.model.PartnershipAgreement>> getAgreements(
-            @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId) {
+            @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         
-        if (entityId == null) {
+        if (entityId == null || userDetails == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.ok(portalService.getAgreements(entityId));
+        try {
+            portalService.validateAccess(entityId, userDetails.getId());
+            return ResponseEntity.ok(portalService.getAgreements(entityId));
+        } catch (Exception e) {
+            return ResponseEntity.status(403).build();
+        }
     }
     @GetMapping("/issues")
     public ResponseEntity<List<br.gov.go.seds.sigtef.model.AccountabilityIssue>> getIssues(
-            @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId) {
+            @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         
-        if (entityId == null) {
+        if (entityId == null || userDetails == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.ok(portalService.getIssues(entityId));
+        try {
+            portalService.validateAccess(entityId, userDetails.getId());
+            return ResponseEntity.ok(portalService.getIssues(entityId));
+        } catch (Exception e) {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     @PostMapping("/issues/{issueId}/respond")
     public ResponseEntity<br.gov.go.seds.sigtef.model.AccountabilityIssueResponse> respondIssue(
             @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId,
             @PathVariable UUID issueId,
-            @RequestBody java.util.Map<String, String> payload) {
+            @RequestBody java.util.Map<String, String> payload,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         
-        if (entityId == null) {
+        if (entityId == null || userDetails == null) {
             return ResponseEntity.badRequest().build();
+        }
+        
+        try {
+            portalService.validateAccess(entityId, userDetails.getId());
+        } catch (Exception e) {
+            return ResponseEntity.status(403).build();
         }
         
         String responseText = payload.get("responseText");
@@ -114,12 +144,18 @@ public class PortalController {
     @GetMapping("/accountabilities/{id}/timeline")
     public ResponseEntity<List<br.gov.go.seds.sigtef.dto.TimelineEventDTO>> getAccountabilityTimeline(
             @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId,
-            @PathVariable UUID id) {
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         
-        if (entityId == null) {
+        if (entityId == null || userDetails == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.ok(portalService.getAccountabilityTimeline(id));
+        try {
+            portalService.validateAccess(entityId, userDetails.getId());
+            return ResponseEntity.ok(portalService.getAccountabilityTimeline(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

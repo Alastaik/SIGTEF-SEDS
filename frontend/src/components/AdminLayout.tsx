@@ -84,7 +84,7 @@ export function AdminLayout() {
           {!isCollapsed ? (
             <>
               <img
-                src="https://goias.gov.br/social/wp-content/uploads/sites/24/2019/07/logo_seds_-_aplicacao_brasao_b-510-768x434.png"
+                src="/logo-seds.png"
                 alt="SEDS Logo"
                 className="w-28 mb-3 object-contain brightness-0 invert opacity-90 transition-all duration-300"
               />

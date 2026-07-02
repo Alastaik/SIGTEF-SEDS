@@ -90,6 +90,9 @@ public class FileStorageService {
     public Resource loadFileAsResource(String fileName) {
         try {
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+            if (!filePath.startsWith(this.fileStorageLocation)) {
+                throw new RuntimeException("Acesso negado: caminho fora do diretório de uploads.");
+            }
             Resource resource = new UrlResource(filePath.toUri());
             
             if (resource.exists()) {
@@ -105,6 +108,9 @@ public class FileStorageService {
     public void deleteFile(String fileName) {
         try {
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+            if (!filePath.startsWith(this.fileStorageLocation)) {
+                throw new RuntimeException("Acesso negado: caminho fora do diretório de uploads.");
+            }
             Files.deleteIfExists(filePath);
         } catch (IOException ex) {
             throw new RuntimeException("Erro ao deletar arquivo físico: " + fileName, ex);

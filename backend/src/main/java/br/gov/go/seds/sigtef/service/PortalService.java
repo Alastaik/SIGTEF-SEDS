@@ -42,9 +42,16 @@ public class PortalService {
                 .build()).collect(Collectors.toList());
     }
 
-    public PortalDashboardDTO getDashboard(UUID entityId) {
-        // Validar se entidade pertence ao usuario logado poderia ser feito aqui, 
-        // ou no controller apos extrair o userId do token
+    public void validateAccess(UUID entityId, UUID userId) {
+        boolean hasAccess = representativeService.getEntitiesForUser(userId).stream()
+                .anyMatch(e -> e.getId().equals(entityId));
+        if (!hasAccess) {
+            throw new RuntimeException("Acesso negado: entidade não pertence ao usuário logado.");
+        }
+    }
+
+    public PortalDashboardDTO getDashboard(UUID entityId, UUID userId) {
+        validateAccess(entityId, userId);
 
         long pendingAccountabilities = accountabilityRepository.countByLegalEntityIdAndStatusIn(entityId, 
                 List.of(AccountabilityStatus.DRAFT, AccountabilityStatus.PENDING_CORRECTION));

@@ -132,6 +132,13 @@ public class AccountabilityService {
         Accountability accountability = accountabilityRepository.findByMonthlyExecutionId(executionId)
                 .orElseThrow(() -> new IllegalArgumentException("Accountability not started for this execution"));
         
+        // INT-01: Impedir adição de documentos em prestações já encerradas
+        if (accountability.getStatus() != AccountabilityStatus.DRAFT 
+                && accountability.getStatus() != AccountabilityStatus.PENDING_CORRECTION) {
+            throw new IllegalStateException("Não é possível adicionar documentos a uma prestação com status: " 
+                    + accountability.getStatus());
+        }
+        
         List<AccountabilitySubmission> submissions = submissionRepository.findByAccountabilityIdOrderByVersionNumberDesc(accountability.getId());
         if (submissions.isEmpty()) throw new IllegalStateException("No submissions found");
 
@@ -303,10 +310,12 @@ public class AccountabilityService {
         Accountability accountability = accountabilityRepository.findByMonthlyExecutionId(executionId)
                 .orElseThrow(() -> new IllegalArgumentException("Accountability not started"));
         
-        List<AccountabilityReview> reviews = reviewRepository.findBySubmissionIdOrderByReviewedAtDesc(
-                submissionRepository.findByAccountabilityIdOrderByVersionNumberDesc(accountability.getId())
-                        .stream().findFirst().map(AccountabilitySubmission::getId).orElse(null)
-        );
+        UUID submissionId = submissionRepository.findByAccountabilityIdOrderByVersionNumberDesc(accountability.getId())
+                .stream().findFirst().map(AccountabilitySubmission::getId).orElse(null);
+        
+        if (submissionId == null) return null;
+        
+        List<AccountabilityReview> reviews = reviewRepository.findBySubmissionIdOrderByReviewedAtDesc(submissionId);
         
         if (reviews != null && !reviews.isEmpty()) {
             return reviews.get(0);

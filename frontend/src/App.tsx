@@ -84,7 +84,6 @@ function App() {
                 <Route index element={<AdminDashboard />} />
                 <Route path="atrasos" element={<DelayedEntitiesPage />} />
                 <Route path="users" element={<UsersPage />} />
-                <Route path="roles" element={<RolesPage />} />
                 <Route path="audit" element={<AuditPage />} />
                 <Route path="inspections" element={<InspectionsPage />} />
                 <Route path="imports" element={<ImportsPage />} />

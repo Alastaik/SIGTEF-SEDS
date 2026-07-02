@@ -73,9 +73,11 @@ public class ExportService {
                 valueCell.setCellStyle(currencyStyle);
             }
 
-            // Ajuste automático de largura das colunas
+            // Larguras fixas por coluna (em unidades POI: 256 * número de caracteres aprox.)
+            // autoSizeColumn é O(n) e pode congelar com 10k+ linhas
+            int[] colWidths = {6000, 15000, 10000, 8000, 8000, 20000, 6000, 6000, 12000};
             for (int i = 0; i < headers.length; i++) {
-                sheet.autoSizeColumn(i);
+                sheet.setColumnWidth(i, colWidths[i]);
             }
 
             workbook.write(out);

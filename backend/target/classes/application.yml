@@ -41,7 +41,7 @@ server:
   port: 8081
 
 resend:
-  api-key: ${RESEND_API_KEY:re_ajAEP6g5_Pewf4QXqEE2Tyfc5aETA3TTY}
+  api-key: ${RESEND_API_KEY:}
 
 logging:
   level:

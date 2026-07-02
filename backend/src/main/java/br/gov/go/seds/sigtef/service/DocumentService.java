@@ -191,7 +191,7 @@ public class DocumentService {
         log.info("Starting scheduled expunge job...");
         List<DocumentFile> expiredFiles = fileRepository.findExpiredFiles(LocalDateTime.now());
         
-        User systemUser = userRepository.findByEmail("admin@seds.go.gov.br").orElse(null); // Fallback for system jobs
+        User systemUser = userRepository.findByEmail("admin@sigtef.gov.br").orElse(null); // Fallback for system jobs
 
         int count = 0;
         for (DocumentFile file : expiredFiles) {

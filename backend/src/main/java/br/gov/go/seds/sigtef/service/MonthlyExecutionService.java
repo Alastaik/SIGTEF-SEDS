@@ -50,6 +50,7 @@ public class MonthlyExecutionService {
         repository.save(execution);
     }
 
+    @Transactional
     public MonthlyExecution block(UUID id, String reason) {
         MonthlyExecution exec = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Lançamento não encontrado"));
@@ -80,7 +81,7 @@ public class MonthlyExecutionService {
         exec.setTransferredValue(value);
         exec.setTransferDate(date);
         
-        if (value != null && value.compareTo(java.math.BigDecimal.ZERO) >= 0) {
+        if (value != null && value.compareTo(java.math.BigDecimal.ZERO) > 0) {
             if (Boolean.TRUE.equals(exec.getPartnershipAgreementProgram().getProgram().getRequiresAccountability())) {
                 exec.setStatus(MonthlyExecutionStatus.READY_FOR_ACCOUNTABILITY);
                 checkAndCloseOverdueAccountabilities(exec.getPartnershipAgreementProgram());
@@ -128,9 +129,10 @@ public class MonthlyExecutionService {
                 java.math.BigDecimal expectedValue = pap.getExpectedMonthlyValue() != null ? pap.getExpectedMonthlyValue() : java.math.BigDecimal.ZERO;
                 
                 try {
-                    String[] compParts = competence.split("/");
-                    int month = Integer.parseInt(compParts[0]);
-                    int year = Integer.parseInt(compParts[1]);
+                    // Formato esperado do frontend: YYYY-MM (ex: 2026-07)
+                    String[] compParts = competence.split("-");
+                    int year  = Integer.parseInt(compParts[0]);
+                    int month = Integer.parseInt(compParts[1]);
                     SimulationResultDTO sim = calculationSimulatorService.simulateExpectedValue(pap.getPartnershipAgreement().getId(), pap.getProgram().getId(), month, year);
                     expectedValue = sim.getExpectedMonthlyValue();
                 } catch (Exception e) {

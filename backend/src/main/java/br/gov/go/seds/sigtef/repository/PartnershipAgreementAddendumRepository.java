@@ -9,5 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface PartnershipAgreementAddendumRepository extends JpaRepository<PartnershipAgreementAddendum, UUID> {
+    List<PartnershipAgreementAddendum> findByPartnershipAgreementIdInOrderByCreatedAtDesc(List<UUID> partnershipAgreementIds);
     List<PartnershipAgreementAddendum> findByPartnershipAgreementIdOrderByCreatedAtDesc(UUID partnershipAgreementId);
 }

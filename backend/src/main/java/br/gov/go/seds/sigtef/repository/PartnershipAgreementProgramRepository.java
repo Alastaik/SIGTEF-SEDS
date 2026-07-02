@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface PartnershipAgreementProgramRepository extends JpaRepository<PartnershipAgreementProgram, UUID> {
+    List<PartnershipAgreementProgram> findByPartnershipAgreementIdIn(List<UUID> partnershipAgreementIds);
     List<PartnershipAgreementProgram> findByPartnershipAgreementId(UUID partnershipAgreementId);
     List<PartnershipAgreementProgram> findByPartnershipAgreementIdIn(List<UUID> partnershipAgreementIds);
     @org.springframework.data.jpa.repository.Query("SELECT pap FROM PartnershipAgreementProgram pap " +

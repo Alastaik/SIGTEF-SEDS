@@ -40,15 +40,20 @@ export function MonthlyExecutionsPage() {
   }, [competence]);
 
   const handleGenerate = async () => {
-    if (!confirm(`Deseja gerar os lançamentos automáticos para a competência ${competence}?`)) return;
+    const confirmed = window.confirm(`Deseja gerar os lançamentos automáticos para a competência ${competence}?`);
+    if (!confirmed) return;
     setIsGenerating(true);
     try {
       const result = await monthlyExecutionApi.generate(competence);
-      alert(`${result.generated} lançamentos foram gerados com sucesso para ${competence}.`);
+      import('react-hot-toast').then(({ default: toast }) => {
+        toast.success(`${result.generated} lançamentos gerados para ${competence}.`);
+      });
       fetchExecutions();
     } catch (error) {
       console.error('Erro ao gerar:', error);
-      alert('Erro ao gerar lançamentos.');
+      import('react-hot-toast').then(({ default: toast }) => {
+        toast.error('Erro ao gerar lançamentos.');
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -167,7 +172,10 @@ export function MonthlyExecutionsPage() {
 
         <div className="p-0">
           {loading ? (
-            <div className="p-8 text-center text-gray-500">Carregando...</div>
+            <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
+              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
+              <span className="text-sm">Carregando lançamentos...</span>
+            </div>
           ) : executions.length === 0 ? (
             <div className="p-8 text-center text-gray-500 flex flex-col items-center">
               <AlertTriangle size={48} className="text-yellow-400 mb-4" />

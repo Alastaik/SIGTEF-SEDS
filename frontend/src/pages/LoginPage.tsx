@@ -9,22 +9,26 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSubmitting(true);
     
     try {
       const res = await api.post('/auth/login', { email, password });
       login(res.data);
-      navigate('/admin');
+      navigate(res.data.userType === 'EXTERNO' ? '/portal' : '/admin');
     } catch (err) {
       if (err instanceof AxiosError && err.response) {
         setError(err.response.data || 'Erro ao realizar login.');
       } else {
         setError('Erro de conexão.');
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -33,7 +37,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
         <div className="flex flex-col items-center justify-center mb-6">
           <img 
-            src="https://goias.gov.br/social/wp-content/uploads/sites/24/2019/07/logo_seds_-_aplicacao_brasao_b-510-768x434.png" 
+            src="/logo-seds.png" 
             alt="SEDS Logo" 
             className="h-16 mb-4 object-contain" 
           />
@@ -66,9 +70,10 @@ export default function LoginPage() {
           <div className="flex items-center justify-between">
             <button
               type="submit"
-              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              disabled={submitting}
+              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Entrar
+              {submitting ? 'Entrando...' : 'Entrar'}
             </button>
             <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
               Esqueci a senha

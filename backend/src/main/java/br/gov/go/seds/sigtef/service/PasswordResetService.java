@@ -5,6 +5,7 @@ import br.gov.go.seds.sigtef.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -17,6 +18,9 @@ public class PasswordResetService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
 
     public void requestPasswordReset(String email) {
         Optional<User> userOpt = userRepository.findByEmail(email);
@@ -28,8 +32,7 @@ public class PasswordResetService {
             user.setResetTokenExpiresAt(LocalDateTime.now().plusHours(2));
             userRepository.save(user);
 
-            // TODO: Use application frontend URL (e.g. from properties)
-            String resetLink = "http://localhost:5173/reset-password?token=" + token;
+            String resetLink = frontendUrl + "/reset-password?token=" + token;
             emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
         }
     }
