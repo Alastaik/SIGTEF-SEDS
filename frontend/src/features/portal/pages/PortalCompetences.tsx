@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../../../lib/api';
 import { FileText, ArrowRight, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
@@ -178,14 +179,20 @@ export function PortalCompetences() {
                       {getStatusBadge(comp.status)}
                     </td>
                     <td className="px-6 py-4 text-right block md:table-cell flex justify-center md:justify-end border-t md:border-t-0 mt-2 md:mt-0 pt-4 md:pt-4">
-                      {comp.status === 'PENDING_ACCOUNTABILITY' || comp.status === 'PENDING_CORRECTION' ? (
-                        <button className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm">
-                          Prestar Contas <ArrowRight size={16} className="ml-1" />
-                        </button>
+                      {['READY_FOR_ACCOUNTABILITY', 'PENDING_ACCOUNTABILITY', 'PENDING_CORRECTION', 'ACCOUNTABILITY_DRAFT'].includes(comp.status) ? (
+                        <Link 
+                          to={`/portal/accountabilities/${comp.id}/wizard`}
+                          className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-all shadow-sm hover:shadow-md"
+                        >
+                          Iniciar Prestação <ArrowRight size={18} className="ml-2" />
+                        </Link>
                       ) : (
-                        <button className="inline-flex items-center text-gray-500 hover:text-gray-700 font-medium text-sm">
-                          Ver Detalhes
-                        </button>
+                        <Link 
+                          to="/portal/accountabilities"
+                          className="inline-flex items-center text-gray-500 hover:text-gray-700 font-medium text-sm underline underline-offset-2 decoration-gray-300 hover:decoration-gray-500 transition-colors"
+                        >
+                          Ver no Histórico
+                        </Link>
                       )}
                     </td>
                   </tr>
