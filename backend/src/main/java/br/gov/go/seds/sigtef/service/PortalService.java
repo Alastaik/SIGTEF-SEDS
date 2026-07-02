@@ -116,7 +116,12 @@ public class PortalService {
     public List<br.gov.go.seds.sigtef.dto.TimelineEventDTO> getAccountabilityTimeline(UUID accountabilityId) {
         List<br.gov.go.seds.sigtef.dto.TimelineEventDTO> timeline = new java.util.ArrayList<>();
         
-        br.gov.go.seds.sigtef.model.Accountability acc = accountabilityRepository.findById(accountabilityId).orElseThrow(() -> new RuntimeException("Accountability not found"));
+        br.gov.go.seds.sigtef.model.Accountability acc = accountabilityRepository.findById(accountabilityId)
+            .orElseGet(() -> accountabilityRepository.findByMonthlyExecutionId(accountabilityId).orElse(null));
+            
+        if (acc == null) {
+            return timeline;
+        }
         
         String corporateName = "Entidade";
         if (acc.getMonthlyExecution() != null 

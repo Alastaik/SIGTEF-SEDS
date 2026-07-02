@@ -54,6 +54,8 @@ public interface MonthlyExecutionRepository extends JpaRepository<MonthlyExecuti
     
     long countByStatus(br.gov.go.seds.sigtef.model.MonthlyExecutionStatus status);
     
+    long countByStatusIn(List<br.gov.go.seds.sigtef.model.MonthlyExecutionStatus> statuses);
+    
     @Query("SELECT COUNT(me) FROM MonthlyExecution me " +
            "WHERE me.partnershipAgreementProgram.partnershipAgreement.legalEntity.id = :legalEntityId " +
            "AND me.status = :status")

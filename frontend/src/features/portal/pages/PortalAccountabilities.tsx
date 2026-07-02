@@ -185,9 +185,9 @@ export function PortalAccountabilities() {
                     <td className="px-6 py-4 text-right block md:table-cell flex justify-center md:justify-end border-t md:border-t-0 mt-2 md:mt-0 pt-4 md:pt-4">
                       <Link 
                         to={`/portal/accountabilities/${acc.id}`}
-                        className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm"
+                        className="inline-flex items-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded font-medium text-sm transition-colors"
                       >
-                        Ver Detalhes
+                        <FileText size={16} /> Analisar
                       </Link>
                     </td>
                   </tr>

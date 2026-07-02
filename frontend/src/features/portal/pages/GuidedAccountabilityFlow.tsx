@@ -532,7 +532,7 @@ export function GuidedAccountabilityFlow() {
                                     </div>
                                     <div>
                                       <label className="block text-xs font-medium text-blue-900">Unidade de Medida</label>
-                                      <input id="new-item-unit-draft" required className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"/>
+                                      <input id="new-item-unit-draft" placeholder="Ex: Unidade, Cx, Kg, Serviço, Mês" required className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"/>
                                     </div>
                                   </div>
                                   <div className="flex justify-end gap-2">
@@ -634,7 +634,7 @@ export function GuidedAccountabilityFlow() {
                         )}
 
                         <div className="mb-6 pt-4 border-t border-gray-200">
-                          <h4 className="text-sm font-semibold text-gray-900 mb-3">Arquivo do Documento (Opcional por agora)</h4>
+                          <h4 className="text-sm font-semibold text-gray-900 mb-3">Arquivo do Documento</h4>
                           <DocumentUploader
                             ownerModule="ACCOUNTABILITY"
                             autoUpload={false}

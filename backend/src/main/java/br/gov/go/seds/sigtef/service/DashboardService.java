@@ -38,7 +38,13 @@ public class DashboardService {
 
         // Prestações
         long pendingAccs = executionRepository.countByStatus(br.gov.go.seds.sigtef.model.MonthlyExecutionStatus.READY_FOR_ACCOUNTABILITY); 
-        long inAnalysisAccs = executionRepository.countByStatus(br.gov.go.seds.sigtef.model.MonthlyExecutionStatus.UNDER_REVIEW);
+        long inAnalysisAccs = executionRepository.countByStatusIn(
+                java.util.Arrays.asList(
+                        br.gov.go.seds.sigtef.model.MonthlyExecutionStatus.SUBMITTED,
+                        br.gov.go.seds.sigtef.model.MonthlyExecutionStatus.UNDER_REVIEW,
+                        br.gov.go.seds.sigtef.model.MonthlyExecutionStatus.RESUBMITTED
+                )
+        );
         long approvedAccs = executionRepository.countByStatus(br.gov.go.seds.sigtef.model.MonthlyExecutionStatus.APPROVED);
         
         // Atrasos e Suspensões
