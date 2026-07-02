@@ -4,8 +4,7 @@ import { api } from '../../../lib/api';
 import { accountabilityApi } from '../../accountability/api';
 import type { MonthlyExecution } from '../../executions/api';
 import type { FiscalDocument } from '../../accountability/api';
-import { CheckCircle, ChevronRight, ChevronLeft, ArrowRight, Save, Play, Plus, FileText, Paperclip, Trash2 } from 'lucide-react';
-import { format } from 'date-fns';
+import { CheckCircle, ChevronRight, ChevronLeft, Save, Play, Plus, FileText, Trash2, Paperclip, AlertCircle } from 'lucide-react';
 import { WizardDocumentCard } from '../components/WizardDocumentCard';
 import { DocumentUploader } from '../../documents/components/DocumentUploader';
 import { DocumentList } from '../../documents/components/DocumentList';
@@ -18,7 +17,11 @@ export function GuidedAccountabilityFlow() {
   const [currentStep, setCurrentStep] = useState(1);
   const [documents, setDocuments] = useState<FiscalDocument[]>([]);
   const [complementaryDocuments, setComplementaryDocuments] = useState<any[]>([]);
+  
+  // States for adding a new document
   const [addingDoc, setAddingDoc] = useState(false);
+  const [docCategory, setDocCategory] = useState<'FISCAL' | 'PAYMENT' | 'COMPLEMENTARY'>('FISCAL');
+  const [savedDocId, setSavedDocId] = useState<string | null>(null);
   const [docForm, setDocForm] = useState<Partial<FiscalDocument>>({
     documentType: 'NF-e',
     documentNumber: '',
@@ -26,12 +29,12 @@ export function GuidedAccountabilityFlow() {
     issuerCnpj: '',
     value: 0
   });
+
   const draftStarted = useRef(false);
 
   useEffect(() => {
     const fetchExecution = async () => {
       try {
-        // Buscar a execution no novo endpoint do portal
         const res = await api.get(`/portal/competences/${id}`);
         if (res.data) {
           setExecution(res.data);
@@ -45,7 +48,6 @@ export function GuidedAccountabilityFlow() {
                 console.error("Erro ao iniciar rascunho", error);
               }
             }
-            // Buscar submissão para pegar documentos já salvos
             try {
               const subResponse = await api.get(`/accountabilities/executions/${id}`);
               if (subResponse.data?.fiscalDocuments?.length > 0) {
@@ -77,17 +79,10 @@ export function GuidedAccountabilityFlow() {
     e.preventDefault();
     if (!execution) return;
     try {
-      setLoading(true); // Reusing loading state for the button could be bad, but let's just make it simple
+      setLoading(true);
       const newDoc = await accountabilityApi.addFiscalDocument(execution.id, docForm as any);
       setDocuments(prev => [newDoc, ...prev]);
-      setAddingDoc(false);
-      setDocForm({
-        documentType: 'NF-e',
-        documentNumber: '',
-        issuerName: '',
-        issuerCnpj: '',
-        value: 0
-      });
+      setSavedDocId(newDoc.id!); // Muda para a etapa de upload
     } catch (error) {
       console.error('Error adding document', error);
       alert('Erro ao adicionar documento');
@@ -96,16 +91,35 @@ export function GuidedAccountabilityFlow() {
     }
   };
 
+  const resetAddForm = () => {
+    setAddingDoc(false);
+    setSavedDocId(null);
+    setDocForm({
+      documentType: 'NF-e',
+      documentNumber: '',
+      issuerName: '',
+      issuerCnpj: '',
+      value: 0
+    });
+    setDocCategory('FISCAL');
+  };
+
+  const handleCategoryChange = (cat: 'FISCAL' | 'PAYMENT' | 'COMPLEMENTARY') => {
+    setDocCategory(cat);
+    if (cat === 'FISCAL') {
+      setDocForm({ ...docForm, documentType: 'NF-e' });
+    } else if (cat === 'PAYMENT') {
+      setDocForm({ ...docForm, documentType: 'Comprovante' });
+    }
+  };
+
   const steps = [
     { number: 1, title: 'Início', desc: 'Dados Gerais' },
-    { number: 2, title: 'Notas Fiscais', desc: 'Registro de Despesas' },
-    { number: 3, title: 'Anexos', desc: 'Arquivos em PDF' },
-    { number: 4, title: 'Pagamentos', desc: 'Comprovantes' },
-    { number: 5, title: 'Complementares', desc: 'Outros Documentos' },
-    { number: 6, title: 'Revisão', desc: 'Conferência Final' },
+    { number: 2, title: 'Documentos e Comprovantes', desc: 'Notas e Pagamentos' },
+    { number: 3, title: 'Revisão', desc: 'Conferência Final' },
   ];
 
-  if (loading) return <div className="p-8 text-center">Iniciando prestação de contas...</div>;
+  if (loading && !execution) return <div className="p-8 text-center">Carregando...</div>;
   if (!execution) return <div className="p-8 text-center text-red-500">Competência não encontrada.</div>;
 
   const isEditable = execution.status === 'READY_FOR_ACCOUNTABILITY' || 
@@ -114,7 +128,6 @@ export function GuidedAccountabilityFlow() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Header e Progressão */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Prestar Contas</h1>
         <p className="text-gray-500">Competência: {execution.competence} • {execution.partnershipAgreementProgram?.program?.name}</p>
@@ -122,9 +135,7 @@ export function GuidedAccountabilityFlow() {
         {!isEditable && (
           <div className="mt-4 bg-red-50 border-l-4 border-red-500 p-4">
             <div className="flex">
-              <div className="flex-shrink-0">
-                <CheckCircle className="h-5 w-5 text-red-400" />
-              </div>
+              <div className="flex-shrink-0"><CheckCircle className="h-5 w-5 text-red-400" /></div>
               <div className="ml-3">
                 <p className="text-sm text-red-700">
                   Esta prestação de contas não pode mais ser editada. Status: <strong>{execution.status === 'ACCOUNTABILITY_CLOSED_UNREALIZED' ? 'Fechada sem Realização' : execution.status}</strong>
@@ -157,7 +168,6 @@ export function GuidedAccountabilityFlow() {
         </div>
       </div>
 
-      {/* Área de Conteúdo do Step */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 min-h-[400px] flex flex-col">
         <div className="p-8 flex-1">
           {currentStep === 1 && (
@@ -195,129 +205,280 @@ export function GuidedAccountabilityFlow() {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Notas Fiscais e Despesas</h2>
-                  <p className="text-gray-500 mt-1">Registre todas as despesas incorridas nesta competência. O sistema calculará o total automaticamente.</p>
+                  <h2 className="text-xl font-bold text-gray-900">Documentos e Comprovantes</h2>
+                  <p className="text-gray-500 mt-1">Registre as despesas, os comprovantes de pagamento e outros documentos obrigatórios.</p>
                 </div>
-                <button 
-                  onClick={() => setAddingDoc(true)}
-                  className="px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-medium inline-flex items-center shadow-sm transition-colors"
-                >
-                  <Plus size={18} className="mr-1.5" /> Adicionar Nota
-                </button>
+                {!addingDoc && isEditable && (
+                  <button 
+                    onClick={() => setAddingDoc(true)}
+                    className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg font-medium inline-flex items-center shadow-sm transition-colors"
+                  >
+                    <Plus size={18} className="mr-1.5" /> Adicionar Documento
+                  </button>
+                )}
               </div>
 
               {addingDoc && (
-                <div className="bg-white p-6 border border-blue-200 rounded-xl shadow-sm mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Nova Nota Fiscal</h3>
-                  <form onSubmit={handleAddDocument}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Documento</label>
-                        <select
-                          value={docForm.documentType}
-                          onChange={e => setDocForm({...docForm, documentType: e.target.value})}
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        >
-                          <option value="NF-e">NF-e (Nota Fiscal Eletrônica)</option>
-                          <option value="NFS-e">NFS-e (Nota Fiscal de Serviços)</option>
-                          <option value="Recibo">Recibo Simples</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Número do Documento</label>
-                        <input
-                          type="text"
-                          required
-                          value={docForm.documentNumber}
-                          onChange={e => setDocForm({...docForm, documentNumber: e.target.value})}
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Fornecedor / Emissor</label>
-                        <input
-                          type="text"
-                          required
-                          value={docForm.issuerName}
-                          onChange={e => setDocForm({...docForm, issuerName: e.target.value})}
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">CNPJ do Emissor</label>
-                        <input
-                          type="text"
-                          value={docForm.issuerCnpj || ''}
-                          onChange={e => setDocForm({...docForm, issuerCnpj: e.target.value})}
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Valor Total (R$)</label>
-                        <input
-                          type="number"
-                          required
-                          min="0.01"
-                          step="0.01"
-                          value={docForm.value || ''}
-                          onChange={e => setDocForm({...docForm, value: parseFloat(e.target.value)})}
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-3 mt-6">
-                      <button 
-                        type="button" 
-                        onClick={() => setAddingDoc(false)}
-                        className="px-4 py-2 font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                <div className="bg-white p-6 border border-blue-200 rounded-xl shadow-sm mb-8 ring-4 ring-blue-50">
+                  {!savedDocId && docCategory !== 'COMPLEMENTARY' && (
+                    <div className="mb-6 flex space-x-2 border-b border-gray-200 pb-4">
+                      <button
+                        onClick={() => handleCategoryChange('FISCAL')}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${docCategory === 'FISCAL' ? 'bg-blue-100 text-blue-700' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
                       >
-                        Cancelar
+                        Nota Fiscal / Despesa
                       </button>
-                      <button 
-                        type="submit"
-                        className="px-4 py-2 font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                      <button
+                        onClick={() => handleCategoryChange('PAYMENT')}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${docCategory === 'PAYMENT' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
                       >
-                        Salvar Nota Fiscal
+                        Comprovante de Pagamento
+                      </button>
+                      <button
+                        onClick={() => handleCategoryChange('COMPLEMENTARY')}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${docCategory === 'COMPLEMENTARY' ? 'bg-green-100 text-green-700' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                      >
+                        Documento Complementar
                       </button>
                     </div>
-                  </form>
+                  )}
+
+                  {docCategory === 'COMPLEMENTARY' ? (
+                    <div>
+                      <div className="mb-4 flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-gray-900">Anexar Documento Complementar</h3>
+                        <button onClick={resetAddForm} className="text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-4">Relatórios, listas de beneficiados, fotos ou outros documentos requeridos.</p>
+                      <DocumentUploader
+                        ownerModule="ACCOUNTABILITY"
+                        role="ANEXO_COMPLEMENTAR"
+                        label="Arraste o arquivo ou clique para selecionar"
+                        description="PDF, JPG ou PNG (Max: 10MB)"
+                        onUploadSuccess={async (doc) => {
+                          if (doc) {
+                            await accountabilityApi.addComplementaryDocument(execution.id, doc.id);
+                            setComplementaryDocuments(prev => [...prev, doc]);
+                            resetAddForm();
+                          }
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      {!savedDocId ? (
+                        <form onSubmit={handleAddDocument}>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            {docCategory === 'FISCAL' ? 'Nova Despesa / Nota Fiscal' : 'Novo Comprovante de Pagamento'}
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            {docCategory === 'FISCAL' ? (
+                              <>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Documento</label>
+                                  <select
+                                    value={docForm.documentType}
+                                    onChange={e => setDocForm({...docForm, documentType: e.target.value})}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                  >
+                                    <option value="NF-e">NF-e (Nota Fiscal Eletrônica)</option>
+                                    <option value="NFS-e">NFS-e (Nota Fiscal de Serviços)</option>
+                                    <option value="Recibo">Recibo Simples</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Número do Documento</label>
+                                  <input
+                                    type="text" required
+                                    value={docForm.documentNumber}
+                                    onChange={e => setDocForm({...docForm, documentNumber: e.target.value})}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                  />
+                                </div>
+                                <div className="col-span-2">
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Fornecedor / Emissor</label>
+                                  <input
+                                    type="text" required
+                                    value={docForm.issuerName}
+                                    onChange={e => setDocForm({...docForm, issuerName: e.target.value})}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">CNPJ do Emissor (Opcional)</label>
+                                  <input
+                                    type="text"
+                                    value={docForm.issuerCnpj || ''}
+                                    onChange={e => setDocForm({...docForm, issuerCnpj: e.target.value})}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                  />
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Identificação / Transação</label>
+                                  <input
+                                    type="text" required placeholder="Ex: Id. PIX, TED"
+                                    value={docForm.documentNumber}
+                                    onChange={e => setDocForm({...docForm, documentNumber: e.target.value})}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Pagador / Conta</label>
+                                  <input
+                                    type="text" required
+                                    value={docForm.issuerName}
+                                    onChange={e => setDocForm({...docForm, issuerName: e.target.value})}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                  />
+                                </div>
+                              </>
+                            )}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Valor Total (R$)</label>
+                              <input
+                                type="number" required min="0.01" step="0.01"
+                                value={docForm.value || ''}
+                                onChange={e => setDocForm({...docForm, value: parseFloat(e.target.value)})}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex justify-end gap-3 mt-6">
+                            <button type="button" onClick={resetAddForm} className="px-4 py-2 font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
+                            <button type="submit" disabled={loading} className="px-4 py-2 font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                              {loading ? 'Salvando...' : 'Salvar Dados e Anexar PDF'}
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <div className="animate-fade-in">
+                          <div className="flex justify-between items-center mb-4">
+                            <div className="flex items-center text-green-700">
+                              <CheckCircle size={20} className="mr-2" />
+                              <h3 className="text-lg font-semibold">Dados salvos com sucesso!</h3>
+                            </div>
+                          </div>
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 mb-6 text-sm flex gap-6">
+                            <div><span className="text-gray-500 block">Tipo</span><span className="font-medium">{docForm.documentType}</span></div>
+                            <div><span className="text-gray-500 block">Número/ID</span><span className="font-medium">{docForm.documentNumber}</span></div>
+                            <div><span className="text-gray-500 block">Valor</span><span className="font-medium">R$ {docForm.value}</span></div>
+                          </div>
+                          <h4 className="text-md font-medium text-gray-800 mb-3">Agora, anexe o arquivo (PDF/Imagem):</h4>
+                          <DocumentUploader
+                            linkedEntityType="FISCAL_DOCUMENT"
+                            linkedEntityId={savedDocId}
+                            ownerModule="ACCOUNTABILITY"
+                            role={docCategory === 'PAYMENT' ? 'COMPROVANTE' : 'ANEXO_GERAL'}
+                            label="Arraste o arquivo ou clique para selecionar"
+                            description="PDF, JPG ou PNG (Max: 10MB)"
+                            onUploadSuccess={() => {
+                              resetAddForm();
+                            }}
+                          />
+                          <div className="mt-4 text-right">
+                            <button onClick={resetAddForm} className="text-sm font-medium text-gray-600 hover:text-gray-900">Pular anexo (posso anexar depois)</button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
               
-              {documents.length === 0 && !addingDoc ? (
+              {documents.length === 0 && complementaryDocuments.length === 0 && !addingDoc ? (
                 <div className="bg-gray-50 border border-gray-200 border-dashed rounded-xl p-12 text-center">
                   <div className="w-16 h-16 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FileText size={32} />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-1">Nenhuma nota fiscal registrada</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">Nenhum documento registrado</h3>
                   <p className="text-gray-500 max-w-sm mx-auto mb-6">
-                    Clique no botão acima para começar a adicionar as despesas desta competência.
+                    Clique no botão "Adicionar Documento" para registrar notas fiscais, comprovantes ou anexos complementares.
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {documents.map(doc => (
-                    <WizardDocumentCard 
-                      key={doc.id} 
-                      doc={doc} 
-                      executionId={execution.id} 
-                      onUpdate={(updated: any) => {
-                        setDocuments(docs => docs.map(d => d.id === updated.id ? updated : d));
-                      }}
-                      onRemove={(id: string) => {
-                        setDocuments(docs => docs.filter(d => d.id !== id));
-                      }}
-                    />
-                  ))}
-                  
-                  <div className="bg-blue-50 rounded-lg p-4 flex justify-between items-center border border-blue-100 mt-6">
-                    <span className="font-medium text-blue-900">Total de Despesas Registradas</span>
-                    <span className="text-xl font-bold text-blue-700">
-                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                        documents.reduce((acc, curr) => acc + (curr.value || 0), 0)
-                      )}
-                    </span>
-                  </div>
+                <div className="space-y-6">
+                  {/* Despesas */}
+                  {documents.filter(d => d.documentType !== 'Comprovante').length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Despesas / Notas Fiscais</h3>
+                      <div className="space-y-3">
+                        {documents.filter(d => d.documentType !== 'Comprovante').map(doc => (
+                          <div key={doc.id} className="relative">
+                            <WizardDocumentCard 
+                              doc={doc} 
+                              executionId={execution.id} 
+                              onUpdate={(updated: any) => setDocuments(docs => docs.map(d => d.id === updated.id ? updated : d))}
+                              onRemove={(id: string) => setDocuments(docs => docs.filter(d => d.id !== id))}
+                            />
+                            {/* Visual cue for missing attachment */}
+                            <div className="absolute top-4 right-20 pointer-events-none">
+                               <DocumentList linkedEntityType="FISCAL_DOCUMENT" linkedEntityId={doc.id!} readonly={true} emptyMessage={
+                                 <span className="text-orange-500 bg-orange-50 px-2 py-0.5 rounded text-xs border border-orange-200 flex items-center"><AlertCircle size={12} className="mr-1"/> Sem anexo</span>
+                               } />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Comprovantes */}
+                  {documents.filter(d => d.documentType === 'Comprovante').length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 mt-6">Comprovantes de Pagamento</h3>
+                      <div className="space-y-3">
+                        {documents.filter(d => d.documentType === 'Comprovante').map(doc => (
+                          <div key={doc.id} className="relative">
+                            <WizardDocumentCard 
+                              doc={doc} 
+                              executionId={execution.id} 
+                              onUpdate={(updated: any) => setDocuments(docs => docs.map(d => d.id === updated.id ? updated : d))}
+                              onRemove={(id: string) => setDocuments(docs => docs.filter(d => d.id !== id))}
+                            />
+                            <div className="absolute top-4 right-20 pointer-events-none">
+                               <DocumentList linkedEntityType="FISCAL_DOCUMENT" linkedEntityId={doc.id!} readonly={true} emptyMessage={
+                                 <span className="text-orange-500 bg-orange-50 px-2 py-0.5 rounded text-xs border border-orange-200 flex items-center"><AlertCircle size={12} className="mr-1"/> Sem anexo</span>
+                               } />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Complementares */}
+                  {complementaryDocuments.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 mt-6">Documentos Complementares</h3>
+                      <div className="space-y-3">
+                        {complementaryDocuments.map(doc => (
+                          <div key={doc.id} className="flex justify-between items-center bg-white border border-gray-200 p-4 rounded-lg shadow-sm">
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-green-50 text-green-600 rounded-lg"><Paperclip size={18} /></div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{doc.name || 'Documento Anexado'}</p>
+                                {doc.documentType && <p className="text-xs text-gray-500">{doc.documentType.name}</p>}
+                              </div>
+                            </div>
+                            <button
+                              onClick={async () => {
+                                if (confirm('Deseja remover este documento?')) {
+                                  await accountabilityApi.removeComplementaryDocument(execution.id, doc.id);
+                                  setComplementaryDocuments(prev => prev.filter(d => d.id !== doc.id));
+                                }
+                              }}
+                              className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -325,244 +486,8 @@ export function GuidedAccountabilityFlow() {
 
           {currentStep === 3 && (
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Anexos das Notas</h2>
-              <p className="text-gray-500 mb-6">Faça o upload do arquivo PDF correspondente a cada nota fiscal registrada na etapa anterior.</p>
-              
-              {documents.length === 0 ? (
-                <div className="bg-gray-50 border border-gray-200 border-dashed rounded-xl p-12 text-center text-gray-500">
-                  <p>Nenhuma nota fiscal registrada. Volte e adicione uma nota fiscal primeiro.</p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {documents.filter(d => d.documentType !== 'Comprovante').map(doc => (
-                    <div key={doc.id} className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
-                      <div className="flex justify-between items-center mb-4 border-b pb-3">
-                        <div>
-                          <p className="font-semibold text-gray-900">{doc.documentType} Nº {doc.documentNumber}</p>
-                          <p className="text-sm text-gray-500">{doc.issuerName}</p>
-                        </div>
-                        <span className="font-bold text-blue-700">
-                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(doc.value)}
-                        </span>
-                      </div>
-                      
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
-                            <Paperclip size={16} className="mr-1.5" /> Arquivos Anexados
-                          </h4>
-                          <DocumentList 
-                            linkedEntityType="FISCAL_DOCUMENT" 
-                            linkedEntityId={doc.id!} 
-                            readonly={false} 
-                          />
-                        </div>
-                        <div className="border-l border-gray-100 pl-6">
-                          <DocumentUploader
-                            linkedEntityType="FISCAL_DOCUMENT"
-                            linkedEntityId={doc.id!}
-                            ownerModule="ACCOUNTABILITY"
-                            role="ANEXO_GERAL"
-                            label="Anexar Arquivo"
-                            description="PDF, JPG ou PNG (Max: 10MB)"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {currentStep === 4 && (
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Comprovantes de Pagamento</h2>
-              <p className="text-gray-500 mb-6">Anexe os comprovantes bancários (transferências, PIX, boletos) que comprovem o pagamento das despesas.</p>
-              
-              <div className="mb-6">
-                 <button 
-                  onClick={() => {
-                    setDocForm({ ...docForm, documentType: 'Comprovante' });
-                    setAddingDoc(true);
-                  }}
-                  className="px-4 py-2 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg font-medium inline-flex items-center shadow-sm transition-colors"
-                >
-                  <Plus size={18} className="mr-1.5" /> Adicionar Comprovante
-                </button>
-              </div>
-
-              {addingDoc && docForm.documentType === 'Comprovante' && (
-                <div className="bg-white p-6 border border-purple-200 rounded-xl shadow-sm mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Novo Comprovante</h3>
-                  <form onSubmit={handleAddDocument}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Identificação / Transação</label>
-                        <input
-                          type="text"
-                          required
-                          value={docForm.documentNumber}
-                          onChange={e => setDocForm({...docForm, documentNumber: e.target.value})}
-                          placeholder="Ex: Id. Transferência, PIX"
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Pagador (Entidade)</label>
-                        <input
-                          type="text"
-                          required
-                          value={docForm.issuerName}
-                          onChange={e => setDocForm({...docForm, issuerName: e.target.value})}
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Valor do Comprovante (R$)</label>
-                        <input
-                          type="number"
-                          required
-                          min="0.01"
-                          step="0.01"
-                          value={docForm.value || ''}
-                          onChange={e => setDocForm({...docForm, value: parseFloat(e.target.value)})}
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-3 mt-6">
-                      <button 
-                        type="button" 
-                        onClick={() => setAddingDoc(false)}
-                        className="px-4 py-2 font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        type="submit"
-                        className="px-4 py-2 font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
-                      >
-                        Salvar Comprovante
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              )}
-
-              {documents.filter(d => d.documentType === 'Comprovante').length === 0 && (!addingDoc || docForm.documentType !== 'Comprovante') ? (
-                <div className="bg-gray-50 border border-gray-200 border-dashed rounded-xl p-12 text-center text-gray-500">
-                  <p>Nenhum comprovante de pagamento registrado.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {documents.filter(d => d.documentType === 'Comprovante').map(doc => (
-                    <div key={doc.id} className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
-                      <div className="flex justify-between items-center mb-4 border-b pb-3">
-                        <div className="flex items-center gap-3">
-                          <span className="shrink-0 text-xs font-semibold px-2 py-0.5 rounded border bg-purple-50 text-purple-700 border-purple-200">
-                            Comprovante
-                          </span>
-                          <div>
-                            <p className="font-semibold text-gray-900">{doc.documentNumber}</p>
-                            <p className="text-sm text-gray-500">{doc.issuerName}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <span className="font-bold text-gray-900">
-                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(doc.value)}
-                          </span>
-                          <button
-                            onClick={() => setDocuments(docs => docs.filter(d => d.id !== doc.id))}
-                            className="p-1.5 text-red-600 hover:bg-red-50 rounded"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="grid md:grid-cols-2 gap-6 mt-4">
-                        <div>
-                          <DocumentList 
-                            linkedEntityType="FISCAL_DOCUMENT" 
-                            linkedEntityId={doc.id!} 
-                            readonly={false} 
-                          />
-                        </div>
-                        <div className="border-l border-gray-100 pl-6">
-                          <DocumentUploader
-                            linkedEntityType="FISCAL_DOCUMENT"
-                            linkedEntityId={doc.id!}
-                            ownerModule="ACCOUNTABILITY"
-                            role="COMPROVANTE"
-                            label="Anexar Comprovante (PDF/Imagem)"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {currentStep === 5 && (
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Documentos Complementares</h2>
-              <p className="text-gray-500 mb-6">Anexe arquivos obrigatórios que não possuem dados financeiros, como Lista de Beneficiados, Fotos ou Relatórios de Atividades.</p>
-              
-              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-6">
-                <DocumentUploader
-                  ownerModule="ACCOUNTABILITY"
-                  role="ANEXO_COMPLEMENTAR"
-                  label="Adicionar Documento Complementar"
-                  description="PDF, JPG ou PNG (Max: 10MB)"
-                  onUploadSuccess={async (doc) => {
-                    if (doc) {
-                      await accountabilityApi.addComplementaryDocument(execution.id, doc.id);
-                      setComplementaryDocuments(prev => [...prev, doc]);
-                    }
-                  }}
-                />
-              </div>
-
-              {complementaryDocuments.length > 0 ? (
-                <div className="space-y-3">
-                  {complementaryDocuments.map(doc => (
-                    <div key={doc.id} className="flex justify-between items-center bg-gray-50 border border-gray-200 p-4 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <FileText className="text-gray-400" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{doc.name || 'Documento Anexado'}</p>
-                          {doc.documentType && <p className="text-xs text-gray-500">{doc.documentType.name}</p>}
-                        </div>
-                      </div>
-                      <button
-                        onClick={async () => {
-                          if (confirm('Deseja remover este documento?')) {
-                            await accountabilityApi.removeComplementaryDocument(execution.id, doc.id);
-                            setComplementaryDocuments(prev => prev.filter(d => d.id !== doc.id));
-                          }
-                        }}
-                        className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-gray-50 border border-gray-200 border-dashed rounded-xl p-8 text-center text-gray-500">
-                  <p>Nenhum documento complementar adicionado.</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {currentStep === 6 && (
-            <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">Revisão Final</h2>
-              <p className="text-gray-500 mb-6">Confira se os totais batem com o valor repassado. Após o envio, os documentos não poderão ser alterados até que a SEDS analise.</p>
+              <p className="text-gray-500 mb-6">Confira se os totais batem com o valor repassado. Após o envio, os documentos não poderão ser alterados até que a equipe analise.</p>
               
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
@@ -638,10 +563,10 @@ export function GuidedAccountabilityFlow() {
             
             <button 
               onClick={async () => {
-                if (currentStep < 6) {
+                if (currentStep < 3) {
                   setCurrentStep(prev => prev + 1);
                 } else {
-                  if (confirm('Tem certeza que deseja enviar esta prestação de contas para a SEDS?')) {
+                  if (confirm('Tem certeza que deseja enviar esta prestação de contas para análise?')) {
                     try {
                       setLoading(true);
                       await accountabilityApi.submit(execution.id);
@@ -656,11 +581,11 @@ export function GuidedAccountabilityFlow() {
                   }
                 }
               }}
-              disabled={loading || !isEditable}
+              disabled={loading || !isEditable || (addingDoc && currentStep === 2)}
               className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm flex justify-center items-center disabled:opacity-50"
             >
-              {currentStep === 6 ? 'Confirmar Envio' : 'Próxima Etapa'} 
-              {currentStep < 6 && <ChevronRight size={16} className="ml-1" />}
+              {currentStep === 3 ? 'Confirmar Envio' : 'Próxima Etapa'} 
+              {currentStep < 3 && <ChevronRight size={16} className="ml-1" />}
             </button>
           </div>
         </div>
