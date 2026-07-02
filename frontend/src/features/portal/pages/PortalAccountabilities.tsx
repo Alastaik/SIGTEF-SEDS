@@ -40,13 +40,19 @@ export function PortalAccountabilities() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'DRAFT':
+        return <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium flex items-center gap-1 w-fit"><FileText size={14}/> Rascunho</span>;
       case 'SUBMITTED':
       case 'RESUBMITTED':
+      case 'UNDER_REVIEW':
         return <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium flex items-center gap-1 w-fit"><FileText size={14}/> Em Análise</span>;
       case 'APPROVED':
+      case 'CLOSED':
         return <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium flex items-center gap-1 w-fit"><CheckCircle size={14}/> Aprovada</span>;
       case 'REJECTED':
-        return <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium flex items-center gap-1 w-fit"><XCircle size={14}/> Reprovada</span>;
+      case 'CANCELED':
+      case 'BLOCKED':
+        return <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium flex items-center gap-1 w-fit"><XCircle size={14}/> Reprovada / Bloqueada</span>;
       case 'PENDING_CORRECTION':
         return <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium flex items-center gap-1 w-fit"><AlertTriangle size={14}/> Pendente de Correção</span>;
       default:

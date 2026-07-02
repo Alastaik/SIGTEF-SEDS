@@ -46,8 +46,13 @@ public class PortalService {
         // Validar se entidade pertence ao usuario logado poderia ser feito aqui, 
         // ou no controller apos extrair o userId do token
 
-        long pending = accountabilityRepository.countByLegalEntityIdAndStatusIn(entityId, 
+        long pendingAccountabilities = accountabilityRepository.countByLegalEntityIdAndStatusIn(entityId, 
                 List.of(AccountabilityStatus.DRAFT, AccountabilityStatus.PENDING_CORRECTION));
+                
+        long pendingMonthlyExecutions = monthlyExecutionRepository.countByLegalEntityIdAndStatus(entityId, 
+                br.gov.go.seds.sigtef.model.MonthlyExecutionStatus.READY_FOR_ACCOUNTABILITY);
+                
+        long pending = pendingAccountabilities + pendingMonthlyExecutions;
 
         long inAnalysis = accountabilityRepository.countByLegalEntityIdAndStatusIn(entityId, 
                 List.of(AccountabilityStatus.SUBMITTED, AccountabilityStatus.RESUBMITTED, AccountabilityStatus.UNDER_REVIEW));

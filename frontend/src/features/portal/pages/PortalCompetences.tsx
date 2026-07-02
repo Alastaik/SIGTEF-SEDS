@@ -34,15 +34,27 @@ export function PortalCompetences() {
     switch (status) {
       case 'PENDING':
         return <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium flex items-center gap-1"><Clock size={12}/> Pendente</span>;
+      case 'WAITING_TRANSFER':
+        return <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium flex items-center gap-1"><Clock size={12}/> Aguardando Repasse</span>;
       case 'PENDING_ACCOUNTABILITY':
+      case 'READY_FOR_ACCOUNTABILITY':
         return <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium flex items-center gap-1"><AlertTriangle size={12}/> Aguardando Prestação</span>;
+      case 'ACCOUNTABILITY_DRAFT':
+        return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium flex items-center gap-1"><FileText size={12}/> Prestação em Rascunho</span>;
       case 'SUBMITTED':
       case 'RESUBMITTED':
+      case 'UNDER_REVIEW':
         return <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium flex items-center gap-1"><FileText size={12}/> Em Análise</span>;
       case 'APPROVED':
+      case 'CLOSED':
         return <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium flex items-center gap-1"><CheckCircle size={12}/> Aprovado</span>;
       case 'PENDING_CORRECTION':
         return <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium flex items-center gap-1"><AlertTriangle size={12}/> Correção Solicitada</span>;
+      case 'REJECTED':
+      case 'CANCELED':
+      case 'BLOCKED':
+      case 'ACCOUNTABILITY_CLOSED_UNREALIZED':
+        return <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium flex items-center gap-1"><AlertTriangle size={12}/> Bloqueado / Cancelado / Rejeitado</span>;
       default:
         return <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">{status}</span>;
     }
