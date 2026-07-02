@@ -13,6 +13,8 @@ import type { DocumentOwnerModule, DocumentLinkRole, RetentionPolicy } from '../
         documentTypeId?: string;
         label?: string;
         description?: string;
+        docTitle?: string;
+        docDescription?: string;
         acceptedTypes?: string;
         maxSizeMB?: number;
         onUploadSuccess?: (doc?: any) => void;
@@ -27,6 +29,8 @@ import type { DocumentOwnerModule, DocumentLinkRole, RetentionPolicy } from '../
         documentTypeId,
         label = 'Anexar Documento',
         description = 'Arraste e solte ou clique para selecionar',
+        docTitle,
+        docDescription,
         acceptedTypes = '*/*',
         maxSizeMB = 50,
         onUploadSuccess
@@ -39,6 +43,8 @@ import type { DocumentOwnerModule, DocumentLinkRole, RetentionPolicy } from '../
         const uploadMutation = useMutation({
             mutationFn: (selectedFile: File) => documentService.upload({
                 file: selectedFile,
+                title: docTitle,
+                description: docDescription,
                 linkedEntityType,
                 linkedEntityId,
                 ownerModule,

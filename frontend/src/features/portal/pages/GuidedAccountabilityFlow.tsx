@@ -24,6 +24,10 @@ export function GuidedAccountabilityFlow() {
   // States for adding a new document
   const [addingDoc, setAddingDoc] = useState(false);
   const [docCategory, setDocCategory] = useState<'FISCAL' | 'PAYMENT' | 'COMPLEMENTARY'>('FISCAL');
+  
+  // Complementary Doc Info
+  const [compDocTitle, setCompDocTitle] = useState('');
+  const [compDocDescription, setCompDocDescription] = useState('');
   const [savedDocId, setSavedDocId] = useState<string | null>(null);
   const [docForm, setDocForm] = useState<Partial<FiscalDocument>>({
     documentType: 'NF-e',
@@ -265,25 +269,61 @@ export function GuidedAccountabilityFlow() {
                   )}
 
                   {docCategory === 'COMPLEMENTARY' ? (
-                    <div>
+                    <div className="animate-fade-in bg-white border border-gray-200 rounded-lg p-5">
                       <div className="mb-4 flex justify-between items-center">
-                        <h3 className="text-lg font-semibold text-gray-900">Anexar Documento Complementar</h3>
+                        <h4 className="text-md font-medium text-gray-800">Anexar Documento Complementar</h4>
                         <button onClick={resetAddForm} className="text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
                       </div>
-                      <p className="text-sm text-gray-600 mb-4">Relatórios, listas de beneficiados, fotos ou outros documentos requeridos.</p>
-                      <DocumentUploader
-                        ownerModule="ACCOUNTABILITY"
-                        role="ANEXO_COMPLEMENTAR"
-                        label="Arraste o arquivo ou clique para selecionar"
-                        description="PDF, JPG ou PNG (Max: 10MB)"
-                        onUploadSuccess={async (doc) => {
-                          if (doc) {
-                            await accountabilityApi.addComplementaryDocument(execution.id, doc.id);
-                            setComplementaryDocuments(prev => [...prev, doc]);
-                            resetAddForm();
-                          }
-                        }}
-                      />
+                      
+                      <div className="space-y-3 mb-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Título do Documento (Obrigatório)</label>
+                          <input
+                            type="text" required
+                            placeholder="Ex: Ofício nº 123/2026"
+                            value={compDocTitle}
+                            onChange={e => setCompDocTitle(e.target.value)}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Descrição (Opcional)</label>
+                          <textarea
+                            placeholder="Explicação breve sobre este documento"
+                            value={compDocDescription}
+                            onChange={e => setCompDocDescription(e.target.value)}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                            rows={2}
+                          />
+                        </div>
+                      </div>
+
+                      {compDocTitle ? (
+                        <DocumentUploader
+                          linkedEntityType="ACCOUNTABILITY"
+                          linkedEntityId={execution.id}
+                          ownerModule="ACCOUNTABILITY"
+                          role="ANEXO_GERAL"
+                          docTitle={compDocTitle}
+                          docDescription={compDocDescription}
+                          onUploadSuccess={async (doc: any) => {
+                            try {
+                              await accountabilityApi.addComplementaryDocument(execution.id, doc.id);
+                              setComplementaryDocuments(prev => [...prev, doc]);
+                              resetAddForm();
+                              setCompDocTitle('');
+                              setCompDocDescription('');
+                            } catch (error) {
+                              console.error('Erro ao vincular doc complementar', error);
+                              alert('Erro ao vincular documento complementar.');
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div className="p-4 bg-gray-50 border border-gray-200 border-dashed rounded text-sm text-center text-gray-500">
+                          Preencha o Título do Documento para liberar o envio do arquivo.
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div>
@@ -477,8 +517,9 @@ export function GuidedAccountabilityFlow() {
                             <div className="flex items-center space-x-3">
                               <div className="p-2 bg-green-50 text-green-600 rounded-lg"><Paperclip size={18} /></div>
                               <div>
-                                <p className="text-sm font-medium text-gray-900">{doc.name || 'Documento Anexado'}</p>
-                                {doc.documentType && <p className="text-xs text-gray-500">{doc.documentType.name}</p>}
+                                <p className="text-sm font-medium text-gray-900">{doc.title || doc.name || 'Documento Anexado'}</p>
+                                {doc.description && <p className="text-xs text-gray-500">{doc.description}</p>}
+                                {doc.documentType && !doc.description && <p className="text-xs text-gray-500">{doc.documentType.name}</p>}
                               </div>
                             </div>
                             <button
