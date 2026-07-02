@@ -18,6 +18,8 @@ import type { DocumentOwnerModule, DocumentLinkRole, RetentionPolicy } from '../
         acceptedTypes?: string;
         maxSizeMB?: number;
         onUploadSuccess?: (doc?: any) => void;
+        autoUpload?: boolean;
+        onFileSelect?: (file: File | null) => void;
     }
 
     export function DocumentUploader({
@@ -33,7 +35,9 @@ import type { DocumentOwnerModule, DocumentLinkRole, RetentionPolicy } from '../
         docDescription,
         acceptedTypes = '*/*',
         maxSizeMB = 50,
-        onUploadSuccess
+        onUploadSuccess,
+        autoUpload = true,
+        onFileSelect
     }: DocumentUploaderProps) {
         const [dragActive, setDragActive] = useState(false);
         const [file, setFile] = useState<File | null>(null);
@@ -97,7 +101,12 @@ import type { DocumentOwnerModule, DocumentLinkRole, RetentionPolicy } from '../
             return;
         }
         setFile(selectedFile);
-        uploadMutation.mutate(selectedFile);
+        if (onFileSelect) {
+            onFileSelect(selectedFile);
+        }
+        if (autoUpload) {
+            uploadMutation.mutate(selectedFile);
+        }
     };
 
     const onButtonClick = () => {

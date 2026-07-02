@@ -3,11 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../../lib/api';
 import { accountabilityApi, itemApi } from '../../accountability/api';
 import type { MonthlyExecution } from '../../executions/api';
-import type { FiscalDocument, ItemCategory, Item } from '../../accountability/api';
+import type { FiscalDocument, ItemCategory, Item, FiscalDocumentItem } from '../../accountability/api';
 import { CheckCircle, ChevronRight, ChevronLeft, Save, Play, Plus, FileText, Trash2, Paperclip, AlertCircle } from 'lucide-react';
 import { WizardDocumentCard } from '../components/WizardDocumentCard';
 import { DocumentUploader } from '../../documents/components/DocumentUploader';
 import { DocumentList } from '../../documents/components/DocumentList';
+import { documentService } from '../../documents/api';
 
 export function GuidedAccountabilityFlow() {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +37,17 @@ export function GuidedAccountabilityFlow() {
     issuerCnpj: '',
     value: 0
   });
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
+  // Itemization states for new document
+  const [draftItems, setDraftItems] = useState<any[]>([]);
+  const [selectedCat, setSelectedCat] = useState('');
+  const [itemSearchName, setItemSearchName] = useState('');
+  const [selectedItem, setSelectedItem] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [unitPrice, setUnitPrice] = useState('');
+  const [isCreatingNewItem, setIsCreatingNewItem] = useState(false);
 
   const draftStarted = useRef(false);
 
@@ -100,17 +112,46 @@ export function GuidedAccountabilityFlow() {
     if (id) fetchExecution();
   }, [id]);
 
-  const handleAddDocument = async (e: React.FormEvent) => {
+  const handleSubmitCompleteDocument = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!execution) return;
+    if (docCategory === 'FISCAL') {
+      const totalItemsValue = draftItems.reduce((acc, curr) => acc + curr.totalPrice, 0);
+      if (totalItemsValue !== docForm.value && draftItems.length > 0) {
+        if (!confirm('A soma dos itens não bate com o valor total da nota. Deseja continuar?')) return;
+      }
+    }
+    
     try {
       setLoading(true);
+      
+      // 1. Criar o documento
       const newDoc = await accountabilityApi.addFiscalDocument(execution.id, docForm as any);
-      setDocuments(prev => [newDoc, ...prev]);
-      setSavedDocId(newDoc.id!); // Muda para a etapa de upload
+      
+      // 2. Se houver itens locais, adiciona ao documento
+      let updatedDoc = newDoc;
+      if (draftItems.length > 0 && docCategory === 'FISCAL') {
+        const docWithItems = { ...newDoc, items: draftItems };
+        updatedDoc = await accountabilityApi.updateFiscalDocument(execution.id, newDoc.id!, docWithItems);
+      }
+
+      // 3. Se houver arquivo anexado, enviar
+      if (selectedFile) {
+        await documentService.upload({
+          file: selectedFile,
+          linkedEntityType: 'FISCAL_DOCUMENT',
+          linkedEntityId: newDoc.id,
+          ownerModule: 'ACCOUNTABILITY',
+          role: docCategory === 'PAYMENT' ? 'COMPROVANTE' : 'ANEXO_GERAL'
+        });
+      }
+      
+      // 4. Atualizar interface
+      setDocuments(prev => [updatedDoc, ...prev]);
+      resetAddForm();
     } catch (error) {
       console.error('Error adding document', error);
-      alert('Erro ao adicionar documento');
+      alert('Erro ao salvar documento. Verifique os dados.');
     } finally {
       setLoading(false);
     }
@@ -119,6 +160,13 @@ export function GuidedAccountabilityFlow() {
   const resetAddForm = () => {
     setAddingDoc(false);
     setSavedDocId(null);
+    setSelectedFile(null);
+    setDraftItems([]);
+    setSelectedItem('');
+    setItemSearchName('');
+    setQuantity('');
+    setUnitPrice('');
+    setIsCreatingNewItem(false);
     setDocForm({
       documentType: 'NF-e',
       documentNumber: '',
@@ -146,6 +194,63 @@ export function GuidedAccountabilityFlow() {
 
   if (loading && !execution) return <div className="p-8 text-center">Carregando...</div>;
   if (!execution) return <div className="p-8 text-center text-red-500">Competência não encontrada.</div>;
+
+  const handleCatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCat(e.target.value);
+    setSelectedItem('');
+    setItemSearchName('');
+  };
+
+  const handleCreateNewItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedCat) {
+      alert("Selecione uma categoria primeiro");
+      return;
+    }
+    const name = (document.getElementById(`new-item-name-draft`) as HTMLInputElement).value;
+    const unit = (document.getElementById(`new-item-unit-draft`) as HTMLInputElement).value;
+    try {
+      const created = await itemApi.createItem(selectedCat, name, unit, execution?.id);
+      setItemsByCategory((prev: any) => {
+        const catItems = prev[selectedCat] || [];
+        const allItems = prev[''] || [];
+        return {
+          ...prev,
+          [selectedCat]: [...catItems, created],
+          '': [...allItems, created]
+        };
+      });
+      setSelectedItem(created.id);
+      setItemSearchName(`${created.name} (${created.unitOfMeasurement || '-'})`);
+      setIsCreatingNewItem(false);
+    } catch (err) {
+      console.error('Failed to create item', err);
+      alert('Erro ao criar novo item.');
+    }
+  };
+
+  const handleAddItem = () => {
+    const finalItem = itemsByCategory['']?.find((i: Item) => i.id === selectedItem);
+    if (!finalItem || !quantity || !unitPrice) return;
+
+    const newItem: FiscalDocumentItem = {
+      id: crypto.randomUUID(),
+      item: finalItem,
+      quantity: Number(quantity),
+      unitPrice: Number(unitPrice),
+      totalPrice: Number(quantity) * Number(unitPrice)
+    };
+
+    setDraftItems([...draftItems, newItem]);
+    setSelectedItem('');
+    setItemSearchName('');
+    setQuantity('');
+    setUnitPrice('');
+  };
+
+  const removeDraftItem = (itemId: string) => {
+    setDraftItems(draftItems.filter(i => i.id !== itemId));
+  };
 
   const isEditable = execution.status === 'READY_FOR_ACCOUNTABILITY' || 
                      execution.status === 'ACCOUNTABILITY_DRAFT' || 
@@ -326,78 +431,53 @@ export function GuidedAccountabilityFlow() {
                       )}
                     </div>
                   ) : (
-                    <div>
-                      {!savedDocId ? (
-                        <form onSubmit={handleAddDocument}>
-                          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                            {docCategory === 'FISCAL' ? 'Nova Nota Fiscal' : 'Outros Documentos / Despesas'}
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            {docCategory === 'FISCAL' ? (
-                              <>
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Documento</label>
-                                  <select
-                                    value={docForm.documentType}
-                                    onChange={e => setDocForm({...docForm, documentType: e.target.value})}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                                  >
-                                    <option value="NF-e">NF-e (Nota Fiscal Eletrônica)</option>
-                                    <option value="NFS-e">NFS-e (Nota Fiscal de Serviços)</option>
-                                    <option value="Recibo">Recibo Simples</option>
-                                  </select>
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">Número do Documento</label>
-                                  <input
-                                    type="text" required
-                                    value={docForm.documentNumber}
-                                    onChange={e => setDocForm({...docForm, documentNumber: e.target.value})}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                                  />
-                                </div>
-                                <div className="col-span-2">
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">Fornecedor / Emissor</label>
-                                  <input
-                                    type="text" required
-                                    value={docForm.issuerName}
-                                    onChange={e => setDocForm({...docForm, issuerName: e.target.value})}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">CNPJ do Emissor (Opcional)</label>
-                                  <input
-                                    type="text"
-                                    value={docForm.issuerCnpj || ''}
-                                    onChange={e => setDocForm({...docForm, issuerCnpj: e.target.value})}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                                  />
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">Identificação / Transação</label>
-                                  <input
-                                    type="text" required placeholder="Ex: Id. PIX, TED"
-                                    value={docForm.documentNumber}
-                                    onChange={e => setDocForm({...docForm, documentNumber: e.target.value})}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">Pagador / Conta</label>
-                                  <input
-                                    type="text" required
-                                    value={docForm.issuerName}
-                                    onChange={e => setDocForm({...docForm, issuerName: e.target.value})}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                                  />
-                                </div>
-                              </>
-                            )}
-                            {docCategory === 'FISCAL' && (
+                    <div className="animate-fade-in bg-white border border-gray-200 rounded-lg p-5">
+                      <form onSubmit={handleSubmitCompleteDocument}>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                          {docCategory === 'FISCAL' ? 'Nova Nota Fiscal' : 'Outros Documentos / Despesas'}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                          {docCategory === 'FISCAL' ? (
+                            <>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Documento</label>
+                                <select
+                                  value={docForm.documentType}
+                                  onChange={e => setDocForm({...docForm, documentType: e.target.value})}
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                >
+                                  <option value="NF-e">NF-e (Nota Fiscal Eletrônica)</option>
+                                  <option value="NFS-e">NFS-e (Nota Fiscal de Serviços)</option>
+                                  <option value="Recibo">Recibo Simples</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Número do Documento</label>
+                                <input
+                                  type="text" required
+                                  value={docForm.documentNumber}
+                                  onChange={e => setDocForm({...docForm, documentNumber: e.target.value})}
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Fornecedor / Emissor</label>
+                                <input
+                                  type="text" required
+                                  value={docForm.issuerName}
+                                  onChange={e => setDocForm({...docForm, issuerName: e.target.value})}
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">CNPJ do Emissor (Opcional)</label>
+                                <input
+                                  type="text"
+                                  value={docForm.issuerCnpj || ''}
+                                  onChange={e => setDocForm({...docForm, issuerCnpj: e.target.value})}
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                />
+                              </div>
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Valor Total (R$)</label>
                                 <input
@@ -407,45 +487,170 @@ export function GuidedAccountabilityFlow() {
                                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                                 />
                               </div>
+                            </>
+                          ) : (
+                            <>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Identificação / Transação</label>
+                                <input
+                                  type="text" required placeholder="Ex: Id. PIX, TED"
+                                  value={docForm.documentNumber}
+                                  onChange={e => setDocForm({...docForm, documentNumber: e.target.value})}
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Pagador / Conta</label>
+                                <input
+                                  type="text" required
+                                  value={docForm.issuerName}
+                                  onChange={e => setDocForm({...docForm, issuerName: e.target.value})}
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                />
+                              </div>
+                            </>
+                          )}
+                        </div>
+
+                        {docCategory === 'FISCAL' && (
+                          <div className="mb-6 pt-4 border-t border-gray-200">
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="text-sm font-semibold text-gray-900">Detalhamento de Itens (Opcional)</h4>
+                              <div className={`text-sm ${draftItems.reduce((acc, curr) => acc + curr.totalPrice, 0) > (docForm.value || 0) ? 'text-red-600 font-bold' : 'text-gray-500'}`}>
+                                Soma: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(draftItems.reduce((acc, curr) => acc + curr.totalPrice, 0))} / {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(docForm.value || 0)}
+                              </div>
+                            </div>
+
+                            <div className="bg-gray-50 p-4 rounded border border-gray-200 mb-4 shadow-sm">
+                              {isCreatingNewItem ? (
+                                <div className="bg-blue-50 p-3 rounded border border-blue-100 mb-4 text-sm">
+                                  <p className="font-semibold text-blue-800 mb-2">Cadastrar Novo Item na SEDS</p>
+                                  <div className="grid grid-cols-2 gap-3 mb-3">
+                                    <div>
+                                      <label className="block text-xs font-medium text-blue-900">Nome do Item</label>
+                                      <input id="new-item-name-draft" required className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"/>
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-blue-900">Unidade de Medida</label>
+                                      <input id="new-item-unit-draft" required className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"/>
+                                    </div>
+                                  </div>
+                                  <div className="flex justify-end gap-2">
+                                    <button type="button" onClick={() => { setIsCreatingNewItem(false); setItemSearchName(''); }} className="px-3 py-1.5 text-xs text-gray-600 bg-white border border-gray-300 rounded">Cancelar</button>
+                                    <button type="button" onClick={handleCreateNewItem} className="px-3 py-1.5 text-xs text-white bg-blue-600 hover:bg-blue-700 rounded">Salvar e Selecionar</button>
+                                  </div>
+                                </div>
+                              ) : null}
+
+                              <div className="grid grid-cols-12 gap-3 items-end">
+                                <div className="col-span-3">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">Categoria (Opcional)</label>
+                                  <select
+                                    value={selectedCat}
+                                    onChange={handleCatChange}
+                                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
+                                  >
+                                    <option value="">Todas</option>
+                                    {categories.map((c: any) => (
+                                      <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div className="col-span-4">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">Item</label>
+                                  <input
+                                    list="items-list-draft"
+                                    value={itemSearchName}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setItemSearchName(val);
+                                      const matched = itemsByCategory['']?.find(i => `${i.name} (${i.unitOfMeasurement || '-'})` === val);
+                                      if (matched) {
+                                        setSelectedItem(matched.id);
+                                        setSelectedCat(matched.category.id);
+                                      } else {
+                                        setSelectedItem('');
+                                      }
+                                    }}
+                                    placeholder="Buscar item..."
+                                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
+                                  />
+                                  <datalist id="items-list-draft">
+                                    {(selectedCat ? itemsByCategory[selectedCat] : itemsByCategory[''])?.map(item => (
+                                      <option key={item.id} value={`${item.name} (${item.unitOfMeasurement || '-'})`} />
+                                    ))}
+                                  </datalist>
+                                  {!selectedItem && itemSearchName.length > 2 && (
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Não encontrou? <button type="button" onClick={() => setIsCreatingNewItem(true)} className="text-blue-600 hover:underline">Criar novo</button>
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">Quantidade</label>
+                                  <input type="number" min="0.01" step="0.01" value={quantity} onChange={e => setQuantity(e.target.value)} className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm" />
+                                </div>
+                                <div className="col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">Valor Un. (R$)</label>
+                                  <input type="number" min="0.01" step="0.01" value={unitPrice} onChange={e => setUnitPrice(e.target.value)} className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm" />
+                                </div>
+                                <div className="col-span-1">
+                                  <button type="button" onClick={handleAddItem} disabled={!selectedItem || !quantity || !unitPrice} className="w-full bg-blue-600 text-white rounded p-2 hover:bg-blue-700 disabled:opacity-50 flex justify-center items-center">
+                                    <Plus size={18} />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+
+                            {draftItems.length > 0 && (
+                              <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                                <table className="min-w-full divide-y divide-gray-200 text-sm">
+                                  <thead className="bg-gray-50">
+                                    <tr>
+                                      <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                                      <th className="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">Qtd</th>
+                                      <th className="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">Valor Un.</th>
+                                      <th className="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                      <th className="px-4 py-2"></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="bg-white divide-y divide-gray-200">
+                                    {draftItems.map(item => (
+                                      <tr key={item.id} className="hover:bg-gray-50">
+                                        <td className="px-4 py-2 font-medium text-gray-900">{item.item.name}</td>
+                                        <td className="px-4 py-2 text-right text-gray-500">{item.quantity}</td>
+                                        <td className="px-4 py-2 text-right text-gray-500">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.unitPrice)}</td>
+                                        <td className="px-4 py-2 text-right font-medium text-gray-900">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.totalPrice)}</td>
+                                        <td className="px-4 py-2 text-right">
+                                          <button type="button" onClick={() => removeDraftItem(item.id)} className="text-red-600 hover:text-red-900"><Trash2 size={16} /></button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
                             )}
                           </div>
-                          <div className="flex justify-end gap-3 mt-6">
-                            <button type="button" onClick={resetAddForm} className="px-4 py-2 font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
-                            <button type="submit" disabled={loading} className="px-4 py-2 font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-                              {loading ? 'Salvando...' : 'Salvar Dados e Anexar PDF'}
-                            </button>
-                          </div>
-                        </form>
-                      ) : (
-                        <div className="animate-fade-in">
-                          <div className="flex justify-between items-center mb-4">
-                            <div className="flex items-center text-green-700">
-                              <CheckCircle size={20} className="mr-2" />
-                              <h3 className="text-lg font-semibold">Dados salvos com sucesso!</h3>
-                            </div>
-                          </div>
-                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 mb-6 text-sm flex gap-6">
-                            <div><span className="text-gray-500 block">Tipo</span><span className="font-medium">{docForm.documentType}</span></div>
-                            <div><span className="text-gray-500 block">Número/ID</span><span className="font-medium">{docForm.documentNumber}</span></div>
-                            <div><span className="text-gray-500 block">Valor</span><span className="font-medium">R$ {docForm.value}</span></div>
-                          </div>
-                          <h4 className="text-md font-medium text-gray-800 mb-3">Agora, anexe o arquivo (PDF/Imagem):</h4>
+                        )}
+
+                        <div className="mb-6 pt-4 border-t border-gray-200">
+                          <h4 className="text-sm font-semibold text-gray-900 mb-3">Arquivo do Documento (Opcional por agora)</h4>
                           <DocumentUploader
-                            linkedEntityType="FISCAL_DOCUMENT"
-                            linkedEntityId={savedDocId}
                             ownerModule="ACCOUNTABILITY"
-                            role={docCategory === 'PAYMENT' ? 'COMPROVANTE' : 'ANEXO_GERAL'}
+                            autoUpload={false}
+                            onFileSelect={setSelectedFile}
                             label="Arraste o arquivo ou clique para selecionar"
                             description="PDF, JPG ou PNG (Max: 10MB)"
-                            onUploadSuccess={() => {
-                              resetAddForm();
-                            }}
                           />
-                          <div className="mt-4 text-right">
-                            <button onClick={resetAddForm} className="text-sm font-medium text-gray-600 hover:text-gray-900">Pular anexo (posso anexar depois)</button>
-                          </div>
                         </div>
-                      )}
+
+                        <div className="flex justify-end gap-3 mt-6">
+                          <button type="button" onClick={resetAddForm} className="px-4 py-2 font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
+                          <button type="submit" disabled={loading} className="px-4 py-2 font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                            {loading ? 'Salvando...' : 'Salvar Documento Completo'}
+                          </button>
+                        </div>
+                      </form>
                     </div>
                   )}
                 </div>
