@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../../lib/api';
-import { accountabilityApi } from '../../accountability/api';
+import { accountabilityApi, itemApi } from '../../accountability/api';
 import type { MonthlyExecution } from '../../executions/api';
-import type { FiscalDocument } from '../../accountability/api';
+import type { FiscalDocument, ItemCategory, Item } from '../../accountability/api';
 import { CheckCircle, ChevronRight, ChevronLeft, Save, Play, Plus, FileText, Trash2, Paperclip, AlertCircle } from 'lucide-react';
 import { WizardDocumentCard } from '../components/WizardDocumentCard';
 import { DocumentUploader } from '../../documents/components/DocumentUploader';
@@ -17,6 +17,9 @@ export function GuidedAccountabilityFlow() {
   const [currentStep, setCurrentStep] = useState(1);
   const [documents, setDocuments] = useState<FiscalDocument[]>([]);
   const [complementaryDocuments, setComplementaryDocuments] = useState<any[]>([]);
+  
+  const [categories, setCategories] = useState<ItemCategory[]>([]);
+  const [itemsByCategory, setItemsByCategory] = useState<Record<string, Item[]>>({});
   
   // States for adding a new document
   const [addingDoc, setAddingDoc] = useState(false);
@@ -47,6 +50,24 @@ export function GuidedAccountabilityFlow() {
               if (error.response?.data?.message !== 'Accountability já foi iniciada') {
                 console.error("Erro ao iniciar rascunho", error);
               }
+            }
+            try {
+              const [cats, items] = await Promise.all([
+                itemApi.getCategories(),
+                itemApi.getAllItems()
+              ]);
+              setCategories(cats);
+              const grouped: Record<string, Item[]> = {};
+              grouped[''] = items; // Todos os itens
+              items.forEach((item: Item) => {
+                if (!grouped[item.category.id]) {
+                  grouped[item.category.id] = [];
+                }
+                grouped[item.category.id].push(item);
+              });
+              setItemsByCategory(grouped);
+            } catch (err) {
+              console.error("Erro ao carregar itens", err);
             }
             try {
               const subResponse = await api.get(`/accountabilities/executions/${id}`);
@@ -109,7 +130,7 @@ export function GuidedAccountabilityFlow() {
     if (cat === 'FISCAL') {
       setDocForm({ ...docForm, documentType: 'NF-e' });
     } else if (cat === 'PAYMENT') {
-      setDocForm({ ...docForm, documentType: 'Comprovante' });
+      setDocForm({ ...docForm, documentType: 'Comprovante', value: 0 });
     }
   };
 
@@ -226,19 +247,19 @@ export function GuidedAccountabilityFlow() {
                         onClick={() => handleCategoryChange('FISCAL')}
                         className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${docCategory === 'FISCAL' ? 'bg-blue-100 text-blue-700' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
                       >
-                        Nota Fiscal / Despesa
-                      </button>
-                      <button
-                        onClick={() => handleCategoryChange('PAYMENT')}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${docCategory === 'PAYMENT' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
-                      >
-                        Comprovante de Pagamento
+                        Nota Fiscal
                       </button>
                       <button
                         onClick={() => handleCategoryChange('COMPLEMENTARY')}
                         className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${docCategory === 'COMPLEMENTARY' ? 'bg-green-100 text-green-700' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
                       >
-                        Documento Complementar
+                        Documentos Complementares
+                      </button>
+                      <button
+                        onClick={() => handleCategoryChange('PAYMENT')}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${docCategory === 'PAYMENT' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                      >
+                        Outros
                       </button>
                     </div>
                   )}
@@ -269,7 +290,7 @@ export function GuidedAccountabilityFlow() {
                       {!savedDocId ? (
                         <form onSubmit={handleAddDocument}>
                           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                            {docCategory === 'FISCAL' ? 'Nova Despesa / Nota Fiscal' : 'Novo Comprovante de Pagamento'}
+                            {docCategory === 'FISCAL' ? 'Nova Nota Fiscal' : 'Outros Documentos / Despesas'}
                           </h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             {docCategory === 'FISCAL' ? (
@@ -336,15 +357,17 @@ export function GuidedAccountabilityFlow() {
                                 </div>
                               </>
                             )}
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Valor Total (R$)</label>
-                              <input
-                                type="number" required min="0.01" step="0.01"
-                                value={docForm.value || ''}
-                                onChange={e => setDocForm({...docForm, value: parseFloat(e.target.value)})}
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                              />
-                            </div>
+                            {docCategory === 'FISCAL' && (
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Valor Total (R$)</label>
+                                <input
+                                  type="number" required min="0.01" step="0.01"
+                                  value={docForm.value || ''}
+                                  onChange={e => setDocForm({...docForm, value: parseFloat(e.target.value)})}
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                />
+                              </div>
+                            )}
                           </div>
                           <div className="flex justify-end gap-3 mt-6">
                             <button type="button" onClick={resetAddForm} className="px-4 py-2 font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
@@ -409,7 +432,10 @@ export function GuidedAccountabilityFlow() {
                           <div key={doc.id} className="relative">
                             <WizardDocumentCard 
                               doc={doc} 
-                              executionId={execution.id} 
+                              executionId={execution.id}
+                              categories={categories}
+                              itemsByCategory={itemsByCategory}
+                              setItemsByCategory={setItemsByCategory}
                               onUpdate={(updated: any) => setDocuments(docs => docs.map(d => d.id === updated.id ? updated : d))}
                               onRemove={(id: string) => setDocuments(docs => docs.filter(d => d.id !== id))}
                             />
@@ -419,16 +445,19 @@ export function GuidedAccountabilityFlow() {
                     </div>
                   )}
 
-                  {/* Comprovantes */}
+                  {/* Outros / Comprovantes */}
                   {documents.filter(d => d.documentType === 'Comprovante').length > 0 && (
                     <div>
-                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 mt-6">Comprovantes de Pagamento</h3>
+                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 mt-6">Outros</h3>
                       <div className="space-y-3">
                         {documents.filter(d => d.documentType === 'Comprovante').map(doc => (
                           <div key={doc.id} className="relative">
                             <WizardDocumentCard 
                               doc={doc} 
-                              executionId={execution.id} 
+                              executionId={execution.id}
+                              categories={categories}
+                              itemsByCategory={itemsByCategory}
+                              setItemsByCategory={setItemsByCategory}
                               onUpdate={(updated: any) => setDocuments(docs => docs.map(d => d.id === updated.id ? updated : d))}
                               onRemove={(id: string) => setDocuments(docs => docs.filter(d => d.id !== id))}
                             />
@@ -496,14 +525,7 @@ export function GuidedAccountabilityFlow() {
                         )}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Total de Pagamentos:</span>
-                      <span className="font-medium text-purple-700">
-                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                          documents.filter(d => d.documentType === 'Comprovante').reduce((acc, curr) => acc + (curr.value || 0), 0)
-                        )}
-                      </span>
-                    </div>
+
                   </div>
                 </div>
 
@@ -517,7 +539,7 @@ export function GuidedAccountabilityFlow() {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Comprovantes Inseridos:</span>
+                      <span className="text-gray-500">Outros Documentos Inseridos:</span>
                       <span className="font-medium text-gray-900">
                         {documents.filter(d => d.documentType === 'Comprovante').length}
                       </span>
