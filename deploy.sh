@@ -46,9 +46,12 @@ sudo chmod -R 750 /data/uploads
 sudo chmod -R 750 /data/backups
 sudo chmod -R 750 ./certbot/www
 
-echo "Iniciando a stack via Docker Compose..."
-# Subimos os containers
-sudo docker-compose up -d --build
+echo "Reconstruindo imagens (--no-cache garante que o código novo é compilado)..."
+# Rebuild sem cache para garantir que frontend e backend são recompilados
+sudo docker compose build --no-cache backend frontend
+
+echo "Subindo todos os containers..."
+sudo docker compose up -d
 
 echo "Limpeza de imagens órfãs..."
 sudo docker image prune -f
