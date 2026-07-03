@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -173,7 +175,7 @@ public class RepresentativeService {
                 .name(rep.getUser().getName())
                 .email(rep.getUser().getEmail())
                 .role(rep.getRole())
-                .permissions(rep.getPermissions())
+                .permissions(Objects.requireNonNullElse(rep.getPermissions(), new ArrayList<>()))
                 .status(rep.getStatus())
                 .startDate(rep.getStartDate())
                 .endDate(rep.getEndDate())
@@ -188,7 +190,7 @@ public class RepresentativeService {
                 .email(inv.getEmail())
                 .status(inv.getStatus())
                 .role(inv.getRole())
-                .permissions(inv.getPermissions())
+                .permissions(Objects.requireNonNullElse(inv.getPermissions(), new ArrayList<>()))
                 .expiresAt(inv.getExpiresAt())
                 .createdAt(inv.getCreatedAt())
                 .build();
