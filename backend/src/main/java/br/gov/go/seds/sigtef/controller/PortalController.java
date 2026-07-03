@@ -48,7 +48,6 @@ public class PortalController {
             @RequestHeader(value = "X-Entity-Id", required = false) UUID entityId,
             @RequestParam(required = false) String competence,
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String status,
             org.springframework.data.domain.Pageable pageable,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         

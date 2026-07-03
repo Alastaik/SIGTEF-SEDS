@@ -156,7 +156,7 @@ export function AccountabilityModal({ isOpen, onClose, execution, onSuccess }: A
 
   const handleRemoveDocument = async (id: string) => {
     try {
-      await accountabilityApi.deleteFiscalDocument(id);
+      await accountabilityApi.deleteFiscalDocument(execution.id, id);
       setDocuments(documents.filter(d => d.id !== id));
     } catch (error: any) {
       setErrorMsg(error?.response?.data?.message || 'Erro ao remover documento. Tente novamente.');

@@ -52,14 +52,21 @@ function DocumentSection({ agreementId, title, description, role, icon }: Docume
       <div className="p-6">
         {isUploading && (
           <div className="mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
-            <h4 className="text-sm font-medium text-slate-700 mb-4">Adicionar novo documento</h4>
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="text-sm font-medium text-slate-700">Adicionar novo documento</h4>
+              <button 
+                onClick={() => setIsUploading(false)}
+                className="text-sm text-slate-500 hover:text-slate-700 font-medium"
+              >
+                Cancelar
+              </button>
+            </div>
             <DocumentUploader
               ownerModule="AGREEMENT"
               linkedEntityType="AGREEMENT"
               linkedEntityId={agreementId}
               role={role}
-              onUploadComplete={handleUploadComplete}
-              onCancel={() => setIsUploading(false)}
+              onUploadSuccess={handleUploadComplete}
             />
           </div>
         )}
