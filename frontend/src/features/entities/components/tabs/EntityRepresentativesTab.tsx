@@ -146,7 +146,7 @@ export function EntityRepresentativesTab({ entity }: Props) {
                 </h3>
                 <p className="text-sm text-slate-500">{rep.email}</p>
                 <div className="mt-2 flex flex-wrap gap-1">
-                  {rep.permissions.map(p => (
+                  {(rep.permissions || []).map(p => (
                     <span key={p} className="text-[10px] bg-slate-50 border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded">
                       {p.replace(/_/g, ' ')}
                     </span>
