@@ -55,7 +55,7 @@ export function EntityList() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'ATIVA':
-        return <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-medium">Ativa</span>;
+        return <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-medium">Habilitada</span>;
       case 'INATIVA':
         return <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full text-xs font-medium">Inativa</span>;
       case 'SUSPENSA':

@@ -23,6 +23,10 @@ public class ReportFilterDTO {
     private java.time.LocalDate dataCadastroInicio;
     private java.time.LocalDate dataCadastroFim;
 
+    /** Filtrar total repassado por intervalo de anos (ex: 2019 a 2023). */
+    private Integer yearStart;
+    private Integer yearEnd;
+
     public enum ProgramMatchMode {
         EXACT,
         CONTAINS

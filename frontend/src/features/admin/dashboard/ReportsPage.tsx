@@ -35,7 +35,9 @@ export function ReportsPage() {
     minGlobal: '',
     maxGlobal: '',
     dataCadastroInicio: '',
-    dataCadastroFim: ''
+    dataCadastroFim: '',
+    yearStart: '',
+    yearEnd: ''
   });
 
   const buildParams = (page: number, filters: ReportFilter) => {
@@ -53,6 +55,8 @@ export function ReportsPage() {
     if (filters.maxGlobal) params.append('maxGlobal', filters.maxGlobal);
     if (filters.dataCadastroInicio) params.append('dataCadastroInicio', filters.dataCadastroInicio);
     if (filters.dataCadastroFim) params.append('dataCadastroFim', filters.dataCadastroFim);
+    if (filters.yearStart) params.append('yearStart', filters.yearStart);
+    if (filters.yearEnd) params.append('yearEnd', filters.yearEnd);
     filters.regioesIds?.forEach(id => params.append('regioesIds', id));
     filters.programIds?.forEach(id => params.append('programIds', id));
     return params.toString();
@@ -85,6 +89,14 @@ export function ReportsPage() {
   };
 
   const totalTransferred = data.reduce((acc, cur) => acc + (cur.totalTransferred || 0), 0);
+
+  const totalRepassadoLabel = (() => {
+    const { yearStart, yearEnd } = currentFilters;
+    if (yearStart && yearEnd) return `Total Repassado (${yearStart}–${yearEnd})`;
+    if (yearStart) return `Total Repassado (a partir de ${yearStart})`;
+    if (yearEnd) return `Total Repassado (até ${yearEnd})`;
+    return 'Total Repassado (global)';
+  })();
 
   const tabs: { key: Tab; label: string; icon: any }[] = [
     { key: 'entities', label: 'Entidades', icon: Building2 },
@@ -163,6 +175,7 @@ export function ReportsPage() {
                 <div>
                   <p className="text-xs font-medium text-slate-500">Total repassado (pág.)</p>
                   <h4 className="text-lg font-bold text-slate-800">{formatCurrency(totalTransferred)}</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">{totalRepassadoLabel}</p>
                 </div>
               </div>
             </div>
@@ -204,7 +217,7 @@ export function ReportsPage() {
                     <th className="px-4 py-3">Localidade</th>
                     <th className="px-4 py-3 text-center">Programas Ativos</th>
                     <th className="px-4 py-3 text-center">Termos (Ativos/Total)</th>
-                    <th className="px-4 py-3 text-right">Total Repassado</th>
+                    <th className="px-4 py-3 text-right">{totalRepassadoLabel}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -233,7 +246,7 @@ export function ReportsPage() {
                               item.status === 'ATIVA'
                                 ? 'bg-emerald-50 text-emerald-700'
                                 : 'bg-slate-100 text-slate-500'
-                            }`}>{item.status}</span>
+                            }`}>{item.status === 'ATIVA' ? 'Habilitada' : item.status}</span>
                           </div>
                         </td>
                         <td className="px-4 py-3 text-slate-500 text-xs">{item.cnpj}</td>

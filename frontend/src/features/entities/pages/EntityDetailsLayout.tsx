@@ -12,7 +12,8 @@ import {
   ArrowLeft,
   Zap,
   Shield,
-  Trash2
+  Trash2,
+  DollarSign
 } from 'lucide-react';
 import { RequirePermission } from '../../auth/RequirePermission';
 import { ConfirmDeleteModal } from '../../../components/ConfirmDeleteModal';
@@ -23,6 +24,7 @@ import { EntityResponsiblesTab } from '../components/tabs/EntityResponsiblesTab'
 import { EntityConsumerUnitsTab } from '../components/tabs/EntityConsumerUnitsTab';
 import { EntityHistoryTab } from '../components/tabs/EntityHistoryTab';
 import { EntityRepresentativesTab } from '../components/tabs/EntityRepresentativesTab';
+import { EntityFinancialTab } from '../components/tabs/EntityFinancialTab';
 
 export function EntityDetailsLayout() {
   const { id } = useParams<{ id: string }>();
@@ -70,7 +72,7 @@ export function EntityDetailsLayout() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'ATIVA': return <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-medium">Ativa</span>;
+      case 'ATIVA': return <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-medium">Habilitada</span>;
       case 'PENDENTE_VALIDACAO': return <span className="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full text-xs font-medium">Pendente Validação</span>;
       default: return <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full text-xs font-medium">{status}</span>;
     }
@@ -94,6 +96,7 @@ export function EntityDetailsLayout() {
     { path: 'contatos', label: 'Contatos', icon: <Phone size={18} /> },
     { path: 'responsaveis', label: 'Responsáveis Legais', icon: <Users size={18} /> },
     { path: 'acessos', label: 'Representantes e Acesso', icon: <Shield size={18} /> },
+    { path: 'financeiro', label: 'Financeiro', icon: <DollarSign size={18} /> },
     { path: 'unidades', label: 'Unidades Consumidoras', icon: <Zap size={18} /> },
     { path: 'notas', label: 'Observações', icon: <MessageSquare size={18} /> },
     { path: 'historico', label: 'Histórico', icon: <History size={18} /> },
@@ -179,6 +182,7 @@ export function EntityDetailsLayout() {
             <Route path="contatos" element={<EntityContactsTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
             <Route path="responsaveis" element={<EntityResponsiblesTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
             <Route path="acessos" element={<EntityRepresentativesTab entity={entity} />} />
+            <Route path="financeiro" element={<EntityFinancialTab entity={entity} />} />
             <Route path="unidades" element={<EntityConsumerUnitsTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
             <Route path="notas" element={<EntityHistoryTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
             <Route path="historico" element={<EntityHistoryTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />

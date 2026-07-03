@@ -44,18 +44,32 @@ public class ReportService {
     public Page<EntityReportDTO> getEntityReport(ReportFilterDTO filter, Pageable pageable) {
         Page<br.gov.go.seds.sigtef.model.RelatorioEntidadeView> views = viewRepository.findAll(br.gov.go.seds.sigtef.repository.specs.RelatorioEntidadeViewSpecs.withFilters(filter), pageable);
 
-        return views.map(v -> EntityReportDTO.builder()
-                .id(v.getEntidadeId())
-                .name(v.getRazaoSocial())
-                .cnpj(v.getCnpj())
-                .status(v.getStatusEntidade() != null ? v.getStatusEntidade().name() : "")
-                .city(v.getMunicipioSede() != null ? v.getMunicipioSede() : "")
-                .region(v.getRegiao() != null ? v.getRegiao() : "")
-                .activePrograms(v.getProgramasAtivos() != null ? java.util.Arrays.asList(v.getProgramasAtivos().split(",\\s*")) : new ArrayList<>())
-                .totalAgreements(0) // Obsoleted in complex reports, but could add to view if needed
-                .activeAgreements(0) // Obsoleted in complex reports
-                .totalTransferred(v.getTotalRecebidoGlobal())
-                .build());
+        boolean hasPeriodFilter = filter.getYearStart() != null || filter.getYearEnd() != null;
+        String ysStr = filter.getYearStart() != null ? String.valueOf(filter.getYearStart()) : null;
+        String yeStr = filter.getYearEnd() != null ? String.valueOf(filter.getYearEnd()) : null;
+
+        return views.map(v -> {
+            BigDecimal totalTransferred;
+            if (hasPeriodFilter) {
+                totalTransferred = monthlyExecutionRepository
+                        .sumTransferredByEntityAndPeriod(v.getEntidadeId(), ysStr, yeStr);
+                if (totalTransferred == null) totalTransferred = BigDecimal.ZERO;
+            } else {
+                totalTransferred = v.getTotalRecebidoGlobal();
+            }
+            return EntityReportDTO.builder()
+                    .id(v.getEntidadeId())
+                    .name(v.getRazaoSocial())
+                    .cnpj(v.getCnpj())
+                    .status(v.getStatusEntidade() != null ? v.getStatusEntidade().name() : "")
+                    .city(v.getMunicipioSede() != null ? v.getMunicipioSede() : "")
+                    .region(v.getRegiao() != null ? v.getRegiao() : "")
+                    .activePrograms(v.getProgramasAtivos() != null ? java.util.Arrays.asList(v.getProgramasAtivos().split(",\\s*")) : new ArrayList<>())
+                    .totalAgreements(0)
+                    .activeAgreements(0)
+                    .totalTransferred(totalTransferred)
+                    .build();
+        });
     }
 
     @Transactional(readOnly = true)
@@ -223,6 +237,54 @@ public class ReportService {
                 .resolvedAt(issue.getResolvedAt() != null ? issue.getResolvedAt().toLocalDate().toString() : "")
                 .overdue(issue.getDeadline() != null && issue.getDeadline().isBefore(LocalDate.now()) && issue.getStatus() != br.gov.go.seds.sigtef.model.IssueStatus.RESOLVED && issue.getStatus() != br.gov.go.seds.sigtef.model.IssueStatus.CANCELED)
                 .description(issue.getDescription())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public br.gov.go.seds.sigtef.dto.admin.EntityFinancialSummaryDTO getEntityFinancialSummary(
+            UUID entityId, Integer yearStart, Integer yearEnd) {
+
+        LegalEntity entity = legalEntityRepository.findById(entityId)
+                .orElseThrow(() -> new IllegalArgumentException("Entidade não encontrada: " + entityId));
+
+        String ysStr = yearStart != null ? String.valueOf(yearStart) : null;
+        String yeStr = yearEnd != null ? String.valueOf(yearEnd) : null;
+
+        BigDecimal total = monthlyExecutionRepository
+                .sumTransferredByEntityAndPeriod(entityId, ysStr, yeStr);
+        if (total == null) total = BigDecimal.ZERO;
+
+        // Breakdown por ano
+        List<br.gov.go.seds.sigtef.dto.admin.EntityFinancialSummaryDTO.YearSummary> byYear =
+                monthlyExecutionRepository
+                        .sumTransferredByEntityGroupedByYear(entityId, ysStr, yeStr)
+                        .stream()
+                        .map(row -> br.gov.go.seds.sigtef.dto.admin.EntityFinancialSummaryDTO.YearSummary.builder()
+                                .year(Integer.parseInt((String) row[0]))
+                                .total(row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO)
+                                .build())
+                        .collect(Collectors.toList());
+
+        // Breakdown por programa
+        List<br.gov.go.seds.sigtef.dto.admin.EntityFinancialSummaryDTO.ProgramSummary> byProgram =
+                monthlyExecutionRepository
+                        .sumTransferredByEntityGroupedByProgram(entityId, ysStr, yeStr)
+                        .stream()
+                        .map(row -> br.gov.go.seds.sigtef.dto.admin.EntityFinancialSummaryDTO.ProgramSummary.builder()
+                                .programName((String) row[0])
+                                .total(row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO)
+                                .build())
+                        .collect(Collectors.toList());
+
+        return br.gov.go.seds.sigtef.dto.admin.EntityFinancialSummaryDTO.builder()
+                .entityId(entityId)
+                .entityName(entity.getCorporateName())
+                .cnpj(entity.getCnpj())
+                .yearStart(yearStart)
+                .yearEnd(yearEnd)
+                .totalTransferred(total)
+                .byYear(byYear)
+                .byProgram(byProgram)
                 .build();
     }
 }

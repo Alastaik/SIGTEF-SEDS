@@ -68,7 +68,7 @@ export function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Entidades Ativas */}
+        {/* Entidades Habilitadas */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-blue-50 text-blue-600 rounded-lg">
@@ -77,7 +77,7 @@ export function AdminDashboard() {
             <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">+2 este mês</span>
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">Entidades Ativas</p>
+            <p className="text-sm font-medium text-slate-500">Entidades Habilitadas</p>
             <p className="text-2xl font-bold text-slate-800">{stats.totalActiveEntities}</p>
           </div>
         </div>

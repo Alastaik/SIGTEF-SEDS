@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,4 +63,55 @@ public interface MonthlyExecutionRepository extends JpaRepository<MonthlyExecuti
            "WHERE me.partnershipAgreementProgram.partnershipAgreement.legalEntity.id = :legalEntityId " +
            "AND me.status = :status")
     long countByLegalEntityIdAndStatus(@Param("legalEntityId") UUID legalEntityId, @Param("status") br.gov.go.seds.sigtef.model.MonthlyExecutionStatus status);
+
+    // --- Resumo Financeiro por Entidade e Período ---
+
+    /**
+     * Soma total repassado para uma entidade em um intervalo de anos (competence YYYY-MM).
+     * yearStart e yearEnd são opcionais: se nulos, não filtra por período.
+     */
+    @Query("SELECT COALESCE(SUM(me.transferredValue), 0) FROM MonthlyExecution me " +
+           "JOIN me.partnershipAgreementProgram pap " +
+           "JOIN pap.partnershipAgreement pa " +
+           "WHERE pa.legalEntity.id = :entityId " +
+           "AND (:yearStart IS NULL OR SUBSTRING(me.competence, 1, 4) >= :yearStart) " +
+           "AND (:yearEnd IS NULL OR SUBSTRING(me.competence, 1, 4) <= :yearEnd)")
+    BigDecimal sumTransferredByEntityAndPeriod(
+            @Param("entityId") UUID entityId,
+            @Param("yearStart") String yearStart,
+            @Param("yearEnd") String yearEnd);
+
+    /**
+     * Totais por ano para uma entidade, retornando [year(String), total(BigDecimal)].
+     */
+    @Query("SELECT SUBSTRING(me.competence, 1, 4), COALESCE(SUM(me.transferredValue), 0) " +
+           "FROM MonthlyExecution me " +
+           "JOIN me.partnershipAgreementProgram pap " +
+           "JOIN pap.partnershipAgreement pa " +
+           "WHERE pa.legalEntity.id = :entityId " +
+           "AND (:yearStart IS NULL OR SUBSTRING(me.competence, 1, 4) >= :yearStart) " +
+           "AND (:yearEnd IS NULL OR SUBSTRING(me.competence, 1, 4) <= :yearEnd) " +
+           "GROUP BY SUBSTRING(me.competence, 1, 4) " +
+           "ORDER BY SUBSTRING(me.competence, 1, 4) ASC")
+    List<Object[]> sumTransferredByEntityGroupedByYear(
+            @Param("entityId") UUID entityId,
+            @Param("yearStart") String yearStart,
+            @Param("yearEnd") String yearEnd);
+
+    /**
+     * Totais por programa para uma entidade, retornando [programName(String), total(BigDecimal)].
+     */
+    @Query("SELECT pap.program.name, COALESCE(SUM(me.transferredValue), 0) " +
+           "FROM MonthlyExecution me " +
+           "JOIN me.partnershipAgreementProgram pap " +
+           "JOIN pap.partnershipAgreement pa " +
+           "WHERE pa.legalEntity.id = :entityId " +
+           "AND (:yearStart IS NULL OR SUBSTRING(me.competence, 1, 4) >= :yearStart) " +
+           "AND (:yearEnd IS NULL OR SUBSTRING(me.competence, 1, 4) <= :yearEnd) " +
+           "GROUP BY pap.program.name " +
+           "ORDER BY SUM(me.transferredValue) DESC")
+    List<Object[]> sumTransferredByEntityGroupedByProgram(
+            @Param("entityId") UUID entityId,
+            @Param("yearStart") String yearStart,
+            @Param("yearEnd") String yearEnd);
 }

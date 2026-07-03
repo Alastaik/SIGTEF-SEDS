@@ -110,5 +110,14 @@ public class ReportController {
                     .body(exportService.exportIssuesToExcel(filter));
         }
     }
+
+    @GetMapping("/entities/{id}/financial-summary")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('GESTOR') or hasRole('SEDS')")
+    public ResponseEntity<br.gov.go.seds.sigtef.dto.admin.EntityFinancialSummaryDTO> getEntityFinancialSummary(
+            @PathVariable java.util.UUID id,
+            @RequestParam(required = false) Integer yearStart,
+            @RequestParam(required = false) Integer yearEnd) {
+        return ResponseEntity.ok(reportService.getEntityFinancialSummary(id, yearStart, yearEnd));
+    }
 }
 

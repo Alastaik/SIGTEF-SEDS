@@ -17,6 +17,8 @@ export interface ReportFilter {
   maxGlobal: string;
   dataCadastroInicio: string;
   dataCadastroFim: string;
+  yearStart: string;
+  yearEnd: string;
 }
 
 interface AdvancedFilterPanelProps {
@@ -40,7 +42,9 @@ export function AdvancedFilterPanel({ onFilter, loading }: AdvancedFilterPanelPr
     minGlobal: '',
     maxGlobal: '',
     dataCadastroInicio: '',
-    dataCadastroFim: ''
+    dataCadastroFim: '',
+    yearStart: '',
+    yearEnd: ''
   });
 
   const handleChange = (field: keyof ReportFilter, value: any) => {
@@ -67,7 +71,9 @@ export function AdvancedFilterPanel({ onFilter, loading }: AdvancedFilterPanelPr
       minGlobal: '',
       maxGlobal: '',
       dataCadastroInicio: '',
-      dataCadastroFim: ''
+      dataCadastroFim: '',
+      yearStart: '',
+      yearEnd: ''
     };
     setFilters(cleared);
     onFilter(cleared);
@@ -132,7 +138,7 @@ export function AdvancedFilterPanel({ onFilter, loading }: AdvancedFilterPanelPr
             onChange={(e) => handleChange('entityStatus', e.target.value)}
           >
             <option value="">Todos</option>
-            <option value="ATIVA">Ativa</option>
+            <option value="ATIVA">Habilitada</option>
             <option value="INATIVA">Inativa</option>
             <option value="SUSPENSA">Suspensa</option>
           </select>
@@ -179,6 +185,41 @@ export function AdvancedFilterPanel({ onFilter, loading }: AdvancedFilterPanelPr
           <div>
             <label className="block text-xs font-medium text-slate-600 mb-1">Data Cadastro Final</label>
             <input type="date" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={filters.dataCadastroFim} onChange={e => handleChange('dataCadastroFim', e.target.value)} />
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-slate-100 pt-4 mt-2">
+        <h4 className="text-sm font-semibold text-slate-700 mb-3">Período de Repasse (por ano)</h4>
+        <p className="text-xs text-slate-500 mb-3">
+          Filtra entidades e exibe o total repassado <strong>no intervalo de anos</strong> selecionado, em vez do global.
+        </p>
+        <div className="flex flex-wrap gap-4 items-end">
+          <div>
+            <label className="block text-xs font-medium text-slate-600 mb-1">Ano Início do Repasse</label>
+            <select
+              className="w-36 p-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500"
+              value={filters.yearStart}
+              onChange={e => handleChange('yearStart', e.target.value)}
+            >
+              <option value="">Todos</option>
+              {Array.from({ length: new Date().getFullYear() - 2010 + 1 }, (_, i) => 2010 + i)
+                .reverse()
+                .map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-600 mb-1">Ano Fim do Repasse</label>
+            <select
+              className="w-36 p-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500"
+              value={filters.yearEnd}
+              onChange={e => handleChange('yearEnd', e.target.value)}
+            >
+              <option value="">Todos</option>
+              {Array.from({ length: new Date().getFullYear() - 2010 + 1 }, (_, i) => 2010 + i)
+                .reverse()
+                .map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
           </div>
         </div>
       </div>

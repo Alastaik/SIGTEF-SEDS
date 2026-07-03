@@ -9,7 +9,8 @@ import {
   Activity,
   ArrowLeft,
   Trash2,
-  FilePlus
+  FilePlus,
+  Paperclip
 } from 'lucide-react';
 import { RequirePermission } from '../../auth/RequirePermission';
 import { ConfirmDeleteModal } from '../../../components/ConfirmDeleteModal';
@@ -17,6 +18,7 @@ import { AgreementGeneralTab } from '../components/tabs/AgreementGeneralTab';
 import { AgreementProgramsTab } from '../components/tabs/AgreementProgramsTab';
 import { AgreementValuesTab } from '../components/tabs/AgreementValuesTab';
 import { AgreementStatusTab } from '../components/tabs/AgreementStatusTab';
+import { AgreementDocumentsTab } from '../components/tabs/AgreementDocumentsTab';
 import { AgreementAddendumsList } from './AgreementAddendumsList';
 
 export function AgreementDetailsLayout() {
@@ -81,6 +83,7 @@ export function AgreementDetailsLayout() {
     { path: '', label: 'Dados Gerais', icon: <FileText size={18} /> },
     { path: 'programas', label: 'Programas Vinculados', icon: <ListChecks size={18} /> },
     { path: 'valores', label: 'Valores Pactuados', icon: <DollarSign size={18} /> },
+    { path: 'documentos', label: 'Documentos', icon: <Paperclip size={18} /> },
     { path: 'aditivos', label: 'Aditivos', icon: <FilePlus size={18} /> },
     { path: 'status', label: 'Evolução e Status', icon: <Activity size={18} /> },
   ];
@@ -163,6 +166,7 @@ export function AgreementDetailsLayout() {
             <Route path="" element={<AgreementGeneralTab agreement={agreement} onUpdate={() => fetchAgreement(agreement.id)} />} />
             <Route path="programas" element={<AgreementProgramsTab agreement={agreement} onUpdate={() => fetchAgreement(agreement.id)} />} />
             <Route path="valores" element={<AgreementValuesTab agreement={agreement} onUpdate={() => fetchAgreement(agreement.id)} />} />
+            <Route path="documentos" element={<AgreementDocumentsTab agreement={agreement} onUpdate={() => fetchAgreement(agreement.id)} />} />
             <Route path="aditivos" element={<AgreementAddendumsList agreement={agreement} onUpdate={() => fetchAgreement(agreement.id)} />} />
             <Route path="status" element={<AgreementStatusTab agreement={agreement} onUpdate={() => fetchAgreement(agreement.id)} />} />
           </Routes>
