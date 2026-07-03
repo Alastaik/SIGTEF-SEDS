@@ -49,8 +49,8 @@ export function EntityRepresentativesTab({ entity }: Props) {
         entityService.getRepresentatives(entity.id),
         entityService.getPendingInvitations(entity.id)
       ]);
-      setRepresentatives(reps);
-      setInvitations(invs);
+      setRepresentatives(reps || []);
+      setInvitations(invs || []);
     } catch (err) {
       console.error('Error fetching reps', err);
     } finally {
@@ -131,7 +131,7 @@ export function EntityRepresentativesTab({ entity }: Props) {
 
       <div className="space-y-4">
         {/* Active Representatives */}
-        {representatives.filter(r => r.status === 'ACTIVE').map(rep => (
+        {(representatives || []).filter(r => r.status === 'ACTIVE').map(rep => (
           <div key={rep.id} className="p-4 border border-slate-200 rounded-xl bg-white flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-emerald-50 rounded-full">
@@ -167,7 +167,7 @@ export function EntityRepresentativesTab({ entity }: Props) {
         ))}
 
         {/* Pending Invitations */}
-        {invitations.map(inv => (
+        {(invitations || []).map(inv => (
           <div key={inv.id} className="p-4 border border-dashed border-amber-300 rounded-xl bg-amber-50/50 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-amber-100 rounded-full">
@@ -199,7 +199,7 @@ export function EntityRepresentativesTab({ entity }: Props) {
           </div>
         ))}
 
-        {representatives.length === 0 && invitations.length === 0 && (
+        {(representatives || []).length === 0 && (invitations || []).length === 0 && (
           <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-xl">
             <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
             <h3 className="text-sm font-medium text-slate-800">Nenhum representante</h3>
