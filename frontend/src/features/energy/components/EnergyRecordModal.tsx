@@ -47,7 +47,7 @@ export function EnergyRecordModal({ isOpen, onClose, onSave, initialData, entity
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-emerald-950/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
         <div className="flex justify-between items-center p-4 border-b border-slate-200">
           <h2 className="text-lg font-semibold text-slate-800">

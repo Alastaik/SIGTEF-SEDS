@@ -75,7 +75,7 @@ export function AdminLayout() {
     <div className="h-screen bg-slate-50 flex overflow-hidden font-sans">
       {/* Sidebar */}
       <aside 
-        className={`${isCollapsed ? 'w-20' : 'w-72'} shrink-0 bg-[#0B1120] text-white flex flex-col h-full transition-all duration-300 relative z-20 border-r border-slate-800/60 shadow-2xl`}
+        className={`${isCollapsed ? 'w-20' : 'w-72'} shrink-0 bg-emerald-950 text-white flex flex-col h-full transition-all duration-300 relative z-20 border-r border-slate-800/60 shadow-2xl`}
       >
         {/* Toggle Button */}
         <button 
@@ -86,7 +86,7 @@ export function AdminLayout() {
         </button>
 
         {/* Logo Section */}
-        <div className={`p-6 border-b border-slate-800/60 flex flex-col items-center justify-center shrink-0 min-h-[140px] transition-all bg-gradient-to-b from-slate-900/50 to-transparent`}>
+        <div className={`p-6 border-b border-emerald-950/60 flex flex-col items-center justify-center shrink-0 min-h-[140px] transition-all bg-gradient-to-b from-emerald-950/50 to-transparent`}>
           {!isCollapsed ? (
             <>
               <img
@@ -95,12 +95,12 @@ export function AdminLayout() {
                 className="w-24 mb-4 object-contain brightness-0 invert opacity-90 transition-all duration-300 drop-shadow-md"
               />
               <div className="flex flex-col items-center">
-                <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-indigo-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">SIGTEF</h1>
-                <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-semibold">Gestão de Fomentos</p>
+                <h1 className="text-2xl font-black tracking-tight text-white drop-shadow-sm">SIGTEF</h1>
+                <p className="text-[10px] text-emerald-400/80 mt-1 uppercase tracking-widest font-semibold">Gestão de Fomentos</p>
               </div>
             </>
           ) : (
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-emerald-400 flex items-center justify-center shadow-lg font-black text-xl text-white">
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center shadow-lg font-black text-xl text-white">
               S
             </div>
           )}
@@ -239,7 +239,7 @@ export function AdminLayout() {
         </nav>
 
         {/* User Footer */}
-        <div className="p-4 border-t border-slate-800/60 bg-slate-900/30 backdrop-blur-sm">
+        <div className="p-4 border-t border-slate-800/60 bg-emerald-950/30 backdrop-blur-sm">
           {!isCollapsed ? (
             <div className="mb-4 px-2 flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold shrink-0">

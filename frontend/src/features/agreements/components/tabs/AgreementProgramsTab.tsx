@@ -394,7 +394,7 @@ export function AgreementProgramsTab({ agreement, onUpdate }: AgreementProgramsT
       </div>
 
       {simulatingProgramId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-emerald-950/50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-slate-200">
               <h3 className="font-semibold text-slate-800">Simular Cálculo</h3>

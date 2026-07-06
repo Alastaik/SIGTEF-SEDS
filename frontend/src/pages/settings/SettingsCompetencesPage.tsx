@@ -103,7 +103,7 @@ export function SettingsCompetencesPage() {
         </div>
         <button 
           onClick={handleCreate} disabled={creating}
-          className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50"
+          className="bg-emerald-950 hover:bg-slate-800 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50"
         >
           {creating ? 'Criando...' : 'Criar Competência'}
         </button>

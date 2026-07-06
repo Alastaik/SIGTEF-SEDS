@@ -173,7 +173,7 @@ export function AdminDashboard() {
         </div>
 
         {/* Valores */}
-        <div className="bg-slate-900 rounded-xl shadow-sm border border-slate-800 p-6 col-span-1 md:col-span-2 text-white">
+        <div className="bg-emerald-950 rounded-xl shadow-sm border border-slate-800 p-6 col-span-1 md:col-span-2 text-white">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-slate-800 text-emerald-400 rounded-lg">
               <Wallet size={24} />
