@@ -48,6 +48,16 @@ export const entityService = {
     return response.data;
   },
 
+  updateConsumerUnit: async (id: string, unitId: string, data: any) => {
+    const response = await api.put(`/admin/entities/${id}/consumer-units/${unitId}`, data);
+    return response.data;
+  },
+
+  deleteConsumerUnit: async (id: string, unitId: string) => {
+    const response = await api.delete(`/admin/entities/${id}/consumer-units/${unitId}`);
+    return response.data;
+  },
+
   addNote: async (id: string, data: any) => {
     const response = await api.post(`/admin/entities/${id}/notes`, data);
     return response.data;

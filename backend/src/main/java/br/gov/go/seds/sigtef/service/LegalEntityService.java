@@ -221,6 +221,39 @@ public class LegalEntityService {
     }
 
     @Transactional
+    public br.gov.go.seds.sigtef.model.LegalEntityConsumerUnit updateConsumerUnit(UUID entityId, UUID unitId, ConsumerUnitRequestDTO dto, User user) {
+        var uc = consumerUnitRepository.findById(unitId)
+                .orElseThrow(() -> new RuntimeException("Consumer unit not found"));
+        
+        if (!uc.getLegalEntity().getId().equals(entityId)) {
+            throw new RuntimeException("Consumer unit does not belong to this entity");
+        }
+
+        br.gov.go.seds.sigtef.model.DomainData provider = null;
+        if (dto.getProviderId() != null) {
+            provider = domainDataRepository.findById(dto.getProviderId()).orElse(null);
+        }
+
+        uc.setUtilityType(dto.getUtilityType());
+        uc.setProvider(provider);
+        uc.setUnitNumber(dto.getUnitNumber());
+        
+        return consumerUnitRepository.save(uc);
+    }
+
+    @Transactional
+    public void deleteConsumerUnit(UUID entityId, UUID unitId, User user) {
+        var uc = consumerUnitRepository.findById(unitId)
+                .orElseThrow(() -> new RuntimeException("Consumer unit not found"));
+        
+        if (!uc.getLegalEntity().getId().equals(entityId)) {
+            throw new RuntimeException("Consumer unit does not belong to this entity");
+        }
+
+        consumerUnitRepository.delete(uc);
+    }
+
+    @Transactional
     public br.gov.go.seds.sigtef.model.LegalEntityNote addNote(UUID entityId, NoteRequestDTO dto, User user) {
         LegalEntity entity = legalEntityRepository.findById(entityId).orElseThrow(() -> new RuntimeException("Entity not found"));
 

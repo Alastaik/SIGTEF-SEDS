@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import type { LegalEntity, UtilityType } from '../../types/entity';
+import type { LegalEntity, UtilityType, LegalEntityConsumerUnit } from '../../types/entity';
 import { entityService } from '../../services/entity.service';
-import { Plus, Zap, Droplet, Flame, Lightbulb } from 'lucide-react';
+import { Plus, Zap, Droplet, Flame, Lightbulb, Trash2, Edit2, AlertCircle } from 'lucide-react';
 
 interface Props {
   entity: LegalEntity;
@@ -15,11 +15,33 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   
+  // Edit & Delete states
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [ucToDelete, setUcToDelete] = useState<LegalEntityConsumerUnit | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [formData, setFormData] = useState({
     utilityType: 'ENERGIA' as UtilityType,
     unitNumber: '',
     providerId: '00000000-0000-0000-0000-000000000000', // Mock domain data ID
   });
+
+  const handleOpenModal = (uc?: LegalEntityConsumerUnit) => {
+    setError('');
+    if (uc) {
+      setEditingId(uc.id);
+      setFormData({
+        utilityType: uc.utilityType,
+        unitNumber: uc.unitNumber,
+        providerId: uc.provider?.id || '00000000-0000-0000-0000-000000000000',
+      });
+    } else {
+      setEditingId(null);
+      setFormData({ utilityType: 'ENERGIA', unitNumber: '', providerId: '00000000-0000-0000-0000-000000000000' });
+    }
+    setIsModalOpen(true);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,14 +49,39 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
     setIsSubmitting(true);
     setError('');
     try {
-      await entityService.addConsumerUnit(entityId, formData);
+      if (editingId) {
+        await entityService.updateConsumerUnit(entityId, editingId, formData);
+      } else {
+        await entityService.addConsumerUnit(entityId, formData);
+      }
       setIsModalOpen(false);
       onUpdate();
-      setFormData({ utilityType: 'ENERGIA', unitNumber: '', providerId: '00000000-0000-0000-0000-000000000000' });
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao salvar unidade consumidora');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteClick = (uc: LegalEntityConsumerUnit) => {
+    setUcToDelete(uc);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!ucToDelete || !entityId || isDeleting) return;
+    setIsDeleting(true);
+    try {
+      await entityService.deleteConsumerUnit(entityId, ucToDelete.id);
+      setDeleteModalOpen(false);
+      setUcToDelete(null);
+      onUpdate();
+    } catch (err: any) {
+      console.error('Failed to delete', err);
+      // Podes adicionar um toast de erro se tivermos, mas alert é fallback
+      alert('Erro ao excluir unidade consumidora.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -52,7 +99,7 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold text-slate-800">Unidades Consumidoras</h2>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => handleOpenModal()}
           className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
@@ -63,14 +110,35 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
       {entity.consumerUnits && entity.consumerUnits.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {entity.consumerUnits.map(uc => (
-            <div key={uc.id} className="p-4 border border-slate-200 rounded-xl hover:border-indigo-200 transition-colors bg-white">
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-slate-50 rounded-lg">
+            <div key={uc.id} className="p-4 border border-slate-200 rounded-xl hover:border-indigo-200 transition-colors bg-white group relative">
+              
+              {/* Action Buttons */}
+              <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button 
+                  onClick={() => handleOpenModal(uc)}
+                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                  title="Editar UC"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => handleDeleteClick(uc)}
+                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Excluir UC"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-start gap-4 pr-16">
+                <div className="p-2 bg-slate-50 rounded-lg shrink-0">
                   {getUtilityIcon(uc.utilityType)}
                 </div>
-                <div>
-                  <h3 className="font-medium text-slate-800">UC: {uc.unitNumber}</h3>
-                  <p className="text-sm text-slate-500 mt-1">Concessionária: {uc.provider?.name || 'Não informada'}</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-slate-800 truncate">UC: {uc.unitNumber}</h3>
+                  <p className="text-sm text-slate-500 mt-1 truncate" title={uc.provider?.name || 'Não informada'}>
+                    Concessionária: {uc.provider?.name || 'Não informada'}
+                  </p>
                   <p className="text-xs font-medium text-slate-400 mt-2 uppercase tracking-wider">
                     {uc.utilityType}
                   </p>
@@ -87,11 +155,52 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6">
+            <div className="flex items-center gap-3 text-red-600 mb-4">
+              <div className="p-2 bg-red-100 rounded-full">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900">Excluir Unidade Consumidora</h3>
+            </div>
+            
+            <p className="text-slate-600 mb-6">
+              Tem certeza que deseja excluir a UC <strong>{ucToDelete?.unitNumber}</strong>? 
+              Esta ação não poderá ser desfeita.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteModalOpen(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50"
+              >
+                {isDeleting ? 'Excluindo...' : 'Sim, excluir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-md">
             <div className="p-6 border-b border-slate-100">
-              <h3 className="text-lg font-semibold text-slate-800">Nova Unidade Consumidora</h3>
+              <h3 className="text-lg font-semibold text-slate-800">
+                {editingId ? 'Editar Unidade Consumidora' : 'Nova Unidade Consumidora'}
+              </h3>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {error && (
@@ -138,7 +247,7 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
                   disabled={isSubmitting}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Salvando...' : 'Salvar UC'}
+                  {isSubmitting ? 'Salvando...' : (editingId ? 'Atualizar UC' : 'Salvar UC')}
                 </button>
               </div>
             </form>

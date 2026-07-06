@@ -95,6 +95,22 @@ public class LegalEntityController {
         return ResponseEntity.ok(legalEntityService.addConsumerUnit(id, dto, getCurrentUser()));
     }
 
+    @PutMapping("/{id}/consumer-units/{unitId}")
+    @PreAuthorize("hasAuthority('entidades:editar') or hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<LegalEntityConsumerUnit> updateConsumerUnit(
+            @PathVariable UUID id, 
+            @PathVariable UUID unitId, 
+            @RequestBody ConsumerUnitRequestDTO dto) {
+        return ResponseEntity.ok(legalEntityService.updateConsumerUnit(id, unitId, dto, getCurrentUser()));
+    }
+
+    @DeleteMapping("/{id}/consumer-units/{unitId}")
+    @PreAuthorize("hasAuthority('entidades:editar') or hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<Void> deleteConsumerUnit(@PathVariable UUID id, @PathVariable UUID unitId) {
+        legalEntityService.deleteConsumerUnit(id, unitId, getCurrentUser());
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{id}/notes")
     @PreAuthorize("hasAuthority('entidades:editar') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<LegalEntityNote> addNote(@PathVariable UUID id, @RequestBody NoteRequestDTO dto) {
