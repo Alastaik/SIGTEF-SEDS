@@ -49,7 +49,6 @@ br\gov\go\seds\sigtef\model\LegalEntityAddress.class
 br\gov\go\seds\sigtef\dto\representative\InvitationResponseDTO$InvitationResponseDTOBuilder.class
 br\gov\go\seds\sigtef\model\ItemCategory.class
 br\gov\go\seds\sigtef\model\Holiday$HolidayBuilder.class
-br\gov\go\seds\sigtef\controller\GlobalExceptionHandler.class
 br\gov\go\seds\sigtef\model\Notification$NotificationBuilder.class
 br\gov\go\seds\sigtef\service\ItemService.class
 br\gov\go\seds\sigtef\dto\DocumentUploadRequest.class

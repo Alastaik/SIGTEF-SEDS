@@ -10,8 +10,8 @@ C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\DocumentController.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\DocumentTypeController.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\DomainDataController.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\EnergyController.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\FileController.java
-C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\GlobalExceptionHandler.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\HolidayController.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\ImportController.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\controller\ItemController.java
@@ -54,6 +54,10 @@ C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\DocumentResponse.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\DocumentReviewRequestDTO.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\DocumentUploadRequest.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\energy\EnergyDashboardDTO.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\energy\EnergyGlobalEntitySummaryDTO.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\energy\EnergyRecordDTO.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\energy\GlobalEnergyDashboardDTO.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\entity\AddressRequestDTO.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\entity\ConsumerUnitRequestDTO.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\dto\entity\ContactRequestDTO.java
@@ -108,6 +112,7 @@ C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\DocumentType.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\DomainData.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\EmailQueue.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\EnergyConsumptionRecord.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\AccountabilityStatus.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\AddendumStatus.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\AddendumType.java
@@ -133,9 +138,11 @@ C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\RepresentativeRole.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\RepresentativeStatus.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\RetentionPolicy.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\TariffFlag.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\enums\UtilityType.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\FiscalDocument.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\FiscalDocumentItem.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\GlobalEnergyTariffFlag.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\Holiday.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\ImportBatch.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\model\ImportRow.java
@@ -188,7 +195,9 @@ C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\DocumentTypeRepository.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\DomainDataRepository.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\EmailQueueRepository.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\EnergyConsumptionRecordRepository.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\FiscalDocumentRepository.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\GlobalEnergyTariffFlagRepository.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\HolidayRepository.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\ImportBatchRepository.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\repository\ImportRowRepository.java
@@ -241,6 +250,7 @@ C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\service\DashboardService.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\service\DocumentService.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\service\EmailService.java
+C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\service\EnergyService.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\service\ExportService.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\service\FileStorageService.java
 C:\Users\yuris\OneDrive\Desktop\GERAL\SEDS\SIGTEF-SEDS\backend\src\main\java\br\gov\go\seds\sigtef\service\ImportService.java

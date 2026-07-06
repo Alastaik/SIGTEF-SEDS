@@ -25,6 +25,7 @@ import { EntityConsumerUnitsTab } from '../components/tabs/EntityConsumerUnitsTa
 import { EntityHistoryTab } from '../components/tabs/EntityHistoryTab';
 import { EntityRepresentativesTab } from '../components/tabs/EntityRepresentativesTab';
 import { EntityFinancialTab } from '../components/tabs/EntityFinancialTab';
+import { EntityEnergyTab } from '../components/tabs/EntityEnergyTab';
 
 export function EntityDetailsLayout() {
   const { id } = useParams<{ id: string }>();
@@ -96,8 +97,9 @@ export function EntityDetailsLayout() {
     { path: 'contatos', label: 'Contatos', icon: <Phone size={18} /> },
     { path: 'responsaveis', label: 'Responsáveis Legais', icon: <Users size={18} /> },
     { path: 'acessos', label: 'Representantes e Acesso', icon: <Shield size={18} /> },
-    { path: 'financeiro', label: 'Financeiro', icon: <DollarSign size={18} /> },
+    { path: 'financeiro', label: 'Dados Bancários', icon: <DollarSign size={18} /> },
     { path: 'unidades', label: 'Unidades Consumidoras', icon: <Zap size={18} /> },
+    { path: 'energia', label: 'Auxílio Energia', icon: <Zap size={18} /> },
     { path: 'notas', label: 'Observações', icon: <MessageSquare size={18} /> },
     { path: 'historico', label: 'Histórico', icon: <History size={18} /> },
   ];
@@ -184,6 +186,7 @@ export function EntityDetailsLayout() {
             <Route path="acessos" element={<EntityRepresentativesTab entity={entity} />} />
             <Route path="financeiro" element={<EntityFinancialTab entity={entity} />} />
             <Route path="unidades" element={<EntityConsumerUnitsTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
+            <Route path="energia" element={<EntityEnergyTab entityId={entity.id} />} />
             <Route path="notas" element={<EntityHistoryTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
             <Route path="historico" element={<EntityHistoryTab entity={entity} onUpdate={() => fetchEntity(id!)} />} />
           </Routes>

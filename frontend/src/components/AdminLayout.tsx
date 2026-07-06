@@ -6,7 +6,7 @@ import {
   Users, Shield, LogOut, LayoutDashboard, Settings,
   Building2, FileText, CalendarDays, Bell, BarChart2,
   FileCheck, CheckSquare, FileUp, ChevronLeft, ChevronRight,
-  ChevronDown, AlertTriangle
+  ChevronDown, AlertTriangle, Zap
 } from 'lucide-react';
 
 export function AdminLayout() {
@@ -136,6 +136,13 @@ export function AdminLayout() {
               <Link to="/admin/executions" className={linkClass('/admin/executions')} title={isCollapsed ? "Lançamentos Mensais" : ""}>
                 <CalendarDays size={20} className={iconClass('/admin/executions')} />
                 {!isCollapsed && <span>Lançamentos Mensais</span>}
+              </Link>
+            </RequirePermission>
+
+            <RequirePermission permission="ROLE_SEDS">
+              <Link to="/admin/energy" className={linkClass('/admin/energy')} title={isCollapsed ? "Auxílio Energia" : ""}>
+                <Zap size={20} className={iconClass('/admin/energy')} />
+                {!isCollapsed && <span>Auxílio Energia</span>}
               </Link>
             </RequirePermission>
 

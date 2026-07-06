@@ -43,6 +43,7 @@ import { ReportsPage } from './features/admin/dashboard/ReportsPage';
 import { AuditPage } from './features/admin/AuditPage';
 import { InspectionsPage } from './features/admin/InspectionsPage';
 import { ImportsPage } from './features/admin/ImportsPage';
+import { EnergyOverviewPage } from './features/energy/pages/EnergyOverviewPage';
 import { Toaster } from 'react-hot-toast';
 
 import { PortalLayout } from './features/portal/components/PortalLayout';
@@ -114,6 +115,7 @@ function App() {
                   <Route path=":id/*" element={<AgreementDetailsLayout />} />
                 </Route>
                 <Route path="executions" element={<MonthlyExecutionsPage />} />
+                <Route path="energy" element={<EnergyOverviewPage />} />
                 <Route path="analysis" element={<AccountabilityAnalysisList />} />
                 <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="reports" element={<ReportsPage />} />
