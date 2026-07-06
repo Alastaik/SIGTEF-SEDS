@@ -7,6 +7,7 @@ import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "legal_entity_notes")
@@ -22,6 +23,7 @@ public class LegalEntityNote {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "legal_entity_id", nullable = false)
     private LegalEntity legalEntity;
