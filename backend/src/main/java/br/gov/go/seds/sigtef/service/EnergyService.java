@@ -171,6 +171,12 @@ public class EnergyService {
         dashboard.setYear(year);
         
         if (yearRecords.isEmpty()) {
+            dashboard.setTotalSpentYear(BigDecimal.ZERO);
+            dashboard.setTotalEntities(0L);
+            dashboard.setTotalRecords(0L);
+            dashboard.setMonthlyTotal(new java.util.LinkedHashMap<>());
+            dashboard.setFlagDistribution(new java.util.HashMap<>());
+            dashboard.setEntitySummaries(new java.util.ArrayList<>());
             return dashboard;
         }
 

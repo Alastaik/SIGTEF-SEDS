@@ -124,7 +124,7 @@ export function EnergyOverviewPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
-                    {dashboard.entitySummaries
+                    {(dashboard.entitySummaries ?? [])
                       .sort((a, b) => b.totalValue - a.totalValue)
                       .slice(0, 50)
                       .map((summary) => (
