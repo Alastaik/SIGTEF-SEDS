@@ -113,7 +113,7 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
             <div key={uc.id} className="p-4 border border-slate-200 rounded-xl hover:border-indigo-200 transition-colors bg-white group relative">
               
               {/* Action Buttons */}
-              <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-4 right-4 flex gap-1">
                 <button 
                   onClick={() => handleOpenModal(uc)}
                   className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
