@@ -81,7 +81,7 @@ export function EntityResponsiblesTab({ entity, onUpdate }: Props) {
                   <p className="text-sm text-slate-500 mt-1">{resp.role}</p>
                   
                   <div className="mt-3 space-y-1 text-sm text-slate-600">
-                    <p>CPF: {resp.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}</p>
+                    <p>CPF: {resp.cpf ? resp.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : 'Não informado'}</p>
                     <p>E-mail: {resp.email}</p>
                     <p>Telefone: {resp.phone}</p>
                   </div>
