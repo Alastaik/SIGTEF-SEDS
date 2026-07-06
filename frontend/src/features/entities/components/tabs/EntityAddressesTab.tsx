@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import type { LegalEntity, AddressType } from '../../types/entity';
 import { entityService } from '../../services/entity.service';
 import { MapPin, Plus, Search, Building2, Map, Home, FileText } from 'lucide-react';
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function EntityAddressesTab({ entity, onUpdate }: Props) {
+  const { id: entityId } = useParams<{ id: string }>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -47,7 +49,7 @@ export function EntityAddressesTab({ entity, onUpdate }: Props) {
     setIsSubmitting(true);
     setError('');
     try {
-      await entityService.addAddress(entity.id, {
+      await entityService.addAddress(entityId!, {
         ...formData,
         zipCode: cep.replace(/\D/g, ''),
         // Mocking a cityId for now since we don't have the city selector implemented

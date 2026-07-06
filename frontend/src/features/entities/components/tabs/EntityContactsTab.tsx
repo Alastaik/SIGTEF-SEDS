@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import type { LegalEntity, ContactType } from '../../types/entity';
 import { entityService } from '../../services/entity.service';
 import { Plus, Mail, Phone, Smartphone, MessageCircle, Building } from 'lucide-react';
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function EntityContactsTab({ entity, onUpdate }: Props) {
+  const { id: entityId } = useParams<{ id: string }>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -25,7 +27,7 @@ export function EntityContactsTab({ entity, onUpdate }: Props) {
     setIsSubmitting(true);
     setError('');
     try {
-      await entityService.addContact(entity.id, formData);
+      await entityService.addContact(entityId!, formData);
       setIsModalOpen(false);
       onUpdate();
       setFormData({ contactType: 'EMAIL', value: '', description: '', isMain: false });

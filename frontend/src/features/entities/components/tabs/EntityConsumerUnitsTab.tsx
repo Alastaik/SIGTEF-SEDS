@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import type { LegalEntity, UtilityType } from '../../types/entity';
 import { entityService } from '../../services/entity.service';
 import { Plus, Zap, Droplet, Flame, Lightbulb } from 'lucide-react';
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
+  const { id: entityId } = useParams<{ id: string }>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -21,12 +23,11 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (isSubmitting || !entityId) return;
     setIsSubmitting(true);
     setError('');
     try {
-      // If provider is missing or invalid, we handle it in backend (currently optional)
-      await entityService.addConsumerUnit(entity.id, formData);
+      await entityService.addConsumerUnit(entityId, formData);
       setIsModalOpen(false);
       onUpdate();
       setFormData({ utilityType: 'ENERGIA', unitNumber: '', providerId: '00000000-0000-0000-0000-000000000000' });

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import type { LegalEntity } from '../../types/entity';
 import { entityService } from '../../services/entity.service';
 import { History, MessageSquare, Send, CheckCircle2 } from 'lucide-react';
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function EntityHistoryTab({ entity, onUpdate }: Props) {
+  const { id: entityId } = useParams<{ id: string }>();
   const [note, setNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -18,7 +20,7 @@ export function EntityHistoryTab({ entity, onUpdate }: Props) {
     
     setIsSubmitting(true);
     try {
-      await entityService.addNote(entity.id, { note });
+      await entityService.addNote(entityId!, { note });
       setNote('');
       onUpdate();
     } catch (err) {

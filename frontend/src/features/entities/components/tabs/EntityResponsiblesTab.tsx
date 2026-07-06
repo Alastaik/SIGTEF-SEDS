@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import type { LegalEntity } from '../../types/entity';
 import { entityService } from '../../services/entity.service';
 import { Plus, Users, Shield, Calendar } from 'lucide-react';
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function EntityResponsiblesTab({ entity, onUpdate }: Props) {
+  const { id: entityId } = useParams<{ id: string }>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -38,7 +40,7 @@ export function EntityResponsiblesTab({ entity, onUpdate }: Props) {
     setIsSubmitting(true);
     setError('');
     try {
-      await entityService.addResponsible(entity.id, formData);
+      await entityService.addResponsible(entityId!, formData);
       setIsModalOpen(false);
       onUpdate();
       setFormData({
