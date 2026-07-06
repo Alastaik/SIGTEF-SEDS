@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import type { LegalEntity, UtilityType, LegalEntityConsumerUnit } from '../../types/entity';
 import { entityService } from '../../services/entity.service';
+import { api } from '../../../../lib/api';
 import { Plus, Zap, Droplet, Flame, Lightbulb, Trash2, Edit2, AlertCircle } from 'lucide-react';
 
 interface Props {
@@ -21,11 +22,25 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
   const [ucToDelete, setUcToDelete] = useState<LegalEntityConsumerUnit | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const [providers, setProviders] = useState<any[]>([]);
+
   const [formData, setFormData] = useState({
     utilityType: 'ENERGIA' as UtilityType,
     unitNumber: '',
-    providerId: '00000000-0000-0000-0000-000000000000', // Mock domain data ID
+    providerId: '',
   });
+
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        const response = await api.get('/domain-data/type/CONCESSIONARIA');
+        setProviders(response.data);
+      } catch (err) {
+        console.error('Erro ao carregar concessionárias', err);
+      }
+    };
+    fetchProviders();
+  }, []);
 
   const handleOpenModal = (uc?: LegalEntityConsumerUnit) => {
     setError('');
@@ -34,11 +49,11 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
       setFormData({
         utilityType: uc.utilityType,
         unitNumber: uc.unitNumber,
-        providerId: uc.provider?.id || '00000000-0000-0000-0000-000000000000',
+        providerId: uc.provider?.id || '',
       });
     } else {
       setEditingId(null);
-      setFormData({ utilityType: 'ENERGIA', unitNumber: '', providerId: '00000000-0000-0000-0000-000000000000' });
+      setFormData({ utilityType: 'ENERGIA', unitNumber: '', providerId: '' });
     }
     setIsModalOpen(true);
   };
@@ -48,11 +63,17 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
     if (isSubmitting || !entityId) return;
     setIsSubmitting(true);
     setError('');
+
+    const payload = {
+      ...formData,
+      providerId: formData.providerId === '' ? null : formData.providerId,
+    };
+
     try {
       if (editingId) {
-        await entityService.updateConsumerUnit(entityId, editingId, formData);
+        await entityService.updateConsumerUnit(entityId, editingId, payload);
       } else {
-        await entityService.addConsumerUnit(entityId, formData);
+        await entityService.addConsumerUnit(entityId, payload);
       }
       setIsModalOpen(false);
       onUpdate();
@@ -78,7 +99,6 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
       onUpdate();
     } catch (err: any) {
       console.error('Failed to delete', err);
-      // Podes adicionar um toast de erro se tivermos, mas alert é fallback
       alert('Erro ao excluir unidade consumidora.');
     } finally {
       setIsDeleting(false);
@@ -219,6 +239,20 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
                   <option value="AGUA">Água e Esgoto</option>
                   <option value="GAS">Gás Canalizado</option>
                   <option value="OUTRO">Outro</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Concessionária</label>
+                <select
+                  value={formData.providerId}
+                  onChange={e => setFormData({...formData, providerId: e.target.value})}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">Selecione uma concessionária...</option>
+                  {providers.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
                 </select>
               </div>
 
