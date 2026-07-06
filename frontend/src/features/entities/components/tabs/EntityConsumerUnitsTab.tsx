@@ -113,17 +113,17 @@ export function EntityConsumerUnitsTab({ entity, onUpdate }: Props) {
             <div key={uc.id} className="p-4 border border-slate-200 rounded-xl hover:border-indigo-200 transition-colors bg-white group relative">
               
               {/* Action Buttons */}
-              <div className="absolute top-4 right-4 flex gap-1">
+              <div className="absolute top-4 right-4 flex gap-2">
                 <button 
                   onClick={() => handleOpenModal(uc)}
-                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                  className="p-1.5 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
                   title="Editar UC"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button 
                   onClick={() => handleDeleteClick(uc)}
-                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                   title="Excluir UC"
                 >
                   <Trash2 className="w-4 h-4" />
