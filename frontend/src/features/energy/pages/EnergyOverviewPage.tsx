@@ -3,11 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { energyApi } from '../api';
 import { EnergyFlagBarChart } from '../components';
-import { DollarSign, Zap, Building2, Calendar } from 'lucide-react';
+import { DollarSign, Zap, Building2, Calendar, Download } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { RequirePermission } from '../../auth/RequirePermission';
 
 export function EnergyOverviewPage() {
   const [year, setYear] = useState(new Date().getFullYear());
+  const [isExporting, setIsExporting] = useState(false);
   const navigate = useNavigate();
 
   const { data: dashboard, isLoading } = useQuery({
@@ -16,6 +18,26 @@ export function EnergyOverviewPage() {
   });
 
   const formatCurrency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const blob = await energyApi.exportRecords(year);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `consumo_energia_global_${year}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error exporting data', error);
+      toast.error('Erro ao exportar os dados');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -36,6 +58,14 @@ export function EnergyOverviewPage() {
               return <option key={y} value={y}>{y}</option>;
             })}
           </select>
+          <button
+            onClick={handleExport}
+            disabled={isExporting}
+            className="ml-4 flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+          >
+            <Download size={18} />
+            {isExporting ? 'Exportando...' : 'Exportar CSV'}
+          </button>
         </div>
       </div>
 

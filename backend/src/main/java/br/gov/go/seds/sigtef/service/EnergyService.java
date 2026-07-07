@@ -88,6 +88,24 @@ public class EnergyService {
     }
 
     @Transactional(readOnly = true)
+    public List<EnergyRecordDTO> getGlobalRecords(int year) {
+        return energyRecordRepository.findByCompetenceYear(year).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<EnergyRecordDTO> getAllRecordsForExport(Integer year, UUID entityId) {
+        if (entityId != null) {
+            return getRecordsByEntity(entityId);
+        } else if (year != null) {
+            return getGlobalRecords(year);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    @Transactional(readOnly = true)
     public EnergyDashboardDTO getEntityDashboard(UUID entityId, int months) {
         LegalEntity entity = legalEntityRepository.findById(entityId)
                 .orElseThrow(() -> new IllegalArgumentException("Entidade não encontrada"));

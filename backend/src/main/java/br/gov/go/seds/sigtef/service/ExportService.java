@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
+import br.gov.go.seds.sigtef.dto.energy.EnergyRecordDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -247,5 +249,28 @@ public class ExportService {
             return "\"" + value.replace("\"", "\"\"") + "\"";
         }
         return value;
+    }
+
+    public byte[] exportEnergyRecordsToCsv(List<EnergyRecordDTO> data) {
+        StringBuilder sb = new StringBuilder();
+        // BOM para UTF-8
+        sb.append('\uFEFF');
+        // Cabeçalho
+        sb.append("Entidade;Unidade Consumidora;Competência;Quantidade (kWh);Bandeira Tarifária;Custo Unitário (R$);Valor Total (R$);Observações\n");
+
+        for (EnergyRecordDTO item : data) {
+            sb.append(escapeCsv(item.getLegalEntityName())).append(';');
+            sb.append(escapeCsv(item.getConsumerUnitNumber() != null ? item.getConsumerUnitNumber() : "")).append(';');
+            sb.append(escapeCsv(item.getCompetenceDisplay())).append(';');
+            
+            sb.append(escapeCsv(item.getKwhAmount() != null ? item.getKwhAmount().toString() : "0")).append(';');
+            sb.append(escapeCsv(item.getTariffFlag() != null ? item.getTariffFlag().name() : "")).append(';');
+            
+            sb.append(escapeCsv(item.getKwhUnitCost() != null ? item.getKwhUnitCost().toString().replace('.', ',') : "0")).append(';');
+            sb.append(escapeCsv(item.getTotalValue() != null ? item.getTotalValue().toString().replace('.', ',') : "0")).append(';');
+            
+            sb.append(escapeCsv(item.getNotes())).append('\n');
+        }
+        return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
 }

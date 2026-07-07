@@ -24,5 +24,16 @@ export const energyApi = {
   getGlobalDashboard: async (year: number): Promise<GlobalEnergyDashboard> => {
     const response = await api.get(`/energy/dashboard/global?year=${year}`);
     return response.data;
+  },
+
+  exportRecords: async (year?: number, entityId?: string): Promise<Blob> => {
+    const params = new URLSearchParams();
+    if (year) params.append('year', year.toString());
+    if (entityId) params.append('entityId', entityId);
+    
+    const response = await api.get(`/energy/reports/export?${params.toString()}`, {
+      responseType: 'blob'
+    });
+    return response.data;
   }
 };

@@ -6,9 +6,8 @@ import { energyApi } from '../../../energy/api';
 import type { EnergyRecord } from '../../../energy/types';
 import { 
   TariffFlagBadge, 
-  EnergyStatsCards, 
-  EnergyConsumptionChart, 
-  EnergyRecordModal 
+  EnergyRecordModal,
+  EnergyEntityBI
 } from '../../../energy/components';
 import { api } from '../../../../lib/api';
 
@@ -20,6 +19,7 @@ export function EntityEnergyTab({ entityId }: Props) {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<EnergyRecord | undefined>(undefined);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Fetch dashboard data
   const { data: dashboard, isLoading: isDashboardLoading } = useQuery({
@@ -78,6 +78,26 @@ export function EntityEnergyTab({ entityId }: Props) {
     setIsModalOpen(true);
   };
 
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const blob = await energyApi.exportRecords(undefined, entityId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `consumo_energia_entidade.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error exporting data', error);
+      toast.error('Erro ao exportar os dados');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (isDashboardLoading) {
     return <div className="p-8 text-center text-slate-500">Carregando dados de energia...</div>;
   }
@@ -89,23 +109,28 @@ export function EntityEnergyTab({ entityId }: Props) {
           <h2 className="text-lg font-semibold text-slate-800">Auxílio Energia</h2>
           <p className="text-sm text-slate-500">Acompanhamento e lançamento de contas de energia</p>
         </div>
-        <button
-          onClick={handleAddNew}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Lançamento
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExport}
+            disabled={isExporting}
+            className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            {isExporting ? 'Exportando...' : 'Exportar CSV'}
+          </button>
+          <button
+            onClick={handleAddNew}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Lançamento
+          </button>
+        </div>
       </div>
 
       {dashboard && dashboard.records.length > 0 ? (
         <>
-          <EnergyStatsCards dashboard={dashboard} />
-          
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h3 className="text-base font-semibold text-slate-800 mb-4">Histórico de Consumo</h3>
-            <EnergyConsumptionChart dashboard={dashboard} />
-          </div>
+          <EnergyEntityBI dashboard={dashboard} />
 
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="p-4 border-b border-slate-200 flex justify-between items-center">
