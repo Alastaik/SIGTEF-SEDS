@@ -35,6 +35,14 @@ const IMPORT_EXAMPLES: Record<string, { description: string, columns: string[], 
       ["2024000111222", "OB2024001", "100000.00", "2024-03-01", "12345-6"],
       ["2024000333444", "OB2024002", "50000.00", "2024-03-15", "98765-4"]
     ]
+  },
+  ENERGY_RECORDS: {
+    description: "Faturas de energia (Auxílio Energia) vinculadas às Unidades Consumidoras das entidades.",
+    columns: ["cnpj_entidade", "numero_uc", "mes_referencia", "ano_referencia", "consumo_kwh", "valor_total", "bandeira_tarifaria"],
+    rows: [
+      ["11.222.333/0001-44", "100200300", "5", "2024", "1500.5", "1250.75", "VERDE"],
+      ["55.666.777/0001-88", "400500600", "5", "2024", "800.0", "750.20", "VERMELHA_PATAMAR_1"]
+    ]
   }
 };
 
@@ -115,6 +123,7 @@ export function ImportWizard({ onClose, onSuccess }: ImportWizardProps) {
                   <option value="REPRESENTATIVES">Representantes (Vínculos)</option>
                   <option value="PARTNERSHIP_AGREEMENTS">Termos de Fomento</option>
                   <option value="FINANCIAL_TRANSFERS">Repasses Financeiros</option>
+                  <option value="ENERGY_RECORDS">Auxílio Energia (Faturas)</option>
                 </select>
               </div>
 
