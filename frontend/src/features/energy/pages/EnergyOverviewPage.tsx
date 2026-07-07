@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { energyApi } from '../api';
-import { EnergyFlagBarChart } from '../components';
-import { DollarSign, Zap, Building2, Calendar, Download } from 'lucide-react';
+import { EnergyGlobalBI } from '../components';
+import { Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { RequirePermission } from '../../auth/RequirePermission';
 
@@ -73,73 +73,9 @@ export function EnergyOverviewPage() {
         <div className="text-center py-12 text-slate-500">Carregando painel global...</div>
       ) : dashboard ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-xl p-4 border border-slate-200">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Gasto Total ({year})</p>
-                  <h3 className="text-xl font-bold text-slate-800 mt-1">
-                    {formatCurrency(dashboard.totalSpentYear)}
-                  </h3>
-                </div>
-                <div className="p-2 bg-blue-50 rounded-lg">
-                  <DollarSign className="w-5 h-5 text-blue-600" />
-                </div>
-              </div>
-            </div>
+          <EnergyGlobalBI dashboard={dashboard} />
 
-            <div className="bg-white rounded-xl p-4 border border-slate-200">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Entidades Atendidas</p>
-                  <h3 className="text-xl font-bold text-slate-800 mt-1">
-                    {dashboard.totalEntities}
-                  </h3>
-                </div>
-                <div className="p-2 bg-emerald-50 rounded-lg">
-                  <Building2 className="w-5 h-5 text-emerald-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-4 border border-slate-200">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Total de Registros</p>
-                  <h3 className="text-xl font-bold text-slate-800 mt-1">
-                    {dashboard.totalRecords}
-                  </h3>
-                </div>
-                <div className="p-2 bg-amber-50 rounded-lg">
-                  <Calendar className="w-5 h-5 text-amber-500" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-xl p-4 border border-slate-200">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Média por Entidade</p>
-                  <h3 className="text-xl font-bold text-slate-800 mt-1">
-                    {dashboard.totalEntities > 0 
-                      ? formatCurrency(dashboard.totalSpentYear / dashboard.totalEntities) 
-                      : 'R$ 0,00'}
-                  </h3>
-                </div>
-                <div className="p-2 bg-purple-50 rounded-lg">
-                  <Zap className="w-5 h-5 text-purple-600" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-              <h3 className="text-base font-semibold text-slate-800 mb-4">Distribuição de Bandeiras</h3>
-              <EnergyFlagBarChart flagDistribution={dashboard.flagDistribution} />
-            </div>
-
-            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm flex flex-col">
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm flex flex-col mt-6">
               <div className="p-4 border-b border-slate-200">
                 <h3 className="text-base font-semibold text-slate-800">Maiores Consumidores</h3>
               </div>
@@ -175,7 +111,6 @@ export function EnergyOverviewPage() {
                 </table>
               </div>
             </div>
-          </div>
         </>
       ) : null}
     </div>

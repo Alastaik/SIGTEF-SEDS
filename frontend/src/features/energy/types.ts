@@ -49,4 +49,5 @@ export interface GlobalEnergyDashboard {
   monthlyTotal: Record<string, number>;
   flagDistribution: Record<string, number>;
   entitySummaries: EnergyGlobalEntitySummary[];
+  records: EnergyRecord[];
 }

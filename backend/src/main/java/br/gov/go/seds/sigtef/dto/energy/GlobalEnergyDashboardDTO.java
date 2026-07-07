@@ -23,4 +23,5 @@ public class GlobalEnergyDashboardDTO {
     private Map<String, Integer> flagDistribution;
     
     private List<EnergyGlobalEntitySummaryDTO> entitySummaries;
+    private List<EnergyRecordDTO> records;
 }

@@ -195,6 +195,7 @@ public class EnergyService {
             dashboard.setMonthlyTotal(new java.util.LinkedHashMap<>());
             dashboard.setFlagDistribution(new java.util.HashMap<>());
             dashboard.setEntitySummaries(new java.util.ArrayList<>());
+            dashboard.setRecords(new java.util.ArrayList<>());
             return dashboard;
         }
 
@@ -235,6 +236,7 @@ public class EnergyService {
         dashboard.setMonthlyTotal(monthlyTotal);
         dashboard.setFlagDistribution(flagDist);
         dashboard.setEntitySummaries(new ArrayList<>(entitySummaries.values()));
+        dashboard.setRecords(yearRecords.stream().map(this::mapToDTO).collect(java.util.stream.Collectors.toList()));
 
         return dashboard;
     }
